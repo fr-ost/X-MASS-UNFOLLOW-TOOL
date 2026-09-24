@@ -2,36 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Settings — Unfollow Manager</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Console settings</title>
+  <script src="theme-boot.js"></script>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <main class="wrap">
 
-    <!-- Masthead -->
-    <header class="masthead">
-      <div class="mast-left">
-        <div class="logo"><span class="logo-mark">U</span></div>
-        <div>
-          <h1>Settings <em>&amp;</em> Preferences</h1>
-          <p class="kicker">Configure speed · limits · filters · cleanup</p>
+    <header class="bezel">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8.2 15.8 15.8 8.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <h1>Console settings</h1>
+          <p>Limits &middot; pacing &middot; filters &middot; scoring</p>
         </div>
       </div>
-      <span class="edition">v5.0 · Editorial Edition</span>
+      <span class="edition" id="edition">v6.14.0</span>
     </header>
 
-    <hr class="rule rule-thick">
-    <hr class="rule rule-thin">
-
-    <!-- SESSION CONTROLS -->
+    <!-- 01 SAFETY LIMITS -->
     <section class="card">
       <header class="card-head">
-        <span class="section-num">01</span>
-        <h2>Session Controls</h2>
-        <p>Throttle how aggressively the script acts. Higher delays mean safer sessions.</p>
+        <span class="eyebrow">Limits</span>
+        <h2>How much, how fast</h2>
+        <p>X counts follows and unfollows in one shared bucket: roughly 400 actions a day on a free account, 1,000 on Premium. Those are the ceilings where you get blocked, not targets. Accounts that stay under about 100&ndash;150 a day, spread out, almost never get flagged. These budgets carry across sessions and browser restarts.</p>
+      </header>
+      <div class="grid">
+        <label>
+          <span>Daily budget <em>(actions per 24h)</em></span>
+          <input id="dailyLimit" type="number" min="0" max="100000">
+          <small class="hint">Rolling 24 hours. <b>Set to 0 for no limit.</b> You will still get a warning at 400, 700, 1000 and 1500 actions in a day - X commonly limits accounts around those volumes.</small>
+        </label>
+        <label>
+          <span>Short-term budget <em>(per 15 min)</em></span>
+          <input id="windowLimit" type="number" min="0" max="100000">
+          <small class="hint">Bursts are what look robotic. Set to 0 for no limit. </small>
+        </label>
+        <label>
+          <span>Max unfollows per session</span>
+          <input id="maxActions" type="number" min="0" max="100000">
+        </label>
+        <label>
+          <span>Session time limit <em>(minutes)</em></span>
+          <input id="maxSessionMinutes" type="number" min="0" max="100000">
+          <small class="hint">Set to 0 for no limit. </small>
+        </label>
+      </div>
+
+      <label class="toggle">
+        <input id="stopOnChallenge" type="checkbox">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="text">
+          <b>Stop when X shows a challenge</b>
+          <small>Halts on captcha, lockout, sign-out or rate limiting, then refuses to restart for 45 minutes. Leave this on. Clicking through a challenge is what turns a temporary limit into a locked account.</small>
+        </span>
+      </label>
+
+      <label class="toggle">
+        <input id="humanPacing" type="checkbox">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="text">
+          <b>Irregular pacing</b>
+          <small>Varies delays and scroll distances, and slips in the occasional longer pause, so the rhythm is not perfectly regular.</small>
+        </span>
+      </label>
+
+      <label class="toggle">
+        <input id="infiniteMode" type="checkbox">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="text">
+          <b>Continuous mode</b>
+          <small><b>Off by default.</b> Turn this on only if you want the run to keep going past X's pagination limit. When the loaded list is exhausted it will <b>reload the page</b> and sweep again, repeatedly, until you press Stop. That page refresh is deliberate but disorienting if you are not expecting it, which is why it is no longer the default. With this off, the run works through the list and then stops and tells you it is done. Safety halts apply either way.</small>
+        </span>
+      </label>
+
+      <label>
+        <span>Re-scan interval <em>(minutes)</em></span>
+        <input id="idleRescanMinutes" type="number" min="1" max="120">
+        <small class="hint">How long to wait before sweeping the list again after a pass that found nobody to remove.</small>
+      </label>
+
+      <label class="toggle">
+        <input id="allowAnyPage" type="checkbox">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="text">
+          <b>Allow running outside follow lists</b>
+          <small>Off by default. Turning this on lets a session start on any X page, including the timeline, which is what caused the endless scrolling in older versions.</small>
+        </span>
+      </label>
+    </section>
+
+    <!-- 02 SESSION CONTROLS -->
+    <section class="card">
+      <header class="card-head">
+        <span class="eyebrow">Pacing</span>
+        <h2>Rhythm within a run</h2>
+        <p>Pacing within a session. Longer delays mean safer sessions.</p>
       </header>
       <div class="grid">
         <label>
@@ -43,12 +114,9 @@
           <input id="maxDelay" type="number" min="5" max="600">
         </label>
         <label>
-          <span>Max unfollows per session</span>
-          <input id="maxActions" type="number" min="1" max="1000">
-        </label>
-        <label>
           <span>Cooldown after <em>N</em> actions</span>
-          <input id="cooldownAfter" type="number" min="1" max="100">
+          <input id="cooldownAfter" type="number" min="0" max="100">
+          <small class="hint">Set to 0 to turn cooldowns off.</small>
         </label>
         <label>
           <span>Cooldown duration <em>(minutes)</em></span>
@@ -61,12 +129,12 @@
       </div>
     </section>
 
-    <!-- PROTECTION FILTERS -->
+    <!-- 03 PROTECTION FILTERS -->
     <section class="card">
       <header class="card-head">
-        <span class="section-num">02</span>
-        <h2>Protection Filters</h2>
-        <p>Whitelist accounts that should never be unfollowed.</p>
+        <span class="eyebrow">Protection</span>
+        <h2>Who never gets unfollowed</h2>
+        <p>Accounts that should never be unfollowed.</p>
       </header>
 
       <label class="toggle">
@@ -74,7 +142,7 @@
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
           <b>Skip verified accounts</b>
-          <small>Protects blue-check / verified users from being unfollowed.</small>
+          <small>Leaves accounts with a verification badge alone.</small>
         </span>
       </label>
 
@@ -82,8 +150,8 @@
         <input id="skipProtected" type="checkbox">
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
-          <b>Skip protected / private accounts</b>
-          <small>Avoid accounts marked as protected.</small>
+          <b>Skip private accounts</b>
+          <small>Once you unfollow a private account you have to request access again.</small>
         </span>
       </label>
 
@@ -92,16 +160,22 @@
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
           <b>Skip people who follow me</b>
-          <small>Preserve mutual / follow-back relationships.</small>
+          <small>Keeps mutual connections in Unfollow All mode.</small>
         </span>
+      </label>
+
+      <label>
+        <span>Never unfollow these handles</span>
+        <input id="whitelistHandles" type="text" placeholder="@friend, @client, @cofounder">
+        <small class="hint">Exact handles, comma separated. The @ is optional. Checked before every other filter.</small>
       </label>
 
       <label class="toggle">
         <input id="reloadOnStop" type="checkbox">
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
-          <b>Reload page on stop</b>
-          <small>Refresh the X tab when the session ends.</small>
+          <b>Reload page when a session ends</b>
+          <small>Refreshes the X tab after a normal finish.</small>
         </span>
       </label>
 
@@ -109,42 +183,56 @@
         <input id="soundEnabled" type="checkbox">
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
-          <b>Sound alert</b>
-          <small>Soft beep after each successful unfollow.</small>
+          <b>Sound alerts</b>
+          <small>A soft beep per unfollow, and a distinct two-tone alarm if X interrupts the session.</small>
         </span>
       </label>
     </section>
 
-    <!-- SMART CLEANUP -->
+    <!-- 04 MONI SCORE CLEANUP -->
     <section class="card">
       <header class="card-head">
-        <span class="section-num">03</span>
-        <h2>Smart Cleanup</h2>
-        <p>Quality-score each account; only unfollow likely low-value or spam-like profiles.</p>
+        <span class="eyebrow">Scoring</span>
+        <h2>Moni score cleanup</h2>
+        <p>Replaces the old Smart Cleanup. Uses the Smart Followers score that the Moni extension adds next to each account on X. The dedicated button on the popup unfollows everyone scoring below your threshold, including accounts that follow you back. Run Preview first to see who it would remove before anything happens. Requires the Moni extension: if it is missing, the popup will point you to install it.</p>
       </header>
 
+      <label>
+        <span>Minimum score to keep</span>
+        <input id="moniMinScore" type="number" min="0" max="100000">
+        <small class="hint">Accounts scoring below this are unfollowed. Accounts at or above it are kept. From the screenshot examples, a threshold of 10 would remove scores of 0 and 7 but keep 13, 15 and 245.</small>
+      </label>
+
       <label class="toggle">
-        <input id="smartSelection" type="checkbox">
+        <input id="whitelistProtectVerified" type="checkbox">
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
-          <b>Smart low-quality selection</b>
-          <small>Score each row and only unfollow if it crosses the threshold.</small>
+          <b>Still keep verified accounts</b>
+          <small>When on, verified accounts are never removed in Moni mode even if their score is below the threshold. Your handle whitelist in section 03 is always honored too.</small>
         </span>
       </label>
 
-      <label>
-        <span>Cleanup strictness <em>(1 – 100)</em></span>
-        <input id="cleanupThreshold" type="number" min="1" max="100" value="55">
-        <small class="hint">Higher = stricter (fewer accounts unfollowed). 55 is a balanced default.</small>
+      <label class="toggle">
+        <input id="moniHoverProbe" type="checkbox">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="text">
+          <b>Look up missing scores from the profile card</b>
+          <small>Moni does not always add a score to the list row. When one is missing, this hovers that account to open its profile card, reads the score from there, then closes it. Each account is checked once per run and the result is remembered. Leave this on, or accounts with no visible score get skipped instead of judged. It does make runs slower, because every lookup asks X for a profile.</small>
+        </span>
       </label>
+
+      <p class="hint" style="margin-top:4px">
+        Moni scores load a moment after each row appears, so the tool waits for them before acting and, if none show up, tells you Moni is missing. Get it at
+        <a href="https://extension.getmoni.io/" target="_blank" rel="noopener" style="color:var(--accent)">extension.getmoni.io</a>.
+      </p>
     </section>
 
-    <!-- KEYWORD PROTECTION -->
+    <!-- 05 KEYWORD PROTECTION -->
     <section class="card">
       <header class="card-head">
-        <span class="section-num">04</span>
-        <h2>Keyword Protection</h2>
-        <p>Manually shield accounts whose bio or name contains certain words.</p>
+        <span class="eyebrow">Keywords</span>
+        <h2>Shield by word</h2>
+        <p>Shield accounts whose name or bio contains certain words.</p>
       </header>
 
       <label class="toggle">
@@ -152,42 +240,62 @@
         <span class="track"><span class="thumb"></span></span>
         <span class="text">
           <b>Protect keyword accounts</b>
-          <small>Skip accounts whose row text contains any of the keywords below.</small>
+          <small>Skips any account whose row text contains one of the keywords below.</small>
         </span>
       </label>
 
       <label>
-        <span>Protected keywords <em>(comma-separated)</em></span>
+        <span>Protected keywords <em>(comma separated)</em></span>
         <input id="protectedKeywords" type="text" placeholder="project, team, partner, founder, exchange">
       </label>
     </section>
 
-    <!-- CONTACT -->
+    <!-- 06 CONTACT -->
     <section class="card card-contact">
       <header class="card-head">
-        <span class="section-num">05</span>
-        <h2>Contact &amp; Support</h2>
-        <p>Issues? Suggestions? Reach the developer.</p>
+        <span class="eyebrow">Support</span>
+        <h2>Reach the developer</h2>
+        <p>Issues or suggestions? Reach the developer.</p>
       </header>
       <a class="contact-link" href="https://t.me/igfrostt" target="_blank" rel="noopener">
         <span class="contact-eyebrow">Direct line</span>
-        <span class="contact-handle">Telegram · @igfrostt</span>
-        <span class="contact-arrow">→</span>
+        <span class="contact-handle">Telegram &middot; @igfrostt</span>
+        <span class="contact-arrow">&rarr;</span>
       </a>
     </section>
 
-    <!-- SAVE BAR -->
+
+    <section class="card">
+      <header class="card-head">
+        <span class="eyebrow">Privacy</span>
+        <h2>What this extension reports</h2>
+        <p>So you know exactly what leaves your browser, here is the complete list. It is sent anonymously and is not tied to your X account.</p>
+      </header>
+
+      <ul class="disclosure">
+        <li><b>A random ID</b> generated on your device at install. It is not derived from you, your account or your hardware.</li>
+        <li><b>Extension version, browser, operating system and language</b>, so the developer knows which builds to support.</li>
+        <li><b>An approximate location</b> (country and city) worked out from your IP address on the server. Your IP address itself is never stored.</li>
+        <li><b>Run totals</b>: which mode was used, how many accounts it unfollowed, how long it took, and whether X interrupted it.</li>
+      </ul>
+
+      <div class="tele-test">
+        <button id="telemetryTest" class="reset-btn" type="button">Test connection</button>
+        <span id="telemetryTestResult" class="tele-result">&nbsp;</span>
+      </div>
+
+      <p class="hint"><b>Never sent:</b> your X handle, any account you follow or unfollow, your archive, page contents, or your X password, which this extension never has. Everything in your archive stays on this device and is erased when you clear it or remove the extension.</p>
+    </section>
+
     <div class="save-bar">
-      <button id="save" class="save-btn">
-        <span>Save Settings</span>
-        <span class="save-arrow">→</span>
-      </button>
+      <button id="save" class="save-btn"><span>Save settings</span><span class="save-arrow">&rsaquo;</span></button>
+      <button id="reset" class="reset-btn">Reset to safe defaults</button>
       <div id="status" class="save-status"></div>
     </div>
 
     <footer class="colophon">
-      <span>X Unfollow Manager Pro</span>
-      <span>·</span>
+      <span>Unfollow Console</span>
+      <span>&middot;</span>
       <span>Designed by <b>Shahriar Ahmed</b></span>
     </footer>
   </main>

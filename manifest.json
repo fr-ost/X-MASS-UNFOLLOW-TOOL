@@ -1,18 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "X Mass Unfollow Elite",
-  "version": "5.0.0",
-  "description": "Controlled X unfollow manager with smart filters, background-safe timer, analytics, CSV export, profile greeting and live badge.",
+  "name": "X (Twitter) Mass Unfollow Tool - Bulk Following Cleaner",
+  "version": "6.28.0",
+  "description": "X/Twitter unfollow manager with bulk unfollow, non-followers cleaner, smart filters, safety limits, analytics & CSV export",
   "permissions": [
     "activeTab",
-    "tabs",
     "storage",
     "alarms",
-    "offscreen"
+    "sidePanel"
   ],
   "host_permissions": [
     "https://x.com/*",
-    "https://twitter.com/*"
+    "https://twitter.com/*",
+    "https://abs.twimg.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -39,16 +39,35 @@
         "https://twitter.com/*"
       ],
       "js": [
+        "graphql.js",
+        "listrun.js",
         "content.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
+  "commands": {
+    "emergency-stop": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Emergency stop the running unfollow session"
+    }
+  },
   "web_accessible_resources": [
     {
-      "resources": ["offscreen.html"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "worker.js"
+      ],
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ]
     }
   ],
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
 }
