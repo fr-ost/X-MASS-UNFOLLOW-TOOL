@@ -199,8 +199,9 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
         const card = j.placement === "card";
         return send(res, 200, { ad: {
           format: card ? "card" : "banner", impressionId: "imp-" + M.log.ads, extensionName: "X Mass Unfollow",
-          text: card ? "Inbox Zero, finally.\nTry Sortly free for 30 days." : "Sortly cleans your inbox while you sleep - try it free.",
-          linkRanges: card ? [{ start: 25, end: 31 }] : [{ start: 0, end: 6 }],
+          // Placeholder copy: never a real advertiser's name.
+          text: card ? "Your product here.\nReach people who use X every day." : "Your product here - reach people who use X every day.",
+          linkRanges: card ? [{ start: 0, end: 12 }] : [{ start: 0, end: 12 }],
           clickUrl: "/click/1", iconUrl: "https://pbs.twimg.com/profile_images/ad/logo_normal.png"
         } }, cors);
       }

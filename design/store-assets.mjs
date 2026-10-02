@@ -17,6 +17,7 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(CAP, { recursive: true });
 
 const data = showcase();
+const NON = data.users.filter((u) => !u.fy).length;
 const H = await boot({ users: data.users, owner: data.owner, initialsAvatars: true }, { deviceScaleFactor: 2 });
 H.mock.cfg.pageSize = 100;
 const now = Date.now();
@@ -26,8 +27,13 @@ async function setTheme(t) {
   await p.evaluate((x) => localStorage.setItem("x7.theme", x), t);
   await p.close();
 }
+async function freshTimer() {
+  const j = await H.store("x7.job");
+  if (j && j.status === "running") await H.setStore({ "x7.job": { ...j, nextAt: Date.now() + 14500 } });
+}
 async function popupShot(name, theme, viewName) {
   await setTheme(theme);
+  await freshTimer();
   const p = await H.ctx.newPage();
   await p.setViewportSize({ width: 380, height: 600 });
   await p.goto(`chrome-extension://${H.extId}/popup.html`);
@@ -41,6 +47,7 @@ async function popupShot(name, theme, viewName) {
 }
 async function dashShot(name, theme, hash, prep, size) {
   await setTheme(theme);
+  await freshTimer();
   const p = await H.ctx.newPage();
   await p.setViewportSize(size || { width: 1360, height: 860 });
   await p.goto(`chrome-extension://${H.extId}/dashboard.html#${hash}`);
@@ -91,7 +98,7 @@ try {
   await dashShot("dash-overview-light", "light", "overview");
   await H.setStore({ "x7.job": { ...job, status: "resting", restReason: "cooldown", restUntil: now + 5 * 60000 + 12000, message: "Short break after 50 unfollows. Back in a few minutes." } });
   await popupShot("popup-rest-light", "light", "run");
-  await H.setStore({ "x7.job": { ...job, status: "done", index: 408, done: 401, skipped: 6, failed: 1, finishedAt: now, startedAt: now - 3 * 3600000 - 1260000, message: "Finished. Unfollowed 401 accounts." } });
+  await H.setStore({ "x7.job": { ...job, status: "done", source: "ids", total: 132, index: 132, done: 127, skipped: 4, failed: 1, finishedAt: now, startedAt: now - 3480000, message: "Finished. Unfollowed 127 accounts." } });
   await popupShot("popup-done-light", "light", "done");
   await dashShot("dash-settings-light", "light", "settings", null, { width: 1360, height: 900 });
   await dashShot("dash-whitelist-light", "light", "history", null, { width: 1360, height: 900 });
@@ -125,7 +132,7 @@ h1 .g{background:linear-gradient(135deg,#3B82F6,#6D3AF0 60%,#A855F7);-webkit-bac
 .bg-dark .sub{color:#A5AFC4}
 .ticks{list-style:none;margin-top:26px;display:grid;gap:13px}
 .ticks li{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:600}
-.ticks li::before{content:"";width:26px;height:26px;flex:none;border-radius:8px;background:linear-gradient(135deg,#3B82F6,#7C3AED) center/16px no-repeat;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E"),linear-gradient(135deg,#3B82F6,#7C3AED)}
+.ticks li::before{content:"";width:28px;height:28px;flex:none;border-radius:9px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E"),linear-gradient(135deg,#3B82F6,#7C3AED);background-size:17px 17px,100% 100%;background-position:center,center;background-repeat:no-repeat;box-shadow:0 6px 14px rgba(79,70,229,.3)}
 .shot{border-radius:22px;box-shadow:0 40px 80px rgba(15,23,42,.28),0 0 0 1px rgba(15,23,42,.06);overflow:hidden;background:#fff}
 .bg-dark .shot{box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.08)}
 .shot img{display:block;width:100%}
@@ -168,7 +175,7 @@ const scenes = {
       <ul class="ticks"><li>Scans your whole following list in a minute</li><li>Bulk unfollow non-followers - or everyone</li><li>Whitelist the people you never want to lose</li></ul>
     </div>
     <div class="shot" style="position:absolute;right:110px;top:84px;width:400px"><img src="${img("popup-ready-light")}"></div>
-    <div class="badge" style="right:450px;top:560px"><b>412</b><span>don't follow<br>you back</span></div>
+    <div class="badge" style="left:560px;top:612px"><b>${NON}</b><span>don't follow<br>you back</span></div>
   </div>` },
   "02-review-and-pick": { w: 1280, h: 800, html: `
   <div class="scene bg-light" style="width:1280px;height:800px">
@@ -218,23 +225,27 @@ const scenes = {
   </div>` },
   "promo-small-440x280": { w: 440, h: 280, html: `
   <div class="scene bg-brand" style="width:440px;height:280px">
-    <div style="position:absolute;left:30px;top:34px;width:250px">
-      <img src="${logo}" style="width:62px;height:62px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))">
-      <div style="font-size:30px;font-weight:850;letter-spacing:-.04em;line-height:1.05;margin-top:16px">X Mass<br>Unfollow</div>
-      <div style="margin-top:12px;display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-weight:800;font-size:13.5px">Free &amp; Unlimited</div>
-      <div style="margin-top:12px;font-size:13.5px;opacity:.92;font-weight:600">Unfollow non-followers in one click</div>
+    <div style="position:absolute;left:28px;top:30px;width:230px">
+      <img src="${logo}" style="width:58px;height:58px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))">
+      <div style="font-size:31px;font-weight:850;letter-spacing:-.045em;line-height:1.02;margin-top:14px">X Mass<br>Unfollow</div>
+      <div style="margin-top:12px;display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.2);font-weight:800;font-size:13.5px">Free &amp; Unlimited</div>
     </div>
-    <div class="shot" style="position:absolute;left:270px;top:30px;width:200px;transform:rotate(4deg);box-shadow:0 24px 50px rgba(0,0,0,.35)"><img src="${img("popup-ready-light")}"></div>
+    <div style="position:absolute;right:26px;top:46px;width:156px;padding:16px 14px;border-radius:20px;background:#fff;color:#0C1324;box-shadow:0 22px 44px rgba(0,0,0,.28);text-align:center">
+      <div style="font-size:12px;font-weight:700;color:#4A5468">Don't follow back</div>
+      <div style="font-size:40px;font-weight:850;letter-spacing:-.04em;color:#E11D48;line-height:1.1">${NON}</div>
+      <div style="margin-top:10px;padding:9px 0;border-radius:11px;background:linear-gradient(135deg,#3B82F6,#4F46E5 55%,#7C3AED);color:#fff;font-weight:800;font-size:13px">Unfollow all</div>
+      <div style="margin-top:8px;font-size:11px;font-weight:650;color:#0E9F55">&#10003; Whitelist protected</div>
+    </div>
   </div>` },
   "promo-marquee-1400x560": { w: 1400, h: 560, html: `
   <div class="scene bg-brand" style="width:1400px;height:560px">
-    <div style="position:absolute;left:80px;top:78px;width:560px">
+    <div style="position:absolute;left:80px;top:72px;width:520px">
       <div class="brand" style="font-size:22px"><img src="${logo}" style="filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))"><div>X Mass Unfollow<small>Free &amp; Unlimited</small></div></div>
-      <h1 style="margin-top:30px;font-size:52px">The best way to mass unfollow on X</h1>
-      <p class="sub" style="color:rgba(255,255,255,.88);font-size:19px">Find everyone who doesn't follow you back and clean up your following list in minutes - free, unlimited and private.</p>
+      <h1 style="margin-top:28px;font-size:50px">The best way to mass unfollow on X</h1>
+      <p class="sub" style="color:rgba(255,255,255,.9);font-size:19px;margin-top:14px">Find everyone who doesn't follow you back and clean up your following list in minutes. Free, unlimited and private.</p>
     </div>
-    <div class="win" style="position:absolute;left:690px;top:70px;width:760px;height:540px;box-shadow:0 40px 90px rgba(0,0,0,.35)"><div class="bar"><i></i><i></i><i></i><span>X Mass Unfollow &middot; Dashboard</span></div><img src="${img("dash-following-light")}"></div>
-    <div class="shot" style="position:absolute;left:600px;top:150px;width:290px;box-shadow:0 40px 90px rgba(0,0,0,.4)"><img src="${img("popup-ready-light")}"></div>
+    <div class="win" style="position:absolute;left:780px;top:66px;width:700px;height:540px;box-shadow:0 40px 90px rgba(0,0,0,.35)"><div class="bar"><i></i><i></i><i></i><span>X Mass Unfollow &middot; Dashboard</span></div><img src="${img("dash-following-light")}"></div>
+    <div class="shot" style="position:absolute;left:650px;top:128px;width:290px;box-shadow:0 40px 90px rgba(0,0,0,.4)"><img src="${img("popup-ready-light")}"></div>
   </div>` }
 };
 
