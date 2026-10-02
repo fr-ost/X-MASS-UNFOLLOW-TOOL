@@ -36,7 +36,7 @@
 
     const limit = S.settings.dailyLimit;
     const used = S.today || 0;
-    $("#todayNum").textContent = U.compact(used);
+    U.countTo($("#todayNum"), used, U.compact);
     $("#todayCap").textContent = limit ? "of " + U.compact(limit) : "today";
     const frac = limit ? Math.min(1, used / limit) : (used ? 1 : 0);
     $("#todayRing").style.strokeDashoffset = String(97.4 * (1 - frac));
@@ -111,9 +111,9 @@
     const sc = S.scan;
     setStatus("", "Ready");
     show("ready");
-    $("#stFollowing").textContent = U.compact(sc.total);
-    $("#stNon").textContent = U.compact(sc.nonFollowers);
-    $("#stMutual").textContent = U.compact(sc.mutuals);
+    U.countTo($("#stFollowing"), sc.total, U.compact);
+    U.countTo($("#stNon"), sc.nonFollowers, U.compact);
+    U.countTo($("#stMutual"), sc.mutuals, U.compact);
 
     const n = S.actionable || 0;
     const runNon = $("#runNonBtn");
@@ -152,7 +152,7 @@
     const [kind, label] = states[j.status] || ["", j.status];
     setStatus(kind, label);
 
-    $("#runDone").textContent = U.fmt(j.done);
+    U.countTo($("#runDone"), j.done);
     $("#runTotal").textContent = "/ " + U.fmt(j.total);
     $("#runPct").textContent = pct + "%";
     const bar = $("#runBar");
@@ -175,6 +175,8 @@
     msg.textContent = j.message || "";
     msg.className = "run-msg" + (j.status === "halted" ? " is-error" : j.status === "resting" ? " is-warn" : "");
 
+    // The background hint is least useful while a longer status message shows.
+    $(".hint-line").hidden = !(j.status === "running" || j.status === "paused");
     $("#pauseBtn").hidden = !(j.status === "running" || j.status === "resting");
     $("#resumeBtn").hidden = !(j.status === "paused" || j.status === "halted");
     tickTimer();
@@ -274,6 +276,7 @@
 
   function wire() {
     U.icons();
+    U.themeButtons();
     $("#scanBtn").addEventListener("click", startScan);
     $("#rescanBtn").addEventListener("click", startScan);
     $("#scanStopBtn").addEventListener("click", () => U.cmd("scanStop").then(refresh));
@@ -284,7 +287,7 @@
     $("#resumeBtn").addEventListener("click", () => U.cmd("resume").then(refresh));
     $("#stopBtn").addEventListener("click", () => U.cmd("stop").then(refresh));
     $("#doneOkBtn").addEventListener("click", () => U.cmd("clearJob").then(refresh));
-    $("#historyBtn").addEventListener("click", () => openDash("history"));
+    $("#donateDoneBtn").addEventListener("click", () => openDash("donate"));
     $("#openXBtn").addEventListener("click", () => { U.cmd("openX"); window.close(); });
     $("#retryBtn").addEventListener("click", async () => {
       const r = await U.cmd("refreshAccount");

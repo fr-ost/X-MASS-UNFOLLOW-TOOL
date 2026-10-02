@@ -21,7 +21,7 @@ function ensureCert() {
   execSync(`openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 30 -subj "/CN=x.com" -addext "subjectAltName=DNS:x.com,DNS:twitter.com,DNS:abs.twimg.com,DNS:edge.adsonbread.com,DNS:pbs.twimg.com"`, { cwd: dir, stdio: "ignore" });
 }
 
-export async function boot(mockOpts) {
+export async function boot(mockOpts, ctxOpts) {
   ensureCert();
   const mock = createMock(mockOpts);
   await mock.start(443);
@@ -31,6 +31,7 @@ export async function boot(mockOpts) {
     headless: true,
     ignoreHTTPSErrors: true,
     viewport: { width: 1280, height: 860 },
+    ...(ctxOpts || {}),
     args: [
       `--disable-extensions-except=${EXT}`,
       `--load-extension=${EXT}`,

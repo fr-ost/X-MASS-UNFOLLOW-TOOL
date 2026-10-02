@@ -20,14 +20,15 @@ export function createMock(opts = {}) {
       destroyMode: "ok", destroy429At: 0, destroyRequireTxid: true,
       pageSize: 40, noRelFlags: false, hiddenFeature: true, rateOnCall: 0, adFill: true
     },
-    owner: { id: "1000", handle: "tester", name: "Test Person" },
+    owner: opts.owner || { id: "1000", handle: "tester", name: "Test Person" },
     users: [],
     following: new Set(),
     log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0 },
     counters: { gql: 0, destroy: 0 }
   };
 
-  const N = opts.n || 230;
+  const N = opts.users ? 0 : (opts.n || 230);
+  for (const u of opts.users || []) { M.users.push(u); M.following.add(u.id); }
   for (let i = 0; i < N; i++) {
     const id = String(2000 + i);
     M.users.push({
@@ -198,8 +199,9 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
         const card = j.placement === "card";
         return send(res, 200, { ad: {
           format: card ? "card" : "banner", impressionId: "imp-" + M.log.ads, extensionName: "X Mass Unfollow",
-          text: card ? "Inbox Zero, finally.\nTry Sortly free for 30 days." : "Sortly cleans your inbox while you sleep - try it free.",
-          linkRanges: card ? [{ start: 25, end: 31 }] : [{ start: 0, end: 6 }],
+          // Placeholder copy: never a real advertiser's name.
+          text: card ? "Your product here.\nReach people who use X every day." : "Your product here - reach people who use X every day.",
+          linkRanges: card ? [{ start: 0, end: 12 }] : [{ start: 0, end: 12 }],
           clickUrl: "/click/1", iconUrl: "https://pbs.twimg.com/profile_images/ad/logo_normal.png"
         } }, cors);
       }
@@ -209,6 +211,13 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
 
     if (host === "pbs.twimg.com" || (host === "abs.twimg.com" && p.startsWith("/sticky/"))) {
       const hue = [...p].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+      const idm = p.match(/profile_images\/(\d+)\//);
+      const who = idm && (M.byId.get(idm[1]) || (idm[1] === M.owner.id ? { n: M.owner.name } : null));
+      if (who && opts.initialsAvatars) {
+        const ini = String(who.n).split(/\s+/).map((w) => w[0] || "").join("").slice(0, 2).toUpperCase();
+        res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "max-age=3600" });
+        return res.end(`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},75%,62%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},70%,48%)"/></linearGradient></defs><rect width="96" height="96" fill="url(#a)"/><text x="48" y="58" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34" font-weight="700" fill="#fff" text-anchor="middle">${ini}</text></svg>`);
+      }
       res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "max-age=3600" });
       return res.end(`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" fill="hsl(${hue},55%,62%)"/><circle cx="48" cy="38" r="18" fill="rgba(255,255,255,.85)"/><rect x="18" y="62" width="60" height="40" rx="20" fill="rgba(255,255,255,.85)"/></svg>`);
     }

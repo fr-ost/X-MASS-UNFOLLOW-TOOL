@@ -21,6 +21,8 @@ const states = {
 
 try {
   await H.setStore({ "x7.account": acc, "x7.ledger": Array.from({ length: 127 }, (_, i) => now - i * 60000) });
+  for (const theme of ["light", "dark"]) {
+  await (await H.page(`chrome-extension://${H.extId}/privacy.html`)).evaluate((t) => localStorage.setItem("x7.theme", t), theme);
   for (const [name, st] of Object.entries(states)) {
     const patch = {};
     const remove = [];
@@ -36,9 +38,12 @@ try {
       return { overflow: st.scrollHeight - st.clientHeight, bodyH: document.body.scrollHeight };
     });
     log(name, JSON.stringify(ov));
-    await p.screenshot({ path: `${OUT}/s-${name}.png` });
+    const dark = await p.evaluate(() => document.documentElement.getAttribute("data-theme"));
+    assert(dark === theme, `${name}: rendered in ${theme} mode`);
+    await p.screenshot({ path: `${OUT}/s-${theme}-${name}.png` });
     assert(ov.overflow <= 2, `${name}: content fits without scrolling`);
     await p.close();
+  }
   }
 } catch (e) {
   failed = true;

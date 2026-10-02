@@ -17,7 +17,8 @@ npm i -g playwright            # or set PLAYWRIGHT=/path/to/playwright
 node tests/e2e/t1_core.mjs          # scan + unfollow, 429 rest, cooldown, whitelist, ads
 node tests/e2e/t2_resilience.mjs    # fallbacks, frozen tab, killed worker, halts, daily cap
 node tests/e2e/t3_dashboard.mjs     # dashboard: review table, whitelist, history, settings, import
-node tests/e2e/t4_popup_states.mjs  # every popup state fits without scrolling
+node tests/e2e/t4_popup_states.mjs  # every popup state fits, light and dark
+node tests/e2e/t5_donate_theme.mjs  # donate QR codes decode to the exact addresses; theme toggle
 ```
 
-Screenshots land in `tests/e2e/out/`.
+Screenshots land in `tests/e2e/out/`. `decode_qr.py` needs `pip install opencv-python-headless`.

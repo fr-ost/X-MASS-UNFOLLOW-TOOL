@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g512bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3B82F6"/><stop offset=".55" stop-color="#4F46E5"/><stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="g512sh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="g512bd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#E11D48"/>
+    </linearGradient>
+    <clipPath id="g512clip"><rect x="0" y="0" width="512" height="512" rx="138.24"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="138.24" fill="url(#g512bg)"/>
+  <g clip-path="url(#g512clip)">
+    <circle cx="184.32" cy="168.96" r="56.32" fill="#fff" fill-opacity=".5"/>
+       <path d="M76.8 368.64 C76.8 296.96 122.88 250.88 184.32 250.88 C245.76 250.88 291.84 296.96 291.84 368.64 Z" fill="#fff" fill-opacity=".5"/>
+       <circle cx="266.24" cy="209.92" r="71.68" fill="#fff"/>
+       <path d="M122.88 471.04 C122.88 368.64 184.32 307.2 266.24 307.2 C348.16 307.2 409.6 368.64 409.6 471.04 Z" fill="#fff"/>
+    <rect x="0" y="0" width="512" height="256" fill="url(#g512sh)"/>
+  </g>
+  <circle cx="389.12" cy="384" r="110.08" fill="#fff"/>
+  <circle cx="389.12" cy="384" r="87.04" fill="url(#g512bd)"/>
+  <rect x="341.25" y="368.64" width="95.74400000000001" height="30.72" rx="15.36" fill="#fff"/>
+</svg>
