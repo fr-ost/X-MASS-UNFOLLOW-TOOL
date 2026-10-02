@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>X Mass Unfollow</title>
+  <meta name="description" content="Free and unlimited X (Twitter) mass unfollow tool: find who doesn't follow you back and bulk unfollow them safely.">
+  <title>X Mass Unfollow - Free &amp; Unlimited</title>
+  <script src="ui/theme.js"></script>
   <link rel="stylesheet" href="ui/base.css">
   <link rel="stylesheet" href="popup.css">
 </head>
@@ -12,13 +14,16 @@
 
     <header class="top">
       <div class="brand">
-        <img src="icon48.png" alt="" class="brand-logo">
+        <img src="ui/logo.svg" alt="" class="brand-logo">
         <div class="brand-text">
           <b>Mass Unfollow</b>
-          <small>for X</small>
+          <small>Free &amp; Unlimited</small>
         </div>
       </div>
-      <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">Ready</span></span>
+      <div class="top-right">
+        <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">Ready</span></span>
+        <button class="icon-btn" data-theme-toggle></button>
+      </div>
     </header>
 
     <section class="account" id="account">
@@ -29,6 +34,9 @@
       </div>
       <div class="today" id="todayBox" title="Unfollows in the last 24 hours">
         <svg viewBox="0 0 36 36" class="ring" aria-hidden="true">
+          <defs>
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#7C3AED"/></linearGradient>
+          </defs>
           <circle cx="18" cy="18" r="15.5" class="ring-track"/>
           <circle cx="18" cy="18" r="15.5" class="ring-fill" id="todayRing"/>
         </svg>
@@ -38,23 +46,20 @@
 
     <main class="stage" id="stage">
 
-      <!-- Loading -->
       <section class="view" data-view="loading">
         <div class="center-note"><span class="spinner"></span></div>
       </section>
 
-      <!-- Not signed in / no X tab -->
       <section class="view" data-view="signin">
         <div class="hero">
           <div class="hero-icon" data-icon="users"></div>
           <h2>Sign in to X to begin</h2>
-          <p>The extension works inside your own signed-in X session. Nothing is ever sent anywhere else.</p>
+          <p>Everything runs inside your own signed-in X session. Nothing is ever sent anywhere else.</p>
         </div>
         <button class="btn btn-primary btn-lg btn-block" id="openXBtn"><span>Open x.com</span></button>
         <button class="btn btn-ghost btn-block" id="retryBtn">I'm signed in - check again</button>
       </section>
 
-      <!-- First run: no scan yet -->
       <section class="view" data-view="start">
         <div class="hero">
           <div class="hero-icon" data-icon="scan"></div>
@@ -64,13 +69,12 @@
         <div class="notice is-error" id="startNotice" hidden></div>
         <button class="btn btn-primary btn-lg btn-block" id="scanBtn" data-icon="scan"><span>Scan my following</span></button>
         <ul class="ticks">
+          <li data-icon="check">100% free &middot; no limits, no sign-up</li>
           <li data-icon="check">Works in the background - switch tabs freely</li>
-          <li data-icon="check">Safe pacing, daily limits, automatic breaks</li>
-          <li data-icon="check">Whitelist anyone you never want to lose</li>
+          <li data-icon="check">Safe pacing, breaks and a whitelist</li>
         </ul>
       </section>
 
-      <!-- Scanning -->
       <section class="view" data-view="scanning">
         <div class="scan-hero">
           <div class="scan-orb"><span></span><span></span><span></span><b data-icon="scan"></b></div>
@@ -81,7 +85,6 @@
         <button class="btn btn-ghost btn-block" id="scanStopBtn" data-icon="stop"><span>Stop scan</span></button>
       </section>
 
-      <!-- Scan done, ready to act -->
       <section class="view" data-view="ready">
         <div class="stats">
           <div class="stat"><b class="num" id="stFollowing">0</b><span>Following</span></div>
@@ -100,7 +103,6 @@
         </div>
       </section>
 
-      <!-- Running / resting / paused / halted -->
       <section class="view" data-view="run">
         <div class="run-head">
           <div class="run-count">
@@ -138,7 +140,6 @@
         <p class="hint-line">Runs in the background - you can close this popup.</p>
       </section>
 
-      <!-- Finished -->
       <section class="view" data-view="done">
         <div class="hero">
           <div class="hero-icon hero-ok" data-icon="check"></div>
@@ -151,7 +152,7 @@
           <div><b class="num" id="doneTime">-</b><span>Took</span></div>
         </div>
         <button class="btn btn-primary btn-block" id="doneOkBtn"><span>Done</span></button>
-        <button class="btn btn-ghost btn-block" id="historyBtn" data-icon="history"><span>See history</span></button>
+        <button class="btn btn-ghost btn-block" id="donateDoneBtn" data-icon="heart"><span>Enjoying it? Support the developer</span></button>
       </section>
 
     </main>
@@ -164,10 +165,14 @@
       <button class="foot-link" data-open="overview" data-icon="grid"><span>Dashboard</span></button>
       <button class="foot-link" data-open="whitelist" data-icon="shield"><span>Whitelist</span></button>
       <button class="foot-link" data-open="settings" data-icon="sliders"><span>Settings</span></button>
+      <button class="foot-link foot-heart" data-open="donate" data-icon="heart"><span>Donate</span></button>
       <button class="foot-link" data-open="help" data-icon="help"><span>Help</span></button>
     </nav>
+    <footer class="credits popup-credits">
+      <span>A product of <b>Unique Labs</b>. Developed by <b>Shahriar Ahmed</b>.</span>
+      <span><a href="https://www.shahriarahmed.net" target="_blank" rel="noopener">www.shahriarahmed.net</a> &middot; <a href="https://t.me/igfrostt" target="_blank" rel="noopener" id="bugLink">Report a bug</a></span>
+    </footer>
 
-    <!-- Confirmation sheet -->
     <div class="sheet-backdrop" id="sheet" hidden>
       <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
         <div class="sheet-icon" data-icon="userX"></div>

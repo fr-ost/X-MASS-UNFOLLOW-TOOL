@@ -26,7 +26,7 @@ const HISTORY_MAX = 20000;
 const DONE_IDS_MAX = 100000;
 
 const COLORS = {
-  run: "#2563EB", rest: "#F59E0B", scan: "#7C3AED", halt: "#DC2626", done: "#16A34A", paused: "#64748B"
+  run: "#4F46E5", rest: "#F59E0B", scan: "#7C3AED", halt: "#DC2626", done: "#16A34A", paused: "#64748B"
 };
 
 // ===========================================================================

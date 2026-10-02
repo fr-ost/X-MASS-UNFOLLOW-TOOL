@@ -1,4 +1,4 @@
-# Privacy Policy - X (Twitter) Mass Unfollow Tool
+# Privacy Policy - X (Twitter) Mass Unfollow Tool – Free & Unlimited
 
 _Last updated: 2 October 2026 (version 7.0.0)_
 

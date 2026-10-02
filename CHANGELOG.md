@@ -55,6 +55,21 @@ no X tab open at all.
 - Dark theme toggle (replaced by the new light design).
 - "Continuous mode" page reloading (no longer needed).
 
+### Look and feel
+- Renamed to **X (Twitter) Mass Unfollow Tool – Free & Unlimited**.
+- New icon pack: a person with an unfollow badge on the brand gradient, with a
+  simplified 16px version for the toolbar.
+- Dark mode, with a sun/moon toggle in the popup and dashboard and an
+  Appearance setting (System / Light / Dark). Ads follow the theme.
+- Sleeker, more fluid UI: glass surfaces, gradient accents, animated counters,
+  refined spacing and better small-screen layouts.
+- Donate page: why and how to donate, EVM / Solana / Bitcoin addresses with
+  token logos, QR codes (verified to decode to the exact address) and copy
+  buttons.
+- Report a bug (Telegram) in the popup, the dashboard and the help page.
+- Credits footer: "A product of Unique Labs. Developed by Shahriar Ahmed." with
+  www.shahriarahmed.net.
+
 ### Under the hood
 - No new permission warnings: adds `scripting` (start in already-open X tabs
   without a reload) and `unlimitedStorage` (large lists).

@@ -1,7 +1,10 @@
-# X (Twitter) Mass Unfollow Tool
+# X (Twitter) Mass Unfollow Tool – Free & Unlimited
 
-Find everyone on X who doesn't follow you back, and unfollow them in bulk,
-safely, while you get on with your day.
+Free & unlimited X (Twitter) mass unfollow tool. Bulk unfollow, clean your
+following list, and remove non-followers with ease.
+
+A product of **Unique Labs**. Developed by **Shahriar Ahmed** -
+[www.shahriarahmed.net](https://www.shahriarahmed.net)
 
 ## Features
 
@@ -15,7 +18,9 @@ safely, while you get on with your day.
 - **Backs off by itself.** If X says to slow down, the run rests and continues. If X asks you to verify your account, it stops and waits for you.
 - **Works in the background.** Switch tabs, close the popup, minimise the window: the run keeps going.
 - **History.** Everyone it unfollowed, with CSV export.
+- **Light & dark mode.** Follows your system, or flip it with the sun/moon button.
 - **Private.** Everything stays in your browser. No analytics. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+- **Free forever.** No paid tier. A Donate page (crypto, with QR codes) and a Report-a-bug link are built in.
 - **Emergency stop:** <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>.
 
 ## How it works
@@ -50,7 +55,11 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `content/content.js` | Message router in x.com tabs |
 | `popup.*` | Toolbar popup |
 | `dashboard.*` | Full dashboard (also the Settings page) |
-| `ui/` | Shared design system and helpers |
+| `ui/` | Shared design system (light/dark tokens), theme loader, helpers, logo |
+| `ui/donate/` | Token logos and donation QR codes |
+| `design/` | Icon source + renderer, QR builder, store-graphics builder (not shipped) |
+| `store/` | Chrome Web Store screenshots and promo tiles (not shipped) |
+| `STORE_LISTING.md` | Store title, summary, SEO description, privacy-tab answers |
 | `ads.js`, `vendor/adsonbread-sdk.js` | Ads |
 | `tests/e2e/` | End-to-end tests against a mock x.com (see its README) |
 
@@ -62,9 +71,18 @@ Zip the extension files without `tests/`, the docs, or git data:
 zip -r x-mass-unfollow-7.0.0.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
-  content shared ui vendor
+  content shared ui vendor -x "*.DS_Store"
+```
+
+## Rebuilding the graphics
+
+```sh
+export PLAYWRIGHT=/path/to/node_modules/playwright
+node design/build-icons.mjs        # icon16/32/48/128.png + ui/logo.svg
+python3 design/build-qr.py         # donation QR codes (verified by decoding)
+node design/store-assets.mjs       # store/ screenshots and promo tiles
 ```
 
 ## Support
 
-Telegram: [@igfrostt](https://t.me/igfrostt)
+Report a bug or ask a question on Telegram: [@igfrostt](https://t.me/igfrostt)

@@ -61,6 +61,56 @@
   U.clock = (ts) => new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   U.date = (ts) => new Date(ts).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
 
+  // Animate a number from its current value to `to` (fluent counters).
+  U.countTo = (el, to, fmt) => {
+    if (!el) return;
+    const f = fmt || U.fmt;
+    const target = Number(to);
+    if (!Number.isFinite(target)) { el.textContent = f(to); return; }
+    const from = Number(el.dataset.n || 0);
+    el.dataset.n = String(target);
+    if (from === target || matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = f(target); return; }
+    const t0 = performance.now(), dur = Math.min(900, 250 + Math.abs(target - from) * 4);
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = f(Math.round(from + (target - from) * e));
+      if (k < 1 && el.dataset.n === String(target)) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  U.copy = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch (_) {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (__) {}
+      ta.remove();
+      return ok;
+    }
+  };
+
+  U.links = {
+    bug: "https://t.me/igfrostt",
+    support: "https://t.me/igfrostt",
+    site: "https://www.shahriarahmed.net"
+  };
+
+  // Theme toggle buttons: any [data-theme-toggle] flips light/dark.
+  U.themeButtons = (root) => U.$$("[data-theme-toggle]", root).forEach((b) => {
+    if (b.dataset.themeWired) return;
+    b.dataset.themeWired = "1";
+    b.classList.add("theme-btn");
+    b.insertAdjacentHTML("afterbegin", U.icon("sun", "ic-sun") + U.icon("moon", "ic-moon"));
+    const label = () => b.setAttribute("aria-label", window.X7Theme && X7Theme.current() === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    label();
+    b.title = "Light / dark mode";
+    b.addEventListener("click", () => { if (window.X7Theme) X7Theme.toggle(); label(); });
+    window.addEventListener("x7-theme", label);
+  });
+
   U.bigAvatar = (url) => String(url || "").replace(/_normal(\.\w+)$/, "_bigger$1");
 
   // Avatar element with an initial-letter fallback (no inline handlers: CSP).
@@ -209,7 +259,17 @@
     alert: '<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4M12 17h.01"/>',
     heart: '<path d="M12 20s-7.5-4.4-7.5-10A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7.5 3c0 5.6-7.5 10-7.5 10z"/>',
     file: '<path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5"/>',
-    star: '<path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 9.7l5.4-.8z"/>'
+    star: '<path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 9.7l5.4-.8z"/>',
+    sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M18.5 5.5 17 7M7 17l-1.5 1.5"/>',
+    moon: '<path d="M20 14.2A8.3 8.3 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z"/>',
+    monitor: '<rect x="3.5" y="4.5" width="17" height="11.5" rx="2"/><path d="M9 20h6M12 16v4"/>',
+    bug: '<rect x="7.5" y="8" width="9" height="12" rx="4.5"/><path d="M9.5 8V6.5a2.5 2.5 0 0 1 5 0V8M12 12v8M3.5 13h4M16.5 13h4M4.5 8.5l3 2M19.5 8.5l-3 2M4.5 18.5l3-2M19.5 18.5l-3-2"/>',
+    copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.2"/><path d="M15.5 8.5V6.2a1.7 1.7 0 0 0-1.7-1.7H6.2a1.7 1.7 0 0 0-1.7 1.7v7.6a1.7 1.7 0 0 0 1.7 1.7h2.3"/>',
+    globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5s1.2-6.1 3.5-8.5z"/>',
+    coffee: '<path d="M5 9h11v5.5A4.5 4.5 0 0 1 11.5 19h-2A4.5 4.5 0 0 1 5 14.5z"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c-.6.8-.6 1.7 0 2.5M11 3.5c-.6.8-.6 1.7 0 2.5"/>',
+    share: '<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/>',
+    gift: '<rect x="4" y="9" width="16" height="11" rx="1.8"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5.5-4-5.5-1.5S10 9 12 9zM12 9c1.5-3.5 5.5-4 5.5-1.5S14 9 12 9z"/>',
+    rocket: '<path d="M12 15c-1-1-2.5-3.4-2-6.5C10.6 5 13 3 16.5 3c.3 3.5-1.6 6-5 7.5"/><path d="M9.5 12.5 7 15l2 2 2.5-2.5M6.5 17.5 4 20M9 14l-4-1 3-3"/><path d="M14 11l1 4-3 3"/>'
   };
   U.icon = (name, cls) =>
     `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || ""}</svg>`;

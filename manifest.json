@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "X (Twitter) Mass Unfollow Tool - Bulk Following Cleaner",
+  "name": "X (Twitter) Mass Unfollow Tool – Free & Unlimited",
   "short_name": "X Mass Unfollow",
   "version": "7.0.0",
-  "description": "Find who doesn't follow you back on X and unfollow them in bulk, safely. Review, whitelist, CSV export, smart pacing.",
+  "description": "Free & unlimited X (Twitter) mass unfollow tool. Bulk unfollow, clean your following list, and remove non-followers with ease.",
   "minimum_chrome_version": "116",
   "permissions": [
     "storage",
@@ -20,7 +20,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "X Mass Unfollow",
+    "default_title": "X Mass Unfollow – Free & Unlimited",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icon16.png",
@@ -64,5 +64,6 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com"
-  }
+  },
+  "homepage_url": "https://www.shahriarahmed.net"
 }

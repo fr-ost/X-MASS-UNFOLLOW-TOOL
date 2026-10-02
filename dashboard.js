@@ -209,12 +209,12 @@
     }
 
     const sc = S.scan && S.scan.status === "done" ? S.scan : null;
-    $("#kFollowing").textContent = sc ? U.fmt(sc.total) : "-";
+    if (sc) U.countTo($("#kFollowing"), sc.total); else $("#kFollowing").textContent = "-";
     $("#kFollowingSub").textContent = sc ? "scanned " + U.ago(sc.finishedAt) : "scan to see";
-    $("#kNon").textContent = sc ? U.fmt(sc.nonFollowers) : "-";
+    if (sc) U.countTo($("#kNon"), sc.nonFollowers); else $("#kNon").textContent = "-";
     $("#kNonSub").textContent = sc ? `${U.fmt(S.actionable)} ready to unfollow` : " ";
-    $("#kMutual").textContent = sc ? U.fmt(sc.mutuals) : "-";
-    $("#kToday").textContent = U.fmt(S.today);
+    if (sc) U.countTo($("#kMutual"), sc.mutuals); else $("#kMutual").textContent = "-";
+    U.countTo($("#kToday"), S.today);
     $("#kTodaySub").textContent = S.settings.dailyLimit ? `of ${U.fmt(S.settings.dailyLimit)} daily limit` : "no daily limit set";
     $("#ovScanBtn").querySelector("span").textContent = sc ? "Rescan" : "Scan following";
     $("#ovScanBtn").disabled = !!(S.scan && S.scan.status === "running");
@@ -878,6 +878,55 @@
   }
 
   // ======================================================================
+  // donate
+  // ======================================================================
+  function wireDonate() {
+    const storeUrl = "https://chromewebstore.google.com/detail/" + chrome.runtime.id;
+    $("#rateLink").href = storeUrl + "/reviews";
+
+    // In-page jumps scroll without touching the hash (the hash is the router).
+    const jump = (id) => (e) => {
+      e.preventDefault();
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    $("#donateJump").addEventListener("click", jump("wallets"));
+    $("#helpJump").addEventListener("click", jump("helpfree"));
+
+    U.$$(".wallet").forEach((card) => {
+      const btn = card.querySelector(".w-copy");
+      const addr = card.querySelector(".addr").textContent.trim();
+      btn.addEventListener("click", async () => {
+        const ok = await U.copy(addr);
+        if (!ok) { U.toast("Couldn't copy - select the address and copy it manually.", "err"); return; }
+        const label = btn.querySelector("span");
+        btn.classList.add("is-copied");
+        label.textContent = "Copied - thank you!";
+        U.toast("Address copied. Thank you for supporting a free tool!", "ok");
+        setTimeout(() => { btn.classList.remove("is-copied"); label.textContent = "Copy address"; }, 2200);
+      });
+    });
+
+    $("#shareBtn").addEventListener("click", async () => {
+      const ok = await U.copy(storeUrl);
+      U.toast(ok ? "Store link copied - paste it anywhere to share." : "Couldn't copy the link.", ok ? "ok" : "err");
+    });
+  }
+
+  function wireAppearance() {
+    const seg = $("#themeSeg");
+    const sync = () => U.$$("button", seg).forEach((b) => b.classList.toggle("is-on", b.dataset.pref === (window.X7Theme ? X7Theme.pref() : "system")));
+    seg.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-pref]");
+      if (!b || !window.X7Theme) return;
+      X7Theme.set(b.dataset.pref);
+      sync();
+    });
+    window.addEventListener("x7-theme", sync);
+    sync();
+  }
+
+  // ======================================================================
   // live updates
   // ======================================================================
   let stTimer = null;
@@ -910,6 +959,8 @@
   // ======================================================================
   document.addEventListener("DOMContentLoaded", async () => {
     U.icons();
+    U.themeButtons();
+    $("#year").textContent = String(new Date().getFullYear());
     await Promise.all([loadUsers(), loadWl(), loadDone(), loadHistory()]);
     await refreshState();
     wireOverview();
@@ -919,6 +970,8 @@
     wireImport();
     wireSettings();
     wireHelp();
+    wireDonate();
+    wireAppearance();
     window.addEventListener("hashchange", route);
     route();
     renderHealth(D.S && D.S.health && D.S.health.signedIn !== undefined ? D.S.health : null);

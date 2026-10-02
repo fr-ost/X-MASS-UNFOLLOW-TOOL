@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>X Mass Unfollow - Dashboard</title>
-  <link rel="icon" href="icon32.png">
+  <meta name="description" content="X (Twitter) Mass Unfollow Tool - Free &amp; Unlimited. Find who doesn't follow you back, bulk unfollow non-followers, whitelist friends and clean up your X following list safely.">
+  <title>X Mass Unfollow - Free &amp; Unlimited</title>
+  <link rel="icon" href="ui/logo.svg" type="image/svg+xml">
+  <script src="ui/theme.js"></script>
   <link rel="stylesheet" href="ui/base.css">
   <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -14,8 +16,9 @@
     <!-- ============ SIDEBAR ============ -->
     <aside class="side">
       <div class="side-brand">
-        <img src="icon48.png" alt="">
-        <div><b>Mass Unfollow</b><small>for X</small></div>
+        <img src="ui/logo.svg" alt="">
+        <div><b>Mass Unfollow</b><small>Free &amp; Unlimited</small></div>
+        <button class="icon-btn" data-theme-toggle></button>
       </div>
 
       <nav class="nav" id="nav">
@@ -26,6 +29,7 @@
         <a href="#import" data-route="import" data-icon="upload"><span>Import list</span></a>
         <a href="#settings" data-route="settings" data-icon="sliders"><span>Settings</span></a>
         <a href="#help" data-route="help" data-icon="help"><span>Help</span></a>
+        <a href="#donate" data-route="donate" data-icon="heart" class="nav-heart"><span>Donate</span><em class="nav-free">Free</em></a>
       </nav>
 
       <div class="side-run" id="sideRun" hidden>
@@ -40,7 +44,7 @@
 
       <div class="side-foot">
         <span id="version">v7</span>
-        <a href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="send"><span>Support</span></a>
+        <a href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="bug" class="bug-link"><span>Report a bug</span></a>
       </div>
     </aside>
 
@@ -341,6 +345,16 @@
         </div>
 
         <div class="card panel">
+          <div class="panel-head"><h2>Appearance</h2></div>
+          <p class="muted">Light, dark, or follow your system setting. You can also flip it any time with the sun/moon button.</p>
+          <div class="segmented" id="themeSeg">
+            <button data-pref="system" data-icon="monitor"><span>System</span></button>
+            <button data-pref="light" data-icon="sun"><span>Light</span></button>
+            <button data-pref="dark" data-icon="moon"><span>Dark</span></button>
+          </div>
+        </div>
+
+        <div class="card panel">
           <div class="panel-head"><h2>Data</h2></div>
           <div class="btn-row">
             <button class="btn" id="resetSettings" data-icon="refresh"><span>Reset settings</span></button>
@@ -387,23 +401,130 @@
         <div class="card panel contact">
           <div>
             <h2>Need a hand?</h2>
-            <p class="muted">Questions, bugs or ideas - message the developer.</p>
+            <p class="muted">Found a bug, have a question or an idea? Message the developer directly.</p>
           </div>
           <div class="btn-row">
-            <a class="btn btn-primary" href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="send"><span>Telegram @igfrostt</span></a>
+            <a class="btn btn-primary" href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="bug"><span>Report a bug</span></a>
+            <a class="btn" href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="send"><span>Telegram @igfrostt</span></a>
             <a class="btn" href="privacy.html" target="_blank" rel="noopener" data-icon="lock"><span>Privacy policy</span></a>
           </div>
         </div>
       </section>
+
+      <!-- DONATE -->
+      <section class="page" data-page="donate">
+        <div class="donate-hero">
+          <div class="dh-orbit" aria-hidden="true">
+            <img src="ui/donate/tok-btc.svg" alt="" style="--i:0">
+            <img src="ui/donate/tok-eth.svg" alt="" style="--i:1">
+            <img src="ui/donate/tok-sol.svg" alt="" style="--i:2">
+            <img src="ui/donate/tok-usdt.svg" alt="" style="--i:3">
+            <img src="ui/donate/tok-bnb.svg" alt="" style="--i:4">
+            <img src="ui/donate/tok-avax.svg" alt="" style="--i:5">
+            <span class="dh-heart" data-icon="heart"></span>
+          </div>
+          <div class="dh-copy">
+            <span class="dh-kicker">Free forever &middot; powered by people like you</span>
+            <h1>Keep X Mass Unfollow free for everyone</h1>
+            <p>No subscriptions. No paywalls. No "premium" tier holding features hostage. Every feature here is free and unlimited because people who find it useful chip in. If it saved you an afternoon of clicking, a small tip keeps it alive.</p>
+            <div class="dh-note"><span data-icon="sparkles"></span><div><b>Even $0.10 means a lot.</b> Seriously. Every donation, however small, tells me this tool is worth the late nights - and keeps it free for the next person.</div></div>
+            <div class="btn-row">
+              <a class="btn btn-primary btn-lg" href="#wallets" id="donateJump" data-icon="heart"><span>Donate now</span></a>
+              <a class="btn btn-lg" href="#helpfree" id="helpJump" data-icon="star"><span>Other ways to help</span></a>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Why donate?</h2>
+        <div class="why-grid">
+          <div class="card why"><span class="why-ic" data-icon="gift"></span><b>It's 100% free</b><p>Bulk unfollow, review tools, whitelist, history, CSV import and export. No limits, no sign-up, no paywall. Donations are the only thing that keeps it this way.</p></div>
+          <div class="card why"><span class="why-ic" data-icon="rocket"></span><b>X changes constantly</b><p>X rebuilds its website all the time. Every change means hours of investigating, rebuilding and testing so your runs never break. Your support pays for that time.</p></div>
+          <div class="card why"><span class="why-ic" data-icon="lock"></span><b>Private by design</b><p>No tracking, no analytics, no selling your data. Donations - not your data - fund development. That's a promise.</p></div>
+          <div class="card why"><span class="why-ic" data-icon="coffee"></span><b>One independent developer</b><p>Built and supported by one person at Unique Labs. Your tip goes straight to the developer who fixes bugs and answers your messages.</p></div>
+        </div>
+
+        <h2 class="section-title">How to donate</h2>
+        <div class="how-steps">
+          <div class="how"><i>1</i><div><b>Pick a coin you already have</b><p>Any of the networks below works - use whatever is in your wallet.</p></div></div>
+          <div class="how"><i>2</i><div><b>Scan or copy</b><p>Scan the QR code with your wallet app, or press Copy to grab the address.</p></div></div>
+          <div class="how"><i>3</i><div><b>Send any amount</b><p>$0.10, $1, $5 - truly any amount helps. Message me on Telegram if you'd like a thank-you!</p></div></div>
+        </div>
+
+        <h2 class="section-title" id="wallets">Donation addresses</h2>
+        <div class="wallets">
+          <article class="card wallet" data-wallet="evm">
+            <header class="w-head">
+              <div class="w-logos"><img src="ui/donate/tok-eth.svg" alt="ETH"><img src="ui/donate/tok-usdt.svg" alt="USDT"><img src="ui/donate/tok-bnb.svg" alt="BNB"><img src="ui/donate/tok-avax.svg" alt="AVAX"><span class="w-more">+</span></div>
+              <div><b>EVM networks</b><small>ETH, USDT, BNB, AVAX and more</small></div>
+            </header>
+            <div class="w-qr"><img src="ui/donate/qr-evm.svg" alt="QR code for the EVM donation address"></div>
+            <div class="w-chips"><span>Ethereum</span><span>BNB Smart Chain</span><span>Avalanche C-Chain</span><span>+ other EVM chains</span></div>
+            <div class="w-addr"><code class="addr">0x257F291514AaAa1533832cC2C8981Cc14063ED17</code></div>
+            <button class="btn btn-primary btn-block w-copy" data-icon="copy"><span>Copy address</span></button>
+            <p class="w-note">One address for every EVM network. Send ETH, USDT, BNB, AVAX or other EVM tokens.</p>
+          </article>
+
+          <article class="card wallet" data-wallet="sol">
+            <header class="w-head">
+              <div class="w-logos"><img src="ui/donate/tok-sol.svg" alt="SOL"></div>
+              <div><b>Solana</b><small>SOL and Solana tokens</small></div>
+            </header>
+            <div class="w-qr"><img src="ui/donate/qr-sol.svg" alt="QR code for the Solana donation address"></div>
+            <div class="w-chips"><span>Solana network</span></div>
+            <div class="w-addr"><code class="addr">GwwZWYxzms9ebEWQNCAJrPSQdsN6SVPGbpMwCYomWqWa</code></div>
+            <button class="btn btn-primary btn-block w-copy" data-icon="copy"><span>Copy address</span></button>
+            <p class="w-note">Solana network only. Fast and almost free to send - perfect for small tips.</p>
+          </article>
+
+          <article class="card wallet" data-wallet="btc">
+            <header class="w-head">
+              <div class="w-logos"><img src="ui/donate/tok-btc.svg" alt="BTC"></div>
+              <div><b>Bitcoin</b><small>BTC</small></div>
+            </header>
+            <div class="w-qr"><img src="ui/donate/qr-btc.svg" alt="QR code for the Bitcoin donation address"></div>
+            <div class="w-chips"><span>Bitcoin network</span><span>Native SegWit (bc1)</span></div>
+            <div class="w-addr"><code class="addr">bc1qg6clyevlmfekg3rkyhlk5ggeh3g6dnt5sdje4j</code></div>
+            <button class="btn btn-primary btn-block w-copy" data-icon="copy"><span>Copy address</span></button>
+            <p class="w-note">Bitcoin network only.</p>
+          </article>
+        </div>
+        <p class="safety"><span data-icon="alert"></span>Always double-check the network before you send. Crypto sent on the wrong network can't be recovered.</p>
+
+        <h2 class="section-title" id="helpfree">Other ways to help - all free</h2>
+        <div class="help-grid">
+          <a class="card help-card" id="rateLink" href="https://chromewebstore.google.com/" target="_blank" rel="noopener"><span class="why-ic" data-icon="star"></span><b>Rate it 5 stars</b><p>A quick review helps other people find a tool that actually works.</p></a>
+          <button class="card help-card" id="shareBtn" type="button"><span class="why-ic" data-icon="share"></span><b>Share with a friend</b><p>Copy the link and send it to anyone drowning in a messy following list.</p></button>
+          <a class="card help-card" href="https://t.me/igfrostt" target="_blank" rel="noopener"><span class="why-ic" data-icon="bug"></span><b>Report a bug</b><p>Spotted something off? Tell me on Telegram and I'll fix it fast.</p></a>
+        </div>
+
+        <div class="card thanks">
+          <span class="thanks-ic" data-icon="heart"></span>
+          <div>
+            <b>Thank you - truly.</b>
+            <p>Whether you donate, leave a review or just use the tool, you're the reason it exists. - Shahriar Ahmed, Unique Labs</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="page-foot">
+        <div class="pf-brand"><img src="ui/logo.svg" alt=""><span>A product of <b>Unique Labs</b>. Developed by <b>Shahriar Ahmed</b>.</span></div>
+        <div class="pf-links">
+          <a href="https://www.shahriarahmed.net" target="_blank" rel="noopener" data-icon="globe"><span>www.shahriarahmed.net</span></a>
+          <a href="#donate" data-icon="heart"><span>Donate</span></a>
+          <a href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="bug"><span>Report a bug</span></a>
+          <a href="privacy.html" target="_blank" rel="noopener" data-icon="lock"><span>Privacy</span></a>
+        </div>
+        <div class="pf-copy">&copy; <span id="year">2026</span> Unique Labs. All rights reserved.</div>
+      </footer>
     </main>
   </div>
 
   <!-- Welcome (first install) -->
   <div class="modal-backdrop" id="welcome" hidden>
     <div class="modal welcome">
-      <img src="icon128.png" alt="" class="welcome-logo">
-      <h2>Welcome to Mass Unfollow</h2>
-      <p>Clean up your X following in three steps. Everything happens in your own browser.</p>
+      <img src="ui/logo.svg" alt="" class="welcome-logo">
+      <h2>Welcome to X Mass Unfollow</h2>
+      <p>Free &amp; unlimited. Clean up your X following in three steps - everything happens in your own browser.</p>
       <ol class="welcome-steps">
         <li><b>Sign in to X</b> in this browser.</li>
         <li><b>Scan</b> to see who doesn't follow you back.</li>
