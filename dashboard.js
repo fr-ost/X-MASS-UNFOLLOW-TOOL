@@ -881,7 +881,7 @@
   // donate
   // ======================================================================
   function wireDonate() {
-    const storeUrl = "https://chromewebstore.google.com/detail/" + chrome.runtime.id;
+    const storeUrl = U.links.store;
     $("#rateLink").href = storeUrl + "/reviews";
 
     // In-page jumps scroll without touching the hash (the hash is the router).

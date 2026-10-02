@@ -95,7 +95,8 @@
   U.links = {
     bug: "https://t.me/igfrostt",
     support: "https://t.me/igfrostt",
-    site: "https://www.shahriarahmed.net"
+    site: "https://www.shahriarahmed.net",
+    store: "https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl"
   };
 
   // Theme toggle buttons: any [data-theme-toggle] flips light/dark.

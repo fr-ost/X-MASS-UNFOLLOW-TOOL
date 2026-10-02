@@ -140,7 +140,8 @@ This extension uses AdsOnBread to display contextual ads. The SDK stores a rando
 ## Website snippet (www.shahriarahmed.net landing page)
 
 For Google search, put this in the `<head>` of the extension's page on your
-site and link to the store listing from it:
+site and link to the store listing from it
+(https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl):
 
 ```html
 <title>X (Twitter) Mass Unfollow Tool – Free & Unlimited Chrome Extension</title>

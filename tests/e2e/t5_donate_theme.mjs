@@ -47,7 +47,11 @@ try {
   assert((await d.evaluate(() => document.querySelector('.page[data-page="donate"]').classList.contains("is-on"))), "Donate now scrolls without leaving the page");
 
   // Rate link points at the store reviews
-  assert(/chromewebstore\.google\.com\/detail\/.+\/reviews/.test(await d.getAttribute("#rateLink", "href")), "rate link goes to the store reviews");
+  const STORE = "https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl";
+  assert((await d.getAttribute("#rateLink", "href")) === STORE + "/reviews", "rate link goes to the store reviews");
+  await d.click("#shareBtn");
+  await sleep(300);
+  assert((await d.evaluate(() => window.__copied)) === STORE, "share copies the store link");
 
   // Footer credits + bug report
   const foot = await d.textContent(".page-foot");

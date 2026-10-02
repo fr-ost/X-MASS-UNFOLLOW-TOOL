@@ -6,6 +6,8 @@ following list, and remove non-followers with ease.
 A product of **Unique Labs**. Developed by
 **[Shahriar Ahmed](https://www.shahriarahmed.net)**.
 
+**[Get it on the Chrome Web Store](https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl)**
+
 ## Features
 
 - **One-click scan.** Reads your whole following list and marks who follows you back. Read-only.
