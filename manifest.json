@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "X (Twitter) Mass Unfollow Tool - Bulk Following Cleaner",
-  "version": "6.28.0",
-  "description": "X/Twitter unfollow manager with bulk unfollow, non-followers cleaner, smart filters, safety limits, analytics & CSV export",
+  "short_name": "X Mass Unfollow",
+  "version": "7.0.0",
+  "description": "Find who doesn't follow you back on X and unfollow them in bulk, safely. Review, whitelist, CSV export, smart pacing.",
+  "minimum_chrome_version": "116",
   "permissions": [
-    "activeTab",
     "storage",
+    "unlimitedStorage",
     "alarms",
-    "sidePanel"
+    "scripting"
   ],
   "host_permissions": [
     "https://x.com/*",
@@ -18,7 +20,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "X Unfollow Manager Pro",
+    "default_title": "X Mass Unfollow",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icon16.png",
@@ -39,9 +41,10 @@
         "https://twitter.com/*"
       ],
       "js": [
-        "graphql.js",
-        "listrun.js",
-        "content.js"
+        "content/txid.js",
+        "content/xapi.js",
+        "content/dom.js",
+        "content/content.js"
       ],
       "run_at": "document_idle",
       "all_frames": false
@@ -52,22 +55,14 @@
       "suggested_key": {
         "default": "Alt+Shift+S"
       },
-      "description": "Emergency stop the running unfollow session"
+      "description": "Stop the running unfollow session immediately"
     }
   },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "worker.js"
-      ],
-      "matches": [
-        "https://x.com/*",
-        "https://twitter.com/*"
-      ]
-    }
-  ],
-  "options_page": "options.html",
-  "side_panel": {
-    "default_path": "sidepanel.html"
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com"
   }
 }

@@ -1,5 +1,70 @@
-# X-Mass-Unfollow-Elite
-X Mass Unfollow Elite is a powerful and easy-to-use tool designed to help you clean and manage your X (Twitter) following list in a smarter, more controlled way. If your feed is cluttered with inactive accounts, irrelevant profiles, or people who don’t follow you back, this extension gives you a simple and efficient way to fix it without doing everything manually. Instead of unfollowing one by one, you can quickly identify and remove non-followers or clean your following list step by step using controlled sessions.
-The extension is built with safety and flexibility in mind. You can set custom delay ranges between each unfollow action, define how many accounts to unfollow in a single session, and automatically take cooldown breaks after a certain number of actions. This helps you avoid aggressive behavior and gives you full control over how the process runs. You can also pause and resume at any time, making it easy to manage your activity without losing progress.
-X Mass Unfollow Elite also provides real-time feedback so you can see how many accounts have been scanned and unfollowed during each session. The clean, modern interface keeps everything simple and easy to understand, while the settings panel allows you to fine-tune the behavior exactly how you want. Whether you want a slow and careful cleanup or a faster session within safe limits, the extension adapts to your needs.
-This tool is especially useful for users who actively grow their accounts, follow many people over time, or simply want a cleaner and more relevant feed. By removing non-followers and unnecessary accounts, you can improve engagement, keep your timeline focused, and maintain better control over your network.
+# X (Twitter) Mass Unfollow Tool
+
+Find everyone on X who doesn't follow you back, and unfollow them in bulk,
+safely, while you get on with your day.
+
+## Features
+
+- **One-click scan.** Reads your whole following list and marks who follows you back. Read-only.
+- **Unfollow non-followers** in one click, or **unfollow everyone**.
+- **Review and pick.** Full dashboard with search, filters (no photo, few posts, few followers, follow-spam, verified, private), sorting, multi-select and CSV export.
+- **Whitelist.** Accounts on it are never unfollowed, in any mode. One tap on the shield in the review table.
+- **Keep rules.** Keep verified accounts, private accounts, big accounts, or anyone whose name/bio matches a keyword.
+- **Import a list.** Unfollow exactly the accounts in a CSV or a pasted list.
+- **Safe pacing.** Safe / Balanced / Fast presets or custom numbers: random gaps, regular breaks, and a rolling 24-hour limit that continues automatically.
+- **Backs off by itself.** If X says to slow down, the run rests and continues. If X asks you to verify your account, it stops and waits for you.
+- **Works in the background.** Switch tabs, close the popup, minimise the window: the run keeps going.
+- **History.** Everyone it unfollowed, with CSV export.
+- **Private.** Everything stays in your browser. No analytics. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+- **Emergency stop:** <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>.
+
+## How it works
+
+```
+popup / dashboard  ──commands──▶  background.js (the engine)
+                                     │  state, pacing, rests, retries,
+                                     │  all in chrome.storage
+                                     ▼
+                         content/*.js in any x.com tab
+                         (one request at a time, on request)
+                                     │
+                                     ▼
+                     x.com - the same endpoints X's website uses
+```
+
+- **The engine lives in the service worker**, not in the page. A page script dies when its tab is hidden, frozen, reloaded or navigated, which is what made earlier versions stop after 20-30 accounts. The worker drives the run step by step and keeps all state in storage, so a killed worker or a reloaded tab picks up exactly where it left off.
+- **Reading the list** uses X's own GraphQL `Following` timeline, page by page, with X's per-account "follows you" flag. The query id, feature flags, GET-vs-POST and the `x-client-transaction-id` header are all worked out at runtime from X's own app (`content/txid.js`, `content/xapi.js`). If X rejects that, the engine falls back to scrolling the Following page.
+- **Unfollowing** sends the same `friendships/destroy` request X's Unfollow button sends. If X rejects direct requests, the engine switches to **profile mode**: it opens each profile in a background tab and presses Unfollow there.
+- **Ads** (AdsOnBread SDK 1.2.0, vendored): a banner in the popup and a card in the dashboard sidebar. One ad per page, never injected into x.com.
+
+## Project layout
+
+| Path | What it is |
+| --- | --- |
+| `manifest.json` | Manifest V3 |
+| `background.js` | The engine: scan, unfollow queue, pacing, tabs, badge, migration from v6 |
+| `shared/config.js` | Storage keys, speed presets, settings normalisation, Keep rules |
+| `content/txid.js` | `x-client-transaction-id` generator (port of the MIT-licensed x-client-transaction-id project) |
+| `content/xapi.js` | X API client: query discovery, self-healing GraphQL reads, unfollow |
+| `content/dom.js` | Fallbacks: profile-page unfollow, Following-page scroll scan |
+| `content/content.js` | Message router in x.com tabs |
+| `popup.*` | Toolbar popup |
+| `dashboard.*` | Full dashboard (also the Settings page) |
+| `ui/` | Shared design system and helpers |
+| `ads.js`, `vendor/adsonbread-sdk.js` | Ads |
+| `tests/e2e/` | End-to-end tests against a mock x.com (see its README) |
+
+## Building the store package
+
+Zip the extension files without `tests/`, the docs, or git data:
+
+```sh
+zip -r x-mass-unfollow-7.0.0.zip manifest.json background.js ads.js \
+  popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
+  options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
+  content shared ui vendor
+```
+
+## Support
+
+Telegram: [@igfrostt](https://t.me/igfrostt)

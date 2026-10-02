@@ -1,118 +1,78 @@
-# Privacy Policy — X Unfollow Console
+# Privacy Policy - X (Twitter) Mass Unfollow Tool
 
-_Last updated: 7 Aug 2026
-> A ready-to-host HTML version of this exact policy ships with the server and
-> is served publicly at `https://your-app.up.railway.app/privacy`. Use that URL
-> in your Chrome Web Store listing. This markdown copy is for your records.
->
-> This is a drafting aid, not legal advice.
+_Last updated: 2 October 2026 (version 7.0.0)_
 
-This policy explains what the X Unfollow Console browser extension does with
-information, in plain language.
+This policy explains, in plain language, what the X Mass Unfollow browser
+extension does with information.
 
 ## What the extension does
 
-X Unfollow Console runs inside your own logged-in x.com tab. It clicks the same
-Unfollow buttons you would click yourself, at a controlled pace. It never asks
-for your password, never signs in on your behalf, and never sends your account
-details anywhere.
+The extension helps you find accounts on X (formerly Twitter) that don't
+follow you back and unfollow them. It works inside your own browser, using the
+X session you are already signed into. It never asks for your password, never
+signs in on your behalf, and never sends your X account data to the developer
+or to any other third party.
 
-## Information kept on your own device
+To read your following list and to unfollow accounts, the extension sends
+requests **only to X itself** (x.com, and abs.twimg.com for X's own app
+files) - the same requests X's website makes when you use it.
 
-Stored in your browser only, never transmitted anywhere:
+## Information stored on your device
 
-- **Your settings**: limits, pacing, filters, protected keywords, handle whitelist.
-- **Your unfollow archive**: the handles you unfollowed, so you can review or export them.
-- **Session counters** and the rolling daily allowance ledger.
+The following is stored in your browser's local extension storage only. It is
+never transmitted to the developer:
 
-You can erase all of it with **Clear** in the popup, or by removing the extension.
+- **Your settings** - speed, daily limit, Keep rules.
+- **Your whitelist** - handles you never want unfollowed.
+- **Your last scan** - the accounts you follow and whether they follow you back.
+- **Your unfollow history** - accounts the extension unfollowed, and when.
+- **A daily counter** - timestamps of recent unfollows, to enforce your daily limit.
 
-## Anonymous usage information
+You can delete all of it at any time from **Dashboard -> Settings -> Delete
+all extension data**, or by removing the extension.
 
-The extension sends occasional small anonymous reports. This is a permanent part
-of how it works and cannot be switched off inside the extension. The complete
-list of what is sent:
+## No analytics or tracking
 
-- **A random identifier** generated on your device at install. Not derived from
-  you, your X account, your email or your hardware, and not linkable back to you.
-- **Extension version, browser, operating system, and browser display language.**
-- **An approximate location**: country, region and city, worked out on the server
-  from the IP address your browser connects with.
-- **Run totals** when a run finishes: mode used, accounts unfollowed, accounts
-  attempted, duration, and whether X interrupted it.
+This version contains **no analytics, telemetry or tracking** of any kind. The
+developer receives no information about you, your X account, or how you use
+the extension.
 
-### What is never collected
+## Advertising
 
-- Your X username, handle, display name or profile.
-- Any account you follow, unfollow or keep.
-- Your unfollow archive.
-- Page contents, URLs you visit, or browsing history.
-- Cookies, session tokens or authentication data.
-- Your X password, which the extension never has access to.
+This extension uses AdsOnBread to display contextual ads. The SDK stores a
+random pseudonymous token and a 24-hour expiration time in local extension
+storage and transmits the unexpired token, browser language, impressions, and
+clicks to AdsOnBread for frequency capping, billing accuracy, and fraud
+prevention. An expired storage record is replaced the next time the SDK runs
+and can also be removed by clearing extension storage or uninstalling.
+AdsOnBread also derives coarse country from the network request. This
+information is not used for behavioral advertising or cross-site profiling.
 
-The reporting code sends a fixed list of named fields, and the server accepts
-only that same fixed list. Anything outside it is discarded before storage.
+Ads appear only inside the extension's own popup and dashboard. Nothing is
+ever injected into x.com or any other website. AdsOnBread never receives your
+X account, your following list, your whitelist or your history. See the
+[AdsOnBread privacy policy](https://adsonbread.com/privacy) for its
+server-side retention schedule.
 
-### About your IP address
+## Permissions and why they are needed
 
-The server reads the connection's IP once, converts it locally into an
-approximate country and city, then discards it. It is not written to the
-database and not retained. There is no field for it.
-
-## Why it is collected
-
-To understand how many people use the extension, which versions are still in
-use, which regions to prioritise for language and support, and to detect
-problems. A rise in interrupted runs on a given version signals a release that
-needs fixing.
-
-## Who it is shared with
-
-Not sold, rented, traded or shared for advertising. Used only by the developer
-for the purposes above. The telemetry server is hosted on **Railway**, which
-processes and stores the data as an infrastructure provider.
-
-## How long it is kept
-
-- **Detailed event records**: deleted automatically after 90 days.
-- **Aggregate counts** (installs per day, active users per day): kept
-  indefinitely. Totals only, not traceable to any individual.
-
-## If you would rather not send it
-
-Anonymous reporting cannot be turned off inside the extension. If you do not
-want to send it, uninstall the extension. You can see the exact list of what is
-sent at any time in Settings, under Privacy.
-
-When you uninstall, your browser opens a page on the telemetry server that
-records the removal against your anonymous identifier so uninstalls can be
-counted. Nothing further is collected, and everything on your device is deleted
-by your browser.
-
-## Security
-
-Reports are sent over HTTPS. The statistics dashboard is password protected and
-not public.
+- **x.com, twitter.com** - to read your following list and unfollow accounts in your own signed-in session.
+- **abs.twimg.com** - to read X's own app files, which describe how X's website talks to X.
+- **storage, unlimitedStorage** - to keep your settings, scan and history on your device (large following lists need more than the default space).
+- **alarms** - to schedule the next unfollow, breaks and daily-limit pauses.
+- **scripting** - to start working in an x.com tab that was already open, without making you reload it.
 
 ## Children
 
-Not directed at children and not intended for anyone under 13. No information is
-knowingly collected from children.
-
-## Your rights
-
-Because what is collected is anonymous, a specific person's records usually
-cannot be located on request. If you have your anonymous identifier and want its
-rows deleted, contact me and I will remove them. Depending on where you live you
-may have rights to access, correct or delete personal information; use the
-contact below and I will respond.
+The extension is not directed at children under 13 and does not knowingly
+collect information from anyone.
 
 ## Changes
 
-If what is collected changes, this page and the Chrome Web Store listing will be
-updated to match. The date at the top shows the current version.
+If what the extension stores or shares ever changes, this page and the Chrome
+Web Store listing will be updated to match. The date at the top shows the
+current version.
 
 ## Contact
 
 Telegram: [@igfrostt](https://t.me/igfrostt)
-Email: [YOUR EMAIL]

@@ -1,4 +1,69 @@
-# X Unfollow Manager Pro
+# X Mass Unfollow - Changelog
+
+## v7.0.0 - Rebuilt engine, new interface
+
+### Fixed: runs stopping after 20-30 accounts
+Earlier versions ran the whole unfollow loop inside the x.com page and found
+accounts by scrolling the Following list. Chrome stops rendering a tab you are
+not looking at, so X never loaded the next rows. Once the first rendered batch
+(about 20-30 accounts) was used up, the run spent two minutes "looking for
+more accounts" and quit. Freezing, discarding or reloading the tab also lost
+the run.
+
+The engine now lives in the extension's background worker and keeps every bit
+of state in storage. It reads your list and unfollows through the same
+endpoints X's own website uses, so nothing depends on scrolling, rendering or
+the tab being visible. Tested: switching tabs, a frozen X tab, a killed worker,
+no X tab open at all.
+
+### Works with X's 2026 changes
+- Sends X's `x-client-transaction-id` request header (X now answers the
+  Following list with a 404 without it).
+- Reads the Following list with POST or GET, whichever X accepts (X moved
+  timelines to POST in Aug 2026).
+- Finds query ids, feature flags and the app-shell key in X's own code at
+  runtime, learns feature flags from X's errors, and remembers what worked.
+- Understands X's newer payloads (`core`, `avatar`, `privacy`,
+  `relationship_perspectives`), including omitted "false" flags.
+- Fallbacks if X blocks any of that: page scrolling for the scan, and
+  "profile mode" (press Unfollow on each profile in a background tab) for
+  unfollowing.
+
+### Safety
+- Speed presets (Safe / Balanced / Fast / Custom), random gaps, regular breaks.
+- Rolling 24-hour daily limit (default 400) that continues automatically.
+- Automatic rest when X rate-limits, instead of stopping.
+- Stops and waits for you on account verification, lock, sign-out or account
+  switch, and never clicks through X's checks.
+- Whitelist and Keep rules (verified, private, big accounts, keywords) are
+  checked before every unfollow, even mid-run.
+
+### New interface
+- New white popup: scan, one-click "Unfollow non-followers", live progress
+  with a countdown, pause/resume/stop, today's usage ring.
+- New dashboard: overview, review table with search, filters, sorting,
+  multi-select, CSV export and one-tap whitelist; whitelist manager; history;
+  CSV/paste import; settings; connection check; help.
+
+### Ads
+- AdsOnBread SDK updated to 1.2.0 (required from 22 Oct 2026). Banner in the
+  popup, card in the dashboard. One ad per page, hidden when nothing is served.
+
+### Removed (did not work)
+- Moni score mode (depended on another extension's page markup; its button was never connected).
+- Side panel, tutorial page, telemetry and the offscreen keepalive: referenced but missing from the package.
+- Dark theme toggle (replaced by the new light design).
+- "Continuous mode" page reloading (no longer needed).
+
+### Under the hood
+- No new permission warnings: adds `scripting` (start in already-open X tabs
+  without a reload) and `unlimitedStorage` (large lists).
+- Settings, whitelist, history and today's count are migrated from v6.
+- End-to-end tests against a strict mock of x.com in `tests/e2e/`.
+
+---
+
+# Earlier releases (v6 and before)
 
 ## v6.28.0 — One scroll per batch, not one per unfollow
 
