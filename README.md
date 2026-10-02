@@ -3,8 +3,8 @@
 Free & unlimited X (Twitter) mass unfollow tool. Bulk unfollow, clean your
 following list, and remove non-followers with ease.
 
-A product of **Unique Labs**. Developed by **Shahriar Ahmed** -
-[www.shahriarahmed.net](https://www.shahriarahmed.net)
+A product of **Unique Labs**. Developed by
+**[Shahriar Ahmed](https://www.shahriarahmed.net)**.
 
 ## Features
 

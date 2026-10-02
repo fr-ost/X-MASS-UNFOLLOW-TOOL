@@ -53,6 +53,7 @@ try {
   const foot = await d.textContent(".page-foot");
   assert(/A product of Unique Labs\. Developed by Shahriar Ahmed\./.test(foot.replace(/\s+/g, " ")), "footer credits text");
   assert(await d.$('.page-foot a[href="https://www.shahriarahmed.net"]'), "footer links the website");
+  assert((await d.textContent('.page-foot a.dev-link[href="https://www.shahriarahmed.net"]')) === "Shahriar Ahmed", "developer name links the website");
   assert(await d.$('.side-foot a[href="https://t.me/igfrostt"]'), "sidebar has Report a bug");
 
   // Theme persists to other pages (popup) and the appearance setting reflects it

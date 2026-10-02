@@ -324,6 +324,7 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; }
 .credits { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .credits b { color: var(--text-2); font-weight: 650; }
 .credits a { color: var(--accent-text); font-weight: 600; }
+a.dev-link { color: var(--accent-text); font-weight: 650; }
 
 /* ---------- motion ---------- */
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
