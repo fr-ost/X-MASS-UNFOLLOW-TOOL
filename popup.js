@@ -1,338 +1,330 @@
-// ============================================================
-// X Unfollow Manager Pro — popup.js (v5.0.0)
-// ============================================================
+// X Mass Unfollow - popup.js
+(function () {
+  "use strict";
 
-const $ = (id) => document.getElementById(id);
+  const { $, $$ } = U;
+  const K = X7.K;
+  let S = null;              // latest state from the worker
+  let pending = null;        // action waiting in the confirm sheet
 
-const countEl       = $("count"),
-      statusEl      = $("statusText"),
-      modeEl        = $("modeText"),
-      dot           = $("dot"),
-      timerLabel    = $("timerLabel"),
-      timerText     = $("timerText"),
-      progressBar   = $("progressBar"),
-      rateEl        = $("rate"),
-      elapsedEl     = $("elapsed"),
-      dbCountEl     = $("dbCount"),
-      chart         = $("sessionChart"),
-      chartLabel    = $("chartLabel"),
-      chartTotal    = $("chartTotal"),
-      chartPeak     = $("chartPeak"),
-      chartDuration = $("chartDuration"),
-      greetingText  = $("greetingText"),
-      profileName   = $("profileName"),
-      profileHandle = $("profileHandle"),
-      profileAvatar = $("profileAvatar");
-
-const chartCtx = chart.getContext("2d");
-
-// Hi-DPI canvas for crisp lines on retina screens.
-function setupCanvas() {
-  const ratio = window.devicePixelRatio || 1;
-  const cssW = 310, cssH = 120;
-  chart.style.width = cssW + "px";
-  chart.style.height = cssH + "px";
-  chart.width = cssW * ratio;
-  chart.height = cssH * ratio;
-  chartCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
-}
-
-let points = [];
-let peakRate = 0;
-
-function setStatus(text, state = "ready") {
-  statusEl.textContent = text;
-  dot.className = "dot";
-  if (state === "running") dot.classList.add("running");
-  if (state === "stopped") dot.classList.add("stopped");
-}
-
-function getDisplayMessage(msg) {
-  let text = msg?.message || "Running";
-  if (msg?.timer?.totalSeconds && (
-        text.toLowerCase().includes("waiting before next action") ||
-        text.toLowerCase().includes("cooldown") ||
-        text.toLowerCase().includes("scrolling pause")
-      )) {
-    text = text + ": " + formatTime(msg.timer.totalSeconds);
-  }
-  return text;
-}
-
-function updateTimer(msg) {
-  if (!msg || msg.totalSeconds === undefined || msg.remainingSeconds === undefined) {
-    timerLabel.textContent = "Timer";
-    timerText.textContent = "—";
-    progressBar.style.width = "0%";
-    return;
-  }
-  timerLabel.textContent = msg.label || "Timer";
-  timerText.textContent = formatTime(msg.remainingSeconds);
-  const total = Math.max(1, Number(msg.totalSeconds) || 1);
-  const remaining = Math.max(0, Number(msg.remainingSeconds) || 0);
-  const pct = Math.max(0, Math.min(100, ((total - remaining) / total) * 100));
-  progressBar.style.width = pct + "%";
-}
-
-function updateAnalytics(msg) {
-  if (msg?.rate !== undefined) {
-    const rate = Number(msg.rate) || 0;
-    rateEl.textContent = rate.toFixed(1);
-    peakRate = Math.max(peakRate, rate);
-  }
-  if (msg?.elapsedSeconds !== undefined) elapsedEl.textContent = formatTime(msg.elapsedSeconds);
-  if (msg?.elapsedSeconds !== undefined && msg?.count !== undefined) {
-    addChartPoint(Number(msg.elapsedSeconds) || 0, Number(msg.count) || 0, Number(msg.rate) || 0);
-  }
-}
-
-function addChartPoint(t, c, r) {
-  const last = points[points.length - 1];
-  if (!last || last.t !== t || last.c !== c || last.r !== r) {
-    points.push({ t, c, r });
-    if (points.length > 90) points.shift();
-    drawChart();
-  }
-}
-
-// ------------------------------------------------------------
-// Chart — redrawn for the light/editorial theme.
-// Black ink line, vermillion fill, dotted grid.
-// ------------------------------------------------------------
-function drawChart() {
-  const w = 310, h = 120;
-  chartCtx.clearRect(0, 0, w, h);
-
-  // background paper
-  chartCtx.fillStyle = "#efe7d8";
-  chartCtx.fillRect(0, 0, w, h);
-
-  // dotted horizontal gridlines
-  chartCtx.strokeStyle = "rgba(20,17,13,0.16)";
-  chartCtx.setLineDash([1, 3]);
-  chartCtx.lineWidth = 1;
-  for (let i = 1; i < 4; i++) {
-    const y = (h / 4) * i;
-    chartCtx.beginPath();
-    chartCtx.moveTo(6, y);
-    chartCtx.lineTo(w - 6, y);
-    chartCtx.stroke();
-  }
-  chartCtx.setLineDash([]);
-
-  const latest = points[points.length - 1] || { t: 0, c: 0, r: 0 };
-  const maxT = Math.max(1, ...points.map(p => p.t));
-  const maxC = Math.max(1, ...points.map(p => p.c));
-
-  chartLabel.textContent = `${latest.c} unfollows · ${latest.r.toFixed(1)}/min`;
-  chartTotal.textContent = String(latest.c);
-  chartPeak.textContent  = peakRate.toFixed(1);
-  chartDuration.textContent = formatTime(latest.t);
-
-  if (points.length < 2) {
-    chartCtx.font = "italic 11px Fraunces, serif";
-    chartCtx.fillStyle = "rgba(20,17,13,0.5)";
-    chartCtx.textAlign = "center";
-    chartCtx.fillText("chart begins after first actions", w / 2, h / 2);
-    chartCtx.textAlign = "start";
-    return;
+  // ------------------------------------------------------------------ views
+  function show(name) {
+    $$(".view").forEach((v) => v.classList.toggle("is-on", v.dataset.view === name));
   }
 
-  const coords = points.map(p => ({
-    x: (p.t / maxT) * (w - 18) + 9,
-    y: h - ((p.c / maxC) * (h - 28)) - 14
-  }));
-
-  // filled area — vermillion at low opacity
-  chartCtx.beginPath();
-  coords.forEach((pt, i) => i === 0 ? chartCtx.moveTo(pt.x, pt.y) : chartCtx.lineTo(pt.x, pt.y));
-  chartCtx.lineTo(coords[coords.length - 1].x, h - 4);
-  chartCtx.lineTo(coords[0].x, h - 4);
-  chartCtx.closePath();
-  const grad = chartCtx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, "rgba(200,49,44,0.28)");
-  grad.addColorStop(1, "rgba(200,49,44,0.02)");
-  chartCtx.fillStyle = grad;
-  chartCtx.fill();
-
-  // ink line
-  chartCtx.strokeStyle = "#14110d";
-  chartCtx.lineWidth = 2;
-  chartCtx.lineJoin = "round";
-  chartCtx.lineCap = "round";
-  chartCtx.beginPath();
-  coords.forEach((pt, i) => i === 0 ? chartCtx.moveTo(pt.x, pt.y) : chartCtx.lineTo(pt.x, pt.y));
-  chartCtx.stroke();
-
-  // last point — vermillion accent
-  const last = coords[coords.length - 1];
-  chartCtx.beginPath();
-  chartCtx.arc(last.x, last.y, 3.5, 0, Math.PI * 2);
-  chartCtx.fillStyle = "#c8312c";
-  chartCtx.fill();
-  chartCtx.strokeStyle = "#14110d";
-  chartCtx.lineWidth = 1.5;
-  chartCtx.stroke();
-
-  // axis labels — monospace
-  chartCtx.font = "9px JetBrains Mono, monospace";
-  chartCtx.fillStyle = "rgba(20,17,13,0.55)";
-  chartCtx.fillText("0", 6, h - 4);
-  chartCtx.fillText(String(maxC), 6, 12);
-  chartCtx.textAlign = "end";
-  chartCtx.fillText(formatTime(maxT), w - 6, h - 4);
-  chartCtx.textAlign = "start";
-}
-
-function formatTime(sec) {
-  sec = Math.max(0, Math.floor(Number(sec) || 0));
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
-}
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 5)  return "Working late";
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  if (h < 21) return "Good evening";
-  return "Welcome back";
-}
-
-async function loadProfileGreeting() {
-  greetingText.textContent = getGreeting();
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.id || !/^https:\/\/(x|twitter)\.com\//.test(tab.url || "")) {
-    profileName.textContent = "X User";
-    profileHandle.textContent = "Open X to detect profile";
-    profileAvatar.removeAttribute("src");
-    return;
+  function setStatus(kind, text) {
+    const pill = $("#statusPill");
+    pill.className = "pill" + (kind ? " is-" + kind : "");
+    $("#statusText").textContent = text;
   }
-  chrome.tabs.sendMessage(tab.id, { action: "GET_PROFILE" }, (res) => {
-    if (chrome.runtime.lastError || !res?.profile) {
-      profileName.textContent = "X User";
-      profileHandle.textContent = "Profile not detected yet";
-      profileAvatar.removeAttribute("src");
-      return;
+
+  function renderAccount() {
+    const acc = S.account;
+    const av = $("#accAvatar");
+    const fresh = U.avatar(acc && acc.avatar, acc && (acc.name || acc.handle), 40);
+    av.replaceWith(fresh);
+    fresh.id = "accAvatar";
+    if (acc && acc.id && !acc.signedOut) {
+      $("#accName").textContent = acc.name || (acc.handle ? "@" + acc.handle : "Signed in");
+      $("#accHandle").textContent = acc.handle
+        ? "@" + acc.handle + (acc.following != null ? " · " + U.compact(acc.following) + " following" : "")
+        : "Connected to X";
+    } else {
+      $("#accName").textContent = acc && acc.signedOut ? "Signed out of X" : "Not connected";
+      $("#accHandle").textContent = "Open x.com and sign in";
     }
-    profileName.textContent = res.profile.name || "X User";
-    profileHandle.textContent = res.profile.handle ? "@" + res.profile.handle : "Logged-in account";
-    if (res.profile.avatar) profileAvatar.src = res.profile.avatar;
-  });
-}
 
-// Restore live state on popup re-open (since the script keeps running).
-async function restoreLiveState() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.id || !/^https:\/\/(x|twitter)\.com\//.test(tab.url || "")) return;
-  chrome.tabs.sendMessage(tab.id, { action: "GET_STATE" }, (res) => {
-    if (chrome.runtime.lastError || !res) return;
-    applyResponse(res);
-  });
-}
-
-async function send(action) {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.id) { setStatus("No active tab", "stopped"); return; }
-  if (!/^https:\/\/(x|twitter)\.com\//.test(tab.url || "")) {
-    setStatus("Open X/Twitter first", "stopped");
-    return;
+    const limit = S.settings.dailyLimit;
+    const used = S.today || 0;
+    $("#todayNum").textContent = U.compact(used);
+    $("#todayCap").textContent = limit ? "of " + U.compact(limit) : "today";
+    const frac = limit ? Math.min(1, used / limit) : (used ? 1 : 0);
+    $("#todayRing").style.strokeDashoffset = String(97.4 * (1 - frac));
+    const box = $("#todayBox");
+    box.classList.toggle("is-near", !!limit && frac >= 0.8 && frac < 1);
+    box.classList.toggle("is-full", !!limit && frac >= 1);
+    box.title = limit ? `${used} of ${limit} unfollows used in the last 24 hours` : `${used} unfollows in the last 24 hours (no daily limit)`;
   }
-  chrome.tabs.sendMessage(tab.id, { action }, (res) => {
-    if (chrome.runtime.lastError) { setStatus("Refresh the X page first", "stopped"); return; }
-    if (action === "START_NON_FOLLOWERS" || action === "START_ALL") {
-      points = []; peakRate = 0; drawChart();
+
+  function settingsLine() {
+    const s = S.settings;
+    const names = { safe: "Safe", balanced: "Balanced", fast: "Fast", custom: "Custom" };
+    return `${names[s.speed] || "Custom"} · ${s.minDelay}-${s.maxDelay}s apart`;
+  }
+
+  function estimate(count) {
+    const s = S.settings;
+    const avg = (s.minDelay + s.maxDelay) / 2 + 1.5;
+    let secs = count * avg;
+    if (s.restEvery > 0) secs += Math.floor(count / s.restEvery) * s.restMinutes * 60;
+    if (s.dailyLimit > 0) {
+      const room = Math.max(0, s.dailyLimit - (S.today || 0));
+      if (count > room) {
+        const days = Math.ceil((count - room) / s.dailyLimit);
+        return `${U.dur(Math.min(secs, room * avg))} today, then ~${days} more day${days === 1 ? "" : "s"}`;
+      }
     }
-    applyResponse(res);
-  });
-}
-
-function applyResponse(res) {
-  if (res?.count !== undefined) countEl.textContent = res.count;
-  if (res?.mode) modeEl.textContent = res.mode;
-  updateTimer(res?.timer);
-  updateAnalytics(res);
-  updateDbCount();
-  setStatus(getDisplayMessage(res), res?.running ? "running" : "ready");
-}
-
-function csvEscape(value) {
-  const s = String(value ?? "");
-  return `"${s.replace(/"/g, '""')}"`;
-}
-
-async function updateDbCount() {
-  chrome.storage.local.get({ unfollowedProfiles: [] }, (data) => {
-    dbCountEl.textContent = (data.unfollowedProfiles || []).length;
-  });
-}
-
-async function exportCsv() {
-  chrome.storage.local.get({ unfollowedProfiles: [] }, (data) => {
-    const rows = data.unfollowedProfiles || [];
-    if (!rows.length) { setStatus("Database is empty.", "stopped"); return; }
-    const header = ["username", "profile_url", "unfollowed_at", "source_url", "mode"];
-    // FIX: was "\\n" (literal backslash-n). Now real newlines.
-    const csv = [
-      header.join(","),
-      ...rows.map(r => [
-        csvEscape(r.username),
-        csvEscape(r.profileUrl),
-        csvEscape(r.unfollowedAt),
-        csvEscape(r.sourceUrl),
-        csvEscape(r.mode)
-      ].join(","))
-    ].join("\n");
-
-    // BOM so Excel opens UTF-8 cleanly
-    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const date = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `x-unfollowed-profiles-${date}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    setStatus("CSV exported.", "ready");
-  });
-}
-
-async function clearDb() {
-  if (!confirm("Clear all saved unfollowed profiles from the local database?")) return;
-  chrome.storage.local.set({ unfollowedProfiles: [] }, () => {
-    updateDbCount();
-    setStatus("Database cleared.", "stopped");
-  });
-}
-
-// ---- wire up ----
-$("nonFollowers").addEventListener("click", () => send("START_NON_FOLLOWERS"));
-$("all").addEventListener("click",          () => send("START_ALL"));
-$("pause").addEventListener("click",        () => send("PAUSE"));
-$("resume").addEventListener("click",       () => send("RESUME"));
-$("stop").addEventListener("click",         () => send("STOP"));
-$("settings").addEventListener("click",     () => chrome.runtime.openOptionsPage());
-$("contact").addEventListener("click",      () => chrome.tabs.create({ url: "https://t.me/igfrostt" }));
-$("exportCsv").addEventListener("click",    exportCsv);
-$("clearDb").addEventListener("click",      clearDb);
-
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "PROGRESS") applyResponse(msg);
-  if (msg.type === "STOPPED") {
-    applyResponse(msg);
-    updateTimer(null);
-    setStatus(msg.message || "Stopped", "stopped");
-    modeEl.textContent = "Idle";
+    return "~" + U.dur(secs);
   }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  setupCanvas();
-  loadProfileGreeting();
-  updateDbCount();
-  drawChart();
-  restoreLiveState();
-});
+  function scanIsStale() {
+    const sc = S.scan;
+    if (!sc || !sc.finishedAt) return true;
+    return Date.now() - sc.finishedAt > S.settings.scanMaxAgeHours * 3600000;
+  }
+
+  // ------------------------------------------------------------------ render
+  function render() {
+    renderAccount();
+    const { scan, job, account } = S;
+    const signedOut = account && account.signedOut;
+
+    if (scan && scan.status === "running") return renderScanning();
+    if (job && ["running", "resting", "paused", "halted"].includes(job.status)) return renderRun();
+    if (job && ["done", "stopped"].includes(job.status)) return renderDone();
+    if (signedOut) { setStatus("halt", "Signed out"); return show("signin"); }
+    if (scan && scan.status === "done" && (!account || !account.id || scan.ownerId === account.id)) return renderReady();
+
+    setStatus("", "Ready");
+    show("start");
+    const note = $("#startNotice");
+    note.hidden = !(scan && scan.status === "error" && scan.error);
+    if (!note.hidden) note.textContent = scan.error;
+  }
+
+  function renderScanning() {
+    const sc = S.scan;
+    setStatus("scan", "Scanning");
+    show("scanning");
+    $("#scanCount").textContent = U.fmt(sc.phase === "followers" ? sc.followersRead || 0 : sc.fetched || 0);
+    $("#scanMsg").textContent = sc.message || "Reading your following list...";
+    const bar = $("#scanBar");
+    if (sc.expected && sc.phase !== "followers") {
+      bar.classList.remove("is-indeterminate");
+      bar.firstElementChild.style.width = Math.min(98, Math.max(3, (sc.fetched || 0) / sc.expected * 100)) + "%";
+    } else {
+      bar.classList.add("is-indeterminate");
+    }
+  }
+
+  function renderReady() {
+    const sc = S.scan;
+    setStatus("", "Ready");
+    show("ready");
+    $("#stFollowing").textContent = U.compact(sc.total);
+    $("#stNon").textContent = U.compact(sc.nonFollowers);
+    $("#stMutual").textContent = U.compact(sc.mutuals);
+
+    const n = S.actionable || 0;
+    const runNon = $("#runNonBtn");
+    $("#runNonLabel").textContent = n ? `Unfollow ${U.fmt(n)} non-follower${n === 1 ? "" : "s"}` : "No non-followers to unfollow";
+    runNon.disabled = !n || !!sc.relationshipUnknown;
+    $("#runAllBtn").disabled = !S.actionableAll;
+
+    const note = $("#readyNotice");
+    note.className = "notice";
+    if (sc.relationshipUnknown) {
+      note.hidden = false;
+      note.classList.add("is-error");
+      note.textContent = "X didn't say who follows you back this time, so non-followers can't be picked safely. Rescan in a few minutes.";
+    } else if (sc.partial) {
+      note.hidden = false;
+      note.textContent = (sc.error || "The scan stopped early.") + " Results cover " + U.fmt(sc.total) + " accounts.";
+    } else if (sc.nonFollowers > 0 && !n) {
+      note.hidden = false;
+      note.classList.add("is-info");
+      note.textContent = "Everyone who doesn't follow back is already unfollowed or protected by your whitelist / Keep rules.";
+    } else {
+      note.hidden = true;
+    }
+    $("#scanAge").textContent = "Scanned " + U.ago(sc.finishedAt) + (sc.method === "dom" ? " (page mode)" : "");
+  }
+
+  function renderRun() {
+    const j = S.job;
+    const pct = j.total ? Math.round(((j.done + j.skipped + j.failed) / j.total) * 100) : 0;
+    const left = Math.max(0, j.total - j.index);
+    show("run");
+
+    const states = {
+      running: ["run", "Running"], resting: ["rest", "Resting"], paused: ["", "Paused"], halted: ["halt", "Needs you"]
+    };
+    const [kind, label] = states[j.status] || ["", j.status];
+    setStatus(kind, label);
+
+    $("#runDone").textContent = U.fmt(j.done);
+    $("#runTotal").textContent = "/ " + U.fmt(j.total);
+    $("#runPct").textContent = pct + "%";
+    const bar = $("#runBar");
+    bar.className = "bar" + (j.status === "running" ? " is-live" : j.status === "resting" ? " is-rest" : "");
+    bar.firstElementChild.style.width = Math.max(2, pct) + "%";
+
+    $("#runSkipped").textContent = U.fmt(j.skipped + j.failed);
+    $("#runLeft").textContent = U.fmt(left);
+    $("#runEta").textContent = left ? estimate(left).replace(/^~/, "").split(" today")[0] : "-";
+
+    const t = j.current;
+    const av = $("#nowAvatar");
+    const fresh = U.avatar(t && t.a, t && (t.n || t.h), 38);
+    av.replaceWith(fresh);
+    fresh.id = "nowAvatar";
+    $("#nowHandle").textContent = t ? (t.n ? t.n + "  @" + t.h : "@" + t.h) : "-";
+    $("#nowLabel").textContent = j.status === "running" ? (j.inFlight ? "Unfollowing" : "Next up") : "Up next";
+
+    const msg = $("#runMsg");
+    msg.textContent = j.message || "";
+    msg.className = "run-msg" + (j.status === "halted" ? " is-error" : j.status === "resting" ? " is-warn" : "");
+
+    $("#pauseBtn").hidden = !(j.status === "running" || j.status === "resting");
+    $("#resumeBtn").hidden = !(j.status === "paused" || j.status === "halted");
+    tickTimer();
+  }
+
+  function renderDone() {
+    const j = S.job;
+    setStatus("done", j.status === "done" ? "Finished" : "Stopped");
+    show("done");
+    $("#doneTitle").textContent = j.status === "done" ? "All done" : "Stopped";
+    $("#doneMsg").textContent = j.message || "";
+    $("#doneUn").textContent = U.fmt(j.done);
+    $("#doneSkip").textContent = U.fmt(j.skipped + j.failed);
+    $("#doneTime").textContent = j.finishedAt ? U.dur((j.finishedAt - j.startedAt) / 1000) : "-";
+  }
+
+  // live countdown for the run view
+  function tickTimer() {
+    if (!S || !S.job) return;
+    const j = S.job;
+    let target = null, label = "next in";
+    if (j.status === "resting") { target = j.restUntil; label = j.restReason === "daily" ? "daily limit" : "break"; }
+    else if (j.status === "running") { target = j.inFlight ? null : j.nextAt; }
+    const el = $("#nowTimer");
+    if (j.status === "running" && j.inFlight) { el.innerHTML = '<span class="spinner"></span>'; $("#nowTimerLabel").textContent = "working"; return; }
+    if (!target || j.status === "paused" || j.status === "halted") { el.textContent = "-"; $("#nowTimerLabel").textContent = j.status === "paused" ? "paused" : ""; return; }
+    const secs = Math.max(0, Math.round((target - Date.now()) / 1000));
+    el.textContent = secs >= 3600 ? U.clock(target) : secs >= 60 ? Math.floor(secs / 60) + ":" + String(secs % 60).padStart(2, "0") : secs + "s";
+    $("#nowTimerLabel").textContent = label;
+  }
+  setInterval(() => { if (S && S.job && $('[data-view="run"]').classList.contains("is-on")) tickTimer(); }, 500);
+
+  // ------------------------------------------------------------------ sheet
+  function openSheet(opts) {
+    pending = opts;
+    $("#sheetTitle").textContent = opts.title;
+    $("#sheetBody").textContent = opts.body;
+    const facts = $("#sheetFacts");
+    facts.innerHTML = "";
+    for (const [k, v] of opts.facts) {
+      const row = document.createElement("div");
+      row.innerHTML = `<span>${U.esc(k)}</span><b>${U.esc(v)}</b>`;
+      facts.appendChild(row);
+    }
+    $("#sheetOk").querySelector("span").textContent = opts.ok || "Start";
+    $("#sheet").hidden = false;
+    setTimeout(() => $("#sheetOk").focus(), 50);
+  }
+  function closeSheet() { $("#sheet").hidden = true; pending = null; }
+
+  function confirmRun(source) {
+    const stale = scanIsStale();
+    const n = source === "all" ? S.actionableAll : S.actionable;
+    const s = S.settings;
+    const facts = [
+      ["Pace", settingsLine()],
+      ["Daily limit", s.dailyLimit ? `${s.dailyLimit} (${S.today} used)` : "Off"],
+      ["Estimated time", estimate(n)]
+    ];
+    if (stale) facts.unshift(["Scan", "Older than " + s.scanMaxAgeHours + "h - refreshed first"]);
+    openSheet({
+      title: source === "all"
+        ? `Unfollow everyone (${U.fmt(n)})?`
+        : `Unfollow ${U.fmt(n)} non-follower${n === 1 ? "" : "s"}?`,
+      body: source === "all"
+        ? "This includes people who follow you back. Your whitelist and Keep rules still apply."
+        : "Only accounts that don't follow you back. Your whitelist and Keep rules always apply.",
+      facts,
+      ok: stale ? "Scan & start" : "Start",
+      run: async () => {
+        const r = stale
+          ? await U.cmd("scan", { then: { source } })
+          : await U.cmd("run", { source });
+        if (!r.ok) U.toast(r.error || "Couldn't start.", "err", 5000);
+        refresh();
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------ actions
+  async function startScan() {
+    const btn = $("#scanBtn");
+    btn.disabled = true;
+    const r = await U.cmd("scan");
+    btn.disabled = false;
+    if (!r.ok) {
+      U.toast(r.error || "Couldn't start the scan.", "err", 5000);
+      if (r.needLogin) { S.account = { signedOut: true }; render(); }
+    }
+    refresh();
+  }
+
+  function openDash(hash) {
+    U.cmd("dashboard", { hash });
+    window.close();
+  }
+
+  function wire() {
+    U.icons();
+    $("#scanBtn").addEventListener("click", startScan);
+    $("#rescanBtn").addEventListener("click", startScan);
+    $("#scanStopBtn").addEventListener("click", () => U.cmd("scanStop").then(refresh));
+    $("#runNonBtn").addEventListener("click", () => confirmRun("nonfollowers"));
+    $("#runAllBtn").addEventListener("click", () => confirmRun("all"));
+    $("#reviewBtn").addEventListener("click", () => openDash("following"));
+    $("#pauseBtn").addEventListener("click", () => U.cmd("pause").then(refresh));
+    $("#resumeBtn").addEventListener("click", () => U.cmd("resume").then(refresh));
+    $("#stopBtn").addEventListener("click", () => U.cmd("stop").then(refresh));
+    $("#doneOkBtn").addEventListener("click", () => U.cmd("clearJob").then(refresh));
+    $("#historyBtn").addEventListener("click", () => openDash("history"));
+    $("#openXBtn").addEventListener("click", () => { U.cmd("openX"); window.close(); });
+    $("#retryBtn").addEventListener("click", async () => {
+      const r = await U.cmd("refreshAccount");
+      if (!r.ok && r.noTab) U.toast("Open x.com in a tab first.", "err");
+      refresh();
+    });
+    $$("[data-open]").forEach((b) => b.addEventListener("click", () => openDash(b.dataset.open)));
+    $("#sheetCancel").addEventListener("click", closeSheet);
+    $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+    $("#sheetOk").addEventListener("click", async () => {
+      const p = pending;
+      closeSheet();
+      if (p && p.run) await p.run();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) { e.preventDefault(); closeSheet(); } });
+  }
+
+  // ------------------------------------------------------------------ data
+  let refreshing = null;
+  async function refresh() {
+    if (refreshing) return refreshing;
+    refreshing = (async () => {
+      const r = await U.cmd("state");
+      if (r && r.ok) { S = r; render(); }
+      else if (!S) { setStatus("halt", "Error"); show("start"); }
+    })().finally(() => { refreshing = null; });
+    return refreshing;
+  }
+
+  let debounce = null;
+  U.watch([K.job, K.scan, K.account, K.settings, K.ledger, K.whitelist], () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(refresh, 120);
+  });
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    wire();
+    show("loading");
+    await refresh();
+    // Quietly refresh who is signed in, if an X tab is open.
+    U.cmd("refreshAccount").then((r) => { if (r && r.ok) refresh(); });
+  });
+})();

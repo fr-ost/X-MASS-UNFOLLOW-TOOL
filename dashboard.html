@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X Mass Unfollow - Dashboard</title>
+  <link rel="icon" href="icon32.png">
+  <link rel="stylesheet" href="ui/base.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="side">
+      <div class="side-brand">
+        <img src="icon48.png" alt="">
+        <div><b>Mass Unfollow</b><small>for X</small></div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <a href="#overview" data-route="overview" data-icon="home"><span>Overview</span></a>
+        <a href="#following" data-route="following" data-icon="users"><span>Following</span><em id="navNon" hidden></em></a>
+        <a href="#whitelist" data-route="whitelist" data-icon="shield"><span>Whitelist</span><em id="navWl" hidden></em></a>
+        <a href="#history" data-route="history" data-icon="history"><span>History</span></a>
+        <a href="#import" data-route="import" data-icon="upload"><span>Import list</span></a>
+        <a href="#settings" data-route="settings" data-icon="sliders"><span>Settings</span></a>
+        <a href="#help" data-route="help" data-icon="help"><span>Help</span></a>
+      </nav>
+
+      <div class="side-run" id="sideRun" hidden>
+        <div class="side-run-top"><span class="pill" id="sideRunPill"><span class="dot"></span><span id="sideRunText">Running</span></span><b class="num" id="sideRunNum">0/0</b></div>
+        <div class="bar is-live" id="sideRunBar"><i></i></div>
+        <small id="sideRunMsg"></small>
+      </div>
+
+      <div class="side-ad" id="adZone" data-ad-zone hidden>
+        <div id="adSlot" data-ad-placement="card"></div>
+      </div>
+
+      <div class="side-foot">
+        <span id="version">v7</span>
+        <a href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="send"><span>Support</span></a>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="main" id="main">
+
+      <!-- OVERVIEW -->
+      <section class="page" data-page="overview">
+        <header class="page-head">
+          <div class="who">
+            <span class="avatar" id="ovAvatar"></span>
+            <div>
+              <h1 id="ovHello">Welcome</h1>
+              <p id="ovSub">Connect your X account to begin.</p>
+            </div>
+          </div>
+          <div class="head-actions">
+            <button class="btn" id="ovScanBtn" data-icon="scan"><span>Scan following</span></button>
+          </div>
+        </header>
+
+        <div class="kpis">
+          <div class="kpi card"><span>Following</span><b class="num" id="kFollowing">-</b><small id="kFollowingSub">from your last scan</small></div>
+          <div class="kpi card kpi-hot"><span>Don't follow back</span><b class="num" id="kNon">-</b><small id="kNonSub">&nbsp;</small></div>
+          <div class="kpi card"><span>Mutuals</span><b class="num" id="kMutual">-</b><small>follow each other</small></div>
+          <div class="kpi card"><span>Unfollowed today</span><b class="num" id="kToday">0</b><small id="kTodaySub">rolling 24 hours</small></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card panel" id="runPanel">
+            <div class="panel-head">
+              <h2>Unfollow run</h2>
+              <span class="pill" id="rpPill"><span class="dot"></span><span id="rpPillText">Idle</span></span>
+            </div>
+
+            <div id="rpIdle">
+              <p class="muted" id="rpIdleText">Scan your following list, then unfollow everyone who doesn't follow you back with one click.</p>
+              <div class="btn-row">
+                <button class="btn btn-primary btn-lg" id="rpRunNon" data-icon="userX"><span id="rpRunNonLabel">Unfollow non-followers</span></button>
+                <button class="btn btn-lg" id="rpReview" data-icon="users"><span>Review list</span></button>
+              </div>
+            </div>
+
+            <div id="rpActive" hidden>
+              <div class="rp-count"><b class="num" id="rpDone">0</b><span class="num" id="rpTotal">/ 0 unfollowed</span><em class="num" id="rpPct">0%</em></div>
+              <div class="bar is-live" id="rpBar"><i></i></div>
+              <div class="rp-now">
+                <span class="avatar" id="rpAvatar"></span>
+                <div class="rp-now-text"><small id="rpNowLabel">Next up</small><b id="rpNow">-</b></div>
+                <div class="rp-timer"><b class="num" id="rpTimer">-</b><small id="rpTimerLabel"></small></div>
+              </div>
+              <p class="rp-msg" id="rpMsg"></p>
+              <div class="rp-facts">
+                <div><b class="num" id="rpSkipped">0</b><span>Skipped</span></div>
+                <div><b class="num" id="rpLeft">0</b><span>Left</span></div>
+                <div><b id="rpMode">Direct</b><span>Mode</span></div>
+              </div>
+              <div class="btn-row">
+                <button class="btn" id="rpPause" data-icon="pause"><span>Pause</span></button>
+                <button class="btn btn-primary" id="rpResume" data-icon="play" hidden><span>Resume</span></button>
+                <button class="btn btn-danger-soft" id="rpStop" data-icon="stop"><span>Stop</span></button>
+                <button class="btn btn-ghost" id="rpClear" hidden><span>Clear</span></button>
+              </div>
+            </div>
+
+            <div id="rpScan" hidden>
+              <div class="rp-count"><b class="num" id="rpScanNum">0</b><span>accounts read</span></div>
+              <div class="bar is-scan is-live" id="rpScanBar"><i></i></div>
+              <p class="rp-msg" id="rpScanMsg"></p>
+              <div class="btn-row"><button class="btn btn-danger-soft" id="rpScanStop" data-icon="stop"><span>Stop scan</span></button></div>
+            </div>
+          </div>
+
+          <div class="card panel">
+            <div class="panel-head"><h2>Activity</h2><a href="#history" class="small-link">All history</a></div>
+            <ul class="feed" id="feed"></ul>
+            <div class="empty-mini" id="feedEmpty">Nothing yet. Your unfollows will show up here.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOLLOWING -->
+      <section class="page" data-page="following">
+        <header class="page-head">
+          <div>
+            <h1>Following</h1>
+            <p id="flSub">Review everyone you follow, choose who goes, protect who stays.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn" id="flScan" data-icon="refresh"><span>Rescan</span></button>
+            <button class="btn" id="flExport" data-icon="download"><span>Export CSV</span></button>
+          </div>
+        </header>
+
+        <div class="empty-state card" id="flEmpty" hidden>
+          <div class="es-icon" data-icon="scan"></div>
+          <h2>No scan yet</h2>
+          <p>Scan your following list to see who follows you back. It takes about a minute and changes nothing.</p>
+          <button class="btn btn-primary btn-lg" id="flEmptyScan" data-icon="scan"><span>Scan my following</span></button>
+        </div>
+
+        <div id="flBody">
+          <div class="toolbar card">
+            <div class="search">
+              <span data-icon="search"></span>
+              <input class="input" id="flSearch" type="search" placeholder="Search name, @handle or bio" autocomplete="off">
+            </div>
+            <div class="seg" id="flSeg">
+              <button data-f="non" class="is-on">Don't follow back <em id="cNon">0</em></button>
+              <button data-f="mutual">Mutuals <em id="cMutual">0</em></button>
+              <button data-f="all">All <em id="cAll">0</em></button>
+              <button data-f="kept">Kept <em id="cKept">0</em></button>
+              <button data-f="done">Unfollowed <em id="cDone">0</em></button>
+            </div>
+            <div class="toolbar-row">
+              <div class="chips" id="flChips">
+                <button data-x="noavatar">No photo</button>
+                <button data-x="fewposts">Under 10 posts</button>
+                <button data-x="fewfollowers">Under 50 followers</button>
+                <button data-x="spammy">Follows 10x more than followed</button>
+                <button data-x="verified">Verified</button>
+                <button data-x="private">Private</button>
+              </div>
+              <select class="select" id="flSort" aria-label="Sort">
+                <option value="list">Newest follows first</option>
+                <option value="oldest">Oldest follows first</option>
+                <option value="name">Name A-Z</option>
+                <option value="fcDesc">Most followers</option>
+                <option value="fcAsc">Fewest followers</option>
+                <option value="posts">Fewest posts</option>
+                <option value="joined">Newest accounts</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table card">
+            <div class="thead">
+              <label class="cb"><input type="checkbox" id="flAll"><span></span></label>
+              <span>Account</span>
+              <span class="col-num">Followers</span>
+              <span class="col-num col-posts">Posts</span>
+              <span class="col-num col-joined">Joined</span>
+              <span class="col-keep">Keep</span>
+            </div>
+            <div class="tbody" id="flRows"></div>
+            <div class="sentinel" id="flMore"></div>
+            <div class="empty-mini" id="flNone" hidden>No accounts match these filters.</div>
+          </div>
+        </div>
+
+        <div class="bulk" id="bulk" hidden>
+          <b id="bulkCount">0 selected</b>
+          <button class="btn btn-ghost btn-sm" id="bulkClear"><span>Clear</span></button>
+          <span class="bulk-sp"></span>
+          <button class="btn btn-sm" id="bulkKeep" data-icon="shield"><span>Keep</span></button>
+          <button class="btn btn-sm" id="bulkExport" data-icon="download"><span>Export</span></button>
+          <button class="btn btn-primary btn-sm" id="bulkRun" data-icon="userX"><span>Unfollow selected</span></button>
+        </div>
+      </section>
+
+      <!-- WHITELIST -->
+      <section class="page" data-page="whitelist">
+        <header class="page-head">
+          <div>
+            <h1>Whitelist</h1>
+            <p>Accounts here are never unfollowed - in any mode, ever.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn" id="wlExport" data-icon="download"><span>Export</span></button>
+          </div>
+        </header>
+        <div class="card panel">
+          <label class="field-label" for="wlInput">Add accounts</label>
+          <div class="add-row">
+            <input class="input" id="wlInput" placeholder="@friend, @client, x.com/cofounder ..." autocomplete="off">
+            <button class="btn btn-primary" id="wlAdd" data-icon="plus"><span>Add</span></button>
+          </div>
+          <p class="hint">Separate several with commas or spaces. Profile links work too. You can also tap the shield next to anyone in Following.</p>
+        </div>
+        <div class="card panel">
+          <div class="panel-head">
+            <h2><span id="wlCount">0</span> protected</h2>
+            <input class="input input-sm" id="wlSearch" type="search" placeholder="Filter" autocomplete="off">
+          </div>
+          <div class="wl-list" id="wlList"></div>
+          <div class="empty-mini" id="wlEmpty">No one yet.</div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="page" data-page="history">
+        <header class="page-head">
+          <div>
+            <h1>History</h1>
+            <p id="hiSub">Everyone this extension unfollowed, newest first. Stored only on this computer.</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn" id="hiExport" data-icon="download"><span>Export CSV</span></button>
+            <button class="btn btn-danger-soft" id="hiClear" data-icon="trash"><span>Clear</span></button>
+          </div>
+        </header>
+        <div class="card panel">
+          <div class="panel-head">
+            <h2><span id="hiCount">0</span> unfollowed</h2>
+            <input class="input input-sm" id="hiSearch" type="search" placeholder="Search" autocomplete="off">
+          </div>
+          <div class="hi-list" id="hiList"></div>
+          <div class="sentinel" id="hiMore"></div>
+          <div class="empty-mini" id="hiEmpty">No unfollows yet.</div>
+        </div>
+      </section>
+
+      <!-- IMPORT -->
+      <section class="page" data-page="import">
+        <header class="page-head">
+          <div>
+            <h1>Import a list</h1>
+            <p>Unfollow a specific set of accounts from a CSV or a pasted list - for example a list you exported earlier.</p>
+          </div>
+        </header>
+        <div class="card panel">
+          <div class="drop" id="drop">
+            <div class="drop-icon" data-icon="file"></div>
+            <b>Drop a CSV here</b>
+            <span>or</span>
+            <button class="btn btn-soft" id="impPick" data-icon="upload"><span>Choose file</span></button>
+            <input type="file" id="impFile" accept=".csv,.txt,text/csv,text/plain" hidden>
+          </div>
+          <label class="field-label" for="impText">...or paste handles</label>
+          <textarea class="input" id="impText" rows="5" placeholder="@account1, @account2&#10;https://x.com/account3"></textarea>
+          <div class="imp-foot">
+            <span id="impInfo" class="muted">Whitelisted accounts are skipped automatically.</span>
+            <button class="btn btn-primary" id="impRun" data-icon="userX" disabled><span id="impRunLabel">Unfollow these</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" data-page="settings">
+        <header class="page-head">
+          <div>
+            <h1>Settings</h1>
+            <p>Changes save automatically and apply to the next unfollow, even mid-run.</p>
+          </div>
+          <span class="saved" id="savedBadge" data-icon="check"><span>Saved</span></span>
+        </header>
+
+        <div class="card panel">
+          <div class="panel-head"><h2>Speed</h2></div>
+          <p class="muted">X limits accounts that follow or unfollow too quickly - usually around 400 actions a day on a free account, about 1,000 with Premium. Slower is safer.</p>
+          <div class="presets" id="presets">
+            <button class="preset" data-speed="safe">
+              <span class="preset-top"><b>Safe</b><em data-icon="shield"></em></span>
+              <span class="preset-sub">15-35s apart &middot; break every 30 &middot; 250/day</span>
+            </button>
+            <button class="preset" data-speed="balanced">
+              <span class="preset-top"><b>Balanced</b><em class="rec">Recommended</em></span>
+              <span class="preset-sub">8-20s apart &middot; break every 50 &middot; 400/day</span>
+            </button>
+            <button class="preset" data-speed="fast">
+              <span class="preset-top"><b>Fast</b><em data-icon="bolt"></em></span>
+              <span class="preset-sub">4-10s apart &middot; break every 80 &middot; 1,000/day (Premium)</span>
+            </button>
+            <button class="preset" data-speed="custom">
+              <span class="preset-top"><b>Custom</b><em data-icon="sliders"></em></span>
+              <span class="preset-sub">Set your own numbers below</span>
+            </button>
+          </div>
+
+          <div class="fields" id="customFields">
+            <label><span>Minimum delay <em>seconds</em></span><input class="input" type="number" id="minDelay" min="2" max="600"></label>
+            <label><span>Maximum delay <em>seconds</em></span><input class="input" type="number" id="maxDelay" min="2" max="900"></label>
+            <label><span>Take a break every <em>unfollows, 0 = never</em></span><input class="input" type="number" id="restEvery" min="0" max="1000"></label>
+            <label><span>Break length <em>minutes</em></span><input class="input" type="number" id="restMinutes" min="1" max="240"></label>
+            <label><span>Daily limit <em>per 24 hours, 0 = no limit</em></span><input class="input" type="number" id="dailyLimit" min="0" max="5000"></label>
+            <label><span>Rescan if older than <em>hours</em></span><input class="input" type="number" id="scanMaxAgeHours" min="1" max="720"></label>
+          </div>
+          <div class="notice-inline" id="speedWarn" hidden></div>
+        </div>
+
+        <div class="card panel">
+          <div class="panel-head"><h2>Keep rules</h2></div>
+          <p class="muted">Accounts matching any rule are kept when you unfollow non-followers or everyone. Your whitelist always applies, too.</p>
+          <div class="toggles">
+            <label class="tog">
+              <span class="tog-text"><b>Keep verified accounts</b><small>Anyone with a verification checkmark.</small></span>
+              <span class="switch"><input type="checkbox" id="keepVerified"><span></span></span>
+            </label>
+            <label class="tog">
+              <span class="tog-text"><b>Keep private accounts</b><small>Unfollowing a private account means requesting access again later.</small></span>
+              <span class="switch"><input type="checkbox" id="keepProtected"><span></span></span>
+            </label>
+          </div>
+          <div class="fields">
+            <label><span>Keep accounts with at least <em>followers, 0 = off</em></span><input class="input" type="number" id="keepMinFollowers" min="0"></label>
+            <label class="span-2"><span>Keep if name, handle or bio contains <em>comma separated</em></span><input class="input" id="keepKeywords" placeholder="news, team, partner"></label>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <div class="panel-head"><h2>Data</h2></div>
+          <div class="btn-row">
+            <button class="btn" id="resetSettings" data-icon="refresh"><span>Reset settings</span></button>
+            <button class="btn btn-danger-soft" id="wipeAll" data-icon="trash"><span>Delete all extension data</span></button>
+          </div>
+          <p class="hint">Everything is stored on this computer only. Deleting removes your scan, history, whitelist and settings.</p>
+        </div>
+      </section>
+
+      <!-- HELP -->
+      <section class="page" data-page="help">
+        <header class="page-head">
+          <div>
+            <h1>Help</h1>
+            <p>How it works, and what to do if something looks off.</p>
+          </div>
+        </header>
+
+        <div class="steps">
+          <div class="card step"><i>1</i><b>Scan</b><p>Reads your following list straight from X and marks who follows you back. Nothing changes.</p></div>
+          <div class="card step"><i>2</i><b>Review</b><p>Unfollow all non-followers in one click, or pick exactly who goes. Protect anyone with the whitelist.</p></div>
+          <div class="card step"><i>3</i><b>Relax</b><p>It works in the background at a safe pace, takes breaks, respects your daily limit and backs off if X asks.</p></div>
+        </div>
+
+        <div class="card panel">
+          <div class="panel-head">
+            <h2>Connection check</h2>
+            <button class="btn btn-sm" id="healthBtn" data-icon="bolt"><span>Run check</span></button>
+          </div>
+          <p class="muted">Tests each step the extension needs on X, without changing anything.</p>
+          <ul class="health" id="healthList"></ul>
+        </div>
+
+        <div class="card panel faq">
+          <div class="panel-head"><h2>Questions</h2></div>
+          <details><summary>Does it keep going if I switch tabs or close the popup?</summary><p>Yes. The run is driven by the extension itself, not by the page, so you can browse, switch tabs or close the popup. Keep at least one X tab open - if none is open the extension opens one in the background. If you quit Chrome, the run pauses; press Resume next time.</p></details>
+          <details><summary>Is it safe for my account?</summary><p>It sends the same requests X's own Unfollow button sends, from your own signed-in browser, one at a time with random gaps and regular breaks. If X ever says to slow down, it rests automatically and continues later. If X asks you to verify your account, it stops and waits for you. No one else ever gets your login.</p></details>
+          <details><summary>Why did it stop at my daily limit?</summary><p>X restricts accounts that unfollow too many people in a day. When your daily limit is reached the run rests and continues on its own as the 24-hour window frees up. You can change the limit in Settings.</p></details>
+          <details><summary>Someone who follows me was listed as a non-follower</summary><p>Run a fresh scan - follows change all the time. Add anyone you want to keep to the whitelist; whitelisted accounts are never unfollowed.</p></details>
+          <details><summary>What does "profile mode" mean?</summary><p>If X ever rejects direct requests, the extension switches to opening each profile in a background tab and pressing Unfollow there, just like you would. It's slower but keeps working.</p></details>
+          <details><summary>Emergency stop</summary><p>Press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> anywhere in Chrome to stop immediately.</p></details>
+        </div>
+
+        <div class="card panel contact">
+          <div>
+            <h2>Need a hand?</h2>
+            <p class="muted">Questions, bugs or ideas - message the developer.</p>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="https://t.me/igfrostt" target="_blank" rel="noopener" data-icon="send"><span>Telegram @igfrostt</span></a>
+            <a class="btn" href="privacy.html" target="_blank" rel="noopener" data-icon="lock"><span>Privacy policy</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Welcome (first install) -->
+  <div class="modal-backdrop" id="welcome" hidden>
+    <div class="modal welcome">
+      <img src="icon128.png" alt="" class="welcome-logo">
+      <h2>Welcome to Mass Unfollow</h2>
+      <p>Clean up your X following in three steps. Everything happens in your own browser.</p>
+      <ol class="welcome-steps">
+        <li><b>Sign in to X</b> in this browser.</li>
+        <li><b>Scan</b> to see who doesn't follow you back.</li>
+        <li><b>Unfollow</b> them all, or pick exactly who goes.</li>
+      </ol>
+      <div class="btn-row center">
+        <button class="btn btn-primary btn-lg" id="welcomeScan" data-icon="scan"><span>Scan my following</span></button>
+        <button class="btn btn-lg btn-ghost" id="welcomeLater"><span>Later</span></button>
+      </div>
+      <p class="hint">Tip: pin the extension (puzzle icon &rarr; pin) to open it in one click.</p>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div class="modal-backdrop" id="confirm" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+      <div class="modal-icon" id="cfIcon" data-icon="userX"></div>
+      <h2 id="cfTitle">Are you sure?</h2>
+      <p id="cfBody"></p>
+      <div class="facts" id="cfFacts"></div>
+      <div class="btn-row end">
+        <button class="btn" id="cfCancel"><span>Cancel</span></button>
+        <button class="btn btn-primary" id="cfOk"><span>Confirm</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared/config.js"></script>
+  <script src="ui/common.js"></script>
+  <script src="vendor/adsonbread-sdk.js"></script>
+  <script src="ads.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

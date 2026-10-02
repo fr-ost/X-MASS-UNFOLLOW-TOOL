@@ -2,267 +2,188 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Unfollow Console</title>
-  <script src="theme-boot.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X Mass Unfollow</title>
+  <link rel="stylesheet" href="ui/base.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <main class="console" id="console">
+  <div class="app" id="app">
 
-    <header class="bezel" data-reveal="0">
+    <header class="top">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M8.2 15.8 15.8 8.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
-          </svg>
-        </span>
+        <img src="icon48.png" alt="" class="brand-logo">
         <div class="brand-text">
-          <h1>Unfollow Console</h1>
-          <p>Following manager</p>
+          <b>Mass Unfollow</b>
+          <small>for X</small>
         </div>
       </div>
-      <div class="bezel-right">
-        <button id="themeToggle" class="theme-key" title="Switch theme" aria-label="Switch theme">
-          <svg class="ic-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
-            <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"
-                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-          </svg>
-          <svg class="ic-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20 13.4A8.2 8.2 0 1 1 10.6 4a6.6 6.6 0 0 0 9.4 9.4z"
-                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-          </svg>
-          <svg class="ic-auto" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.7"/>
-            <path d="M12 3.6a8.4 8.4 0 0 1 0 16.8z" fill="currentColor"/>
-          </svg>
-        </button>
-        <div class="lamp" id="statusPill">
-          <span id="dot" class="dot"></span>
-          <span id="statusText">Ready</span>
-        </div>
-      </div>
+      <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">Ready</span></span>
     </header>
 
-    <section class="notice" id="notice" hidden>
-      <div class="notice-head">
-        <span class="notice-tag" id="noticeTag">Attention</span>
-        <b id="noticeTitle">Something needs your attention</b>
+    <section class="account" id="account">
+      <span class="avatar" id="accAvatar"></span>
+      <div class="acc-text">
+        <b id="accName">Not connected</b>
+        <small id="accHandle">Open x.com and sign in</small>
       </div>
-      <p id="noticeBody">&nbsp;</p>
-      <button id="noticeAction" class="key key-ghost" hidden>Fix it</button>
-    </section>
-
-    <section class="operator" data-reveal="1">
-      <img id="profileAvatar" class="avatar" alt="" />
-      <div class="operator-text">
-        <span id="greetingText" class="greeting">Welcome back</span>
-        <b id="profileName">X User</b>
-        <small id="profileHandle">Open X to detect profile</small>
-      </div>
-    </section>
-
-    <section class="gauge-well" data-reveal="2">
-      <span class="well-label">Daily allowance</span>
-
-      <div class="gauge-stage">
-        <svg class="gauge" id="gauge" viewBox="0 20 260 122" aria-hidden="true">
-          <g id="gaugeTicks" class="ticks"></g>
-          <path id="gaugeTrack"   class="arc-track"   d="M 30 130 A 100 100 0 0 1 230 130" />
-          <path id="gaugeRedline" class="arc-redline" d="M 30 130 A 100 100 0 0 1 230 130" />
-          <path id="dayFill"      class="arc-fill"    d="M 30 130 A 100 100 0 0 1 230 130" />
-          <g id="gaugeNeedle" class="needle">
-            <line x1="130" y1="130" x2="130" y2="48" />
-            <circle cx="130" cy="130" r="6" class="hub" />
-            <circle cx="130" cy="130" r="2.2" class="hub-pin" />
-          </g>
+      <div class="today" id="todayBox" title="Unfollows in the last 24 hours">
+        <svg viewBox="0 0 36 36" class="ring" aria-hidden="true">
+          <circle cx="18" cy="18" r="15.5" class="ring-track"/>
+          <circle cx="18" cy="18" r="15.5" class="ring-fill" id="todayRing"/>
         </svg>
+        <div class="today-text"><b id="todayNum" class="num">0</b><small id="todayCap">today</small></div>
+      </div>
+    </section>
 
-        <div class="gauge-readout">
-          <b id="dayText" class="readout-figure">0 / 100</b>
-          <span id="budgetNote" class="readout-note">&mdash;</span>
+    <main class="stage" id="stage">
+
+      <!-- Loading -->
+      <section class="view" data-view="loading">
+        <div class="center-note"><span class="spinner"></span></div>
+      </section>
+
+      <!-- Not signed in / no X tab -->
+      <section class="view" data-view="signin">
+        <div class="hero">
+          <div class="hero-icon" data-icon="users"></div>
+          <h2>Sign in to X to begin</h2>
+          <p>The extension works inside your own signed-in X session. Nothing is ever sent anywhere else.</p>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" id="openXBtn"><span>Open x.com</span></button>
+        <button class="btn btn-ghost btn-block" id="retryBtn">I'm signed in - check again</button>
+      </section>
+
+      <!-- First run: no scan yet -->
+      <section class="view" data-view="start">
+        <div class="hero">
+          <div class="hero-icon" data-icon="scan"></div>
+          <h2>Who isn't following you back?</h2>
+          <p>Scan your following list to find out. It's read-only - nobody is unfollowed until you say so.</p>
+        </div>
+        <div class="notice is-error" id="startNotice" hidden></div>
+        <button class="btn btn-primary btn-lg btn-block" id="scanBtn" data-icon="scan"><span>Scan my following</span></button>
+        <ul class="ticks">
+          <li data-icon="check">Works in the background - switch tabs freely</li>
+          <li data-icon="check">Safe pacing, daily limits, automatic breaks</li>
+          <li data-icon="check">Whitelist anyone you never want to lose</li>
+        </ul>
+      </section>
+
+      <!-- Scanning -->
+      <section class="view" data-view="scanning">
+        <div class="scan-hero">
+          <div class="scan-orb"><span></span><span></span><span></span><b data-icon="scan"></b></div>
+          <h2 class="num" id="scanCount">0</h2>
+          <p id="scanMsg">Reading your following list...</p>
+        </div>
+        <div class="bar is-scan is-live" id="scanBar"><i></i></div>
+        <button class="btn btn-ghost btn-block" id="scanStopBtn" data-icon="stop"><span>Stop scan</span></button>
+      </section>
+
+      <!-- Scan done, ready to act -->
+      <section class="view" data-view="ready">
+        <div class="stats">
+          <div class="stat"><b class="num" id="stFollowing">0</b><span>Following</span></div>
+          <div class="stat stat-hot"><b class="num" id="stNon">0</b><span>Don't follow back</span></div>
+          <div class="stat"><b class="num" id="stMutual">0</b><span>Mutuals</span></div>
+        </div>
+        <div class="notice" id="readyNotice" hidden></div>
+        <button class="btn btn-primary btn-lg btn-block" id="runNonBtn" data-icon="userX"><span id="runNonLabel">Unfollow non-followers</span></button>
+        <div class="row2">
+          <button class="btn btn-soft" id="reviewBtn" data-icon="users"><span>Review &amp; pick</span></button>
+          <button class="btn" id="runAllBtn"><span>Unfollow all...</span></button>
+        </div>
+        <div class="meta-line">
+          <span id="scanAge">Scanned just now</span>
+          <button class="link" id="rescanBtn" data-icon="refresh"><span>Rescan</span></button>
+        </div>
+      </section>
+
+      <!-- Running / resting / paused / halted -->
+      <section class="view" data-view="run">
+        <div class="run-head">
+          <div class="run-count">
+            <b class="num" id="runDone">0</b><span class="num" id="runTotal">/ 0</span>
+          </div>
+          <span class="run-pct num" id="runPct">0%</span>
+        </div>
+        <div class="bar is-live" id="runBar"><i></i></div>
+
+        <div class="now" id="nowCard">
+          <span class="avatar" id="nowAvatar"></span>
+          <div class="now-text">
+            <small id="nowLabel">Next up</small>
+            <b id="nowHandle">-</b>
+          </div>
+          <div class="now-timer">
+            <b class="num" id="nowTimer">-</b>
+            <small id="nowTimerLabel">next in</small>
+          </div>
+        </div>
+
+        <p class="run-msg" id="runMsg">Starting...</p>
+
+        <div class="mini-stats">
+          <div><b class="num" id="runSkipped">0</b><span>Skipped</span></div>
+          <div><b class="num" id="runLeft">0</b><span>Left</span></div>
+          <div><b class="num" id="runEta">-</b><span>Time left</span></div>
+        </div>
+
+        <div class="row2">
+          <button class="btn" id="pauseBtn" data-icon="pause"><span>Pause</span></button>
+          <button class="btn btn-primary" id="resumeBtn" data-icon="play" hidden><span>Resume</span></button>
+          <button class="btn btn-danger-soft" id="stopBtn" data-icon="stop"><span>Stop</span></button>
+        </div>
+        <p class="hint-line">Runs in the background - you can close this popup.</p>
+      </section>
+
+      <!-- Finished -->
+      <section class="view" data-view="done">
+        <div class="hero">
+          <div class="hero-icon hero-ok" data-icon="check"></div>
+          <h2 id="doneTitle">All done</h2>
+          <p id="doneMsg">Your run finished.</p>
+        </div>
+        <div class="mini-stats">
+          <div><b class="num" id="doneUn">0</b><span>Unfollowed</span></div>
+          <div><b class="num" id="doneSkip">0</b><span>Skipped</span></div>
+          <div><b class="num" id="doneTime">-</b><span>Took</span></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="doneOkBtn"><span>Done</span></button>
+        <button class="btn btn-ghost btn-block" id="historyBtn" data-icon="history"><span>See history</span></button>
+      </section>
+
+    </main>
+
+    <section class="ad-zone" id="adZone" data-ad-zone hidden>
+      <div id="adSlot" data-ad-placement="banner"></div>
+    </section>
+
+    <nav class="foot">
+      <button class="foot-link" data-open="overview" data-icon="grid"><span>Dashboard</span></button>
+      <button class="foot-link" data-open="whitelist" data-icon="shield"><span>Whitelist</span></button>
+      <button class="foot-link" data-open="settings" data-icon="sliders"><span>Settings</span></button>
+      <button class="foot-link" data-open="help" data-icon="help"><span>Help</span></button>
+    </nav>
+
+    <!-- Confirmation sheet -->
+    <div class="sheet-backdrop" id="sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-icon" data-icon="userX"></div>
+        <h3 id="sheetTitle">Unfollow 0 accounts?</h3>
+        <p id="sheetBody">Whitelisted accounts and your Keep rules are always respected.</p>
+        <div class="sheet-facts" id="sheetFacts"></div>
+        <div class="row2">
+          <button class="btn" id="sheetCancel"><span>Cancel</span></button>
+          <button class="btn btn-primary" id="sheetOk"><span>Start</span></button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="window-meter">
-        <span class="meter-label">15 min</span>
-        <div class="meter-track"><div class="meter-fill" id="winFill"></div></div>
-        <b id="winText" class="meter-figure">0 / 48</b>
-      </div>
-    </section>
-
-    <section class="telemetry" data-reveal="3">
-      <div class="cell cell-lead">
-        <b id="count" class="figure figure-lead">0</b>
-        <span>Unfollowed</span>
-      </div>
-      <div class="cell">
-        <b id="rate" class="figure">0.0</b>
-        <span>Per min</span>
-      </div>
-      <div class="cell">
-        <b id="elapsed" class="figure">00:00</b>
-        <span>Elapsed</span>
-      </div>
-      <div class="cell cell-wide">
-        <b id="modeText" class="figure figure-mode">Idle</b>
-        <span>Mode</span>
-      </div>
-    </section>
-
-    <section class="runbar" data-reveal="4">
-      <div class="runbar-head">
-        <span id="timerLabel">Standing by</span>
-        <b id="timerText">&mdash;</b>
-      </div>
-      <div class="run-track">
-        <div id="progressBar" class="run-fill"></div>
-      </div>
-    </section>
-
-    <section class="actions" data-reveal="5">
-      <button id="nonFollowers" class="key key-primary">
-        <span class="key-body">
-          <span class="key-title">Unfollow non-followers</span>
-          <span class="key-note">Keeps everyone who follows you back</span>
-        </span>
-        <span class="key-glyph">&rsaquo;</span>
-      </button>
-
-      <div class="key-row">
-        <button id="all" class="key key-quiet">Unfollow all</button>
-        <button id="preview" class="key key-quiet">Preview only</button>
-      </div>
-
-      <button id="moni" class="key key-moni">
-        <span class="key-body">
-          <span class="key-title">Unfollow low Moni score</span>
-          <span class="key-note">Below <b id="moniThresholdLabel">100</b> &middot; mutuals included</span>
-        </span>
-        <span class="key-glyph">&rsaquo;</span>
-      </button>
-    </section>
-
-    <section class="transport" data-reveal="6">
-      <button id="pause"  class="key key-tiny">Pause</button>
-      <button id="resume" class="key key-tiny">Resume</button>
-      <button id="stop"   class="key key-tiny key-abort">Stop</button>
-    </section>
-
-    <section class="panel scan-panel" data-reveal="6">
-      <div class="panel-head">
-        <span class="well-label">Full list scan</span>
-        <b id="scanMeta">Not scanned yet</b>
-      </div>
-      <p class="scan-blurb" id="scanBlurb">Reads your entire following list in one pass and finds everyone who doesn't follow you back.</p>
-      <label class="scan-limit">
-        <span>Scan up to</span>
-        <select id="scanLimit">
-          <option value="500">500 accounts</option>
-          <option value="1000">1,000 accounts</option>
-          <option value="5000">5,000 accounts</option>
-          <option value="0">Everyone</option>
-        </select>
-      </label>
-      <button id="scanBtn" class="key key-scan">
-        <span class="key-title">Scan non-followers</span>
-        <span class="key-note">Read only &middot; nobody is unfollowed</span>
-      </button>
-      <button id="scanStopBtn" class="key key-ghost key-danger" hidden>Stop scan</button>
-      <div class="scan-result" id="scanResult" hidden>
-        <div class="scan-figs">
-          <div><b id="scanTotal">0</b><span>Following</span></div>
-          <div><b id="scanNon">0</b><span>Don't follow back</span></div>
-          <div><b id="scanMutual">0</b><span>Mutuals</span></div>
-        </div>
-        <button id="scanExport" class="key key-ghost">Export non-followers CSV</button>
-        <button id="scanToList" class="key key-ghost">Load these into unfollow list</button>
-      </div>
-    </section>
-
-    <section class="panel list-panel" data-reveal="6">
-      <div class="panel-head">
-        <span class="well-label">Unfollow from list</span>
-        <b id="listMeta">No list loaded</b>
-      </div>
-      <p class="scan-blurb">Works through a fixed list of accounts, visiting each profile and unfollowing at your normal pacing. Separate from the Following-page modes above.</p>
-
-      <button id="listImportBtn" class="key key-ghost">Import CSV</button>
-      <input id="listFile" type="file" accept=".csv,text/csv,text/plain" hidden>
-
-      <div class="list-progress" id="listProgress" hidden>
-        <div class="meter-track"><div class="meter-fill" id="listFill"></div></div>
-        <div class="list-figs">
-          <div><b id="listDone">0</b><span>Removed</span></div>
-          <div><b id="listLeft">0</b><span>Remaining</span></div>
-          <div><b id="listSkipped">0</b><span>Skipped</span></div>
-          <div><b id="listFailed">0</b><span>Failed</span></div>
-        </div>
-        <div class="list-keys">
-          <button id="listStart"  class="key key-tiny key-primary">Start list</button>
-          <button id="listPause"  class="key key-tiny" hidden>Pause</button>
-          <button id="listStop"   class="key key-tiny key-abort">Stop</button>
-        </div>
-        <button id="listClear" class="key key-ghost key-danger">Clear list</button>
-      </div>
-    </section>
-
-    <section class="panel preview-panel" id="previewBlock" hidden>
-      <div class="panel-head">
-        <span class="well-label">Preview</span>
-        <b id="previewCount">0 matches</b>
-      </div>
-      <ul class="preview-list" id="previewList"></ul>
-      <button id="exportPreview" class="key key-ghost">Export this list</button>
-    </section>
-
-    <section class="panel" data-reveal="7">
-      <div class="panel-head">
-        <span class="well-label">Session trace</span>
-        <b id="chartLabel">0 unfollows</b>
-      </div>
-      <canvas id="sessionChart" width="310" height="118"></canvas>
-      <div class="trace-stats">
-        <div><b id="chartTotal">0</b><span>Total</span></div>
-        <div><b id="chartPeak">0.0</b><span>Peak/min</span></div>
-        <div><b id="chartDuration">00:00</b><span>Duration</span></div>
-      </div>
-      <div class="skip-stats" id="skipStats"></div>
-    </section>
-
-    <section class="archive" data-reveal="8">
-      <div class="archive-count">
-        <b id="dbCount">0</b>
-        <span>profiles archived</span>
-      </div>
-      <div class="archive-keys">
-        <button id="exportCsv" class="key key-ghost">Export CSV</button>
-        <button id="clearDb"   class="key key-ghost key-danger">Clear</button>
-      </div>
-    </section>
-
-    <section class="dock" id="dockRow" data-reveal="9">
-      <button id="openSidebar" class="key key-ghost">
-        <span class="key-title">Open in sidebar</span>
-        <span class="key-note">Stays open while it runs</span>
-      </button>
-    </section>
-
-    <section class="ad-zone" id="adZone" data-reveal="11" hidden>
-      <div id="ad-slot"></div>
-    </section>
-
-    <footer class="foot" data-reveal="10">
-      <button id="settings" class="link">Settings</button>
-      <button id="tutorial" class="link">Tutorial</button>
-      <button id="diagnose" class="link">Diagnostics</button>
-      <button id="moniCheck" class="link">Moni check</button>
-      <span class="foot-rule"></span>
-      <button id="contact"  class="link">Contact</button>
-    </footer>
-
-  </main>
+  <script src="shared/config.js"></script>
+  <script src="ui/common.js"></script>
   <script src="vendor/adsonbread-sdk.js"></script>
   <script src="ads.js"></script>
   <script src="popup.js"></script>

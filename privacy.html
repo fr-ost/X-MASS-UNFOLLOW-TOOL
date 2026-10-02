@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy - X Mass Unfollow</title>
+  <link rel="icon" href="icon32.png">
+  <link rel="stylesheet" href="ui/base.css">
+  <style>
+    body { background: var(--bg); }
+    .doc { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+    .doc header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .doc header img { width: 40px; height: 40px; border-radius: 12px; box-shadow: var(--shadow-xs); }
+    .doc .card { padding: 28px 32px; }
+    .doc h1 { font-size: 26px; letter-spacing: -.03em; margin: 0; }
+    .doc h2 { font-size: 17px; margin: 26px 0 8px; }
+    .doc p, .doc li { color: var(--text-2); font-size: 14.5px; line-height: 1.6; }
+    .doc ul { padding-left: 20px; }
+    .doc .date { color: var(--muted); margin-top: 0; }
+    .doc b { color: var(--text); }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <header><img src="icon48.png" alt=""><h1>Privacy Policy</h1></header>
+    <div class="card">
+      <p class="date">Last updated: 2 October 2026 &middot; version 7.0.0</p>
+
+      <h2>What the extension does</h2>
+      <p>X Mass Unfollow helps you find accounts on X that don't follow you back and unfollow them. It works inside your own browser, using the X session you are already signed into. It never asks for your password, never signs in for you, and never sends your X account data to the developer or any other third party.</p>
+      <p>To read your following list and unfollow accounts it sends requests <b>only to X itself</b> (x.com, and abs.twimg.com for X's own app files) &mdash; the same requests X's website makes when you use it.</p>
+
+      <h2>Stored on your device only</h2>
+      <ul>
+        <li><b>Settings</b> &mdash; speed, daily limit, Keep rules.</li>
+        <li><b>Whitelist</b> &mdash; handles you never want unfollowed.</li>
+        <li><b>Last scan</b> &mdash; accounts you follow and whether they follow you back.</li>
+        <li><b>Unfollow history</b> &mdash; who the extension unfollowed, and when.</li>
+        <li><b>Daily counter</b> &mdash; recent unfollow times, to enforce your daily limit.</li>
+      </ul>
+      <p>Delete everything any time from <b>Dashboard &rarr; Settings &rarr; Delete all extension data</b>, or by removing the extension.</p>
+
+      <h2>No analytics or tracking</h2>
+      <p>This version contains no analytics, telemetry or tracking. The developer receives no information about you, your X account, or how you use the extension.</p>
+
+      <h2>Advertising</h2>
+      <p>This extension uses AdsOnBread to display contextual ads. The SDK stores a random pseudonymous token and a 24-hour expiration time in local extension storage and transmits the unexpired token, browser language, impressions, and clicks to AdsOnBread for frequency capping, billing accuracy, and fraud prevention. An expired storage record is replaced the next time the SDK runs and can also be removed by clearing extension storage or uninstalling. AdsOnBread also derives coarse country from the network request. This information is not used for behavioral advertising or cross-site profiling.</p>
+      <p>Ads appear only inside the extension's own popup and dashboard &mdash; never injected into x.com or any other website. AdsOnBread never receives your X account, following list, whitelist or history. See the <a href="https://adsonbread.com/privacy" target="_blank" rel="noopener">AdsOnBread privacy policy</a> for its retention schedule.</p>
+
+      <h2>Permissions</h2>
+      <ul>
+        <li><b>x.com, twitter.com</b> &mdash; read your following list and unfollow in your own signed-in session.</li>
+        <li><b>abs.twimg.com</b> &mdash; read X's own app files, which describe how X's website talks to X.</li>
+        <li><b>storage, unlimitedStorage</b> &mdash; keep your settings, scan and history on your device.</li>
+        <li><b>alarms</b> &mdash; schedule the next unfollow, breaks and daily-limit pauses.</li>
+        <li><b>scripting</b> &mdash; start working in an x.com tab that was already open, without a reload.</li>
+      </ul>
+
+      <h2>Children</h2>
+      <p>Not directed at children under 13; no information is knowingly collected from anyone.</p>
+
+      <h2>Contact</h2>
+      <p>Telegram: <a href="https://t.me/igfrostt" target="_blank" rel="noopener">@igfrostt</a></p>
+    </div>
+  </main>
+</body>
+</html>
