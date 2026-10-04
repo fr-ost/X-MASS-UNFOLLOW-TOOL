@@ -35,56 +35,156 @@ English
 ## Detailed description
 
 ```
-The free and unlimited way to mass unfollow on X (Twitter). See who doesn't follow you back, then bulk unfollow non-followers - or unfollow everyone - in a few clicks. No subscription, no paywall, no sign-up.
+X (Twitter) Mass Unfollow Tool – Free & Unlimited
 
-Cleaning up a following list one click at a time takes hours. X Mass Unfollow scans your whole following list, shows exactly who isn't following you back, and unfollows them for you at a safe, human pace while you get on with your day.
+The free and unlimited way to mass unfollow on X (formerly Twitter). See exactly who doesn't follow you back, then bulk unfollow non-followers — or unfollow everyone — in a few clicks, straight from your browser.
 
-★ WHY PEOPLE SWITCH TO IT
-• 100% free and unlimited - every feature, no "premium" tier
-• Finds every non-follower in about a minute, even on large accounts
-• Keeps working in the background - switch tabs or close the popup
-• Built-in safety: random delays, short breaks, a daily limit and automatic backing off when X asks you to slow down
-• Your following list never leaves your browser - no IP logging, no account tracking (optional anonymous stats you can switch off)
+No subscription. No daily quota. No monthly payment. No paid upgrade for the core bulk-unfollow workflow.
 
-★ FEATURES
-• One-click scan: reads your full following list and marks who follows you back
-• Unfollow non-followers: remove everyone who doesn't follow you back in one go
-• Unfollow everyone: start fresh with a clean following list
-• Review & pick: a full dashboard with search, filters and sorting - no profile photo, few posts, few followers, follow-spam accounts, verified, private
-• Whitelist: protect friends, clients and favourite creators - they are never unfollowed
-• Keep rules: automatically keep verified accounts, private accounts, big accounts or anyone matching your keywords
-• Import a list: unfollow exactly the accounts in a CSV or a pasted list
-• Export to CSV: download your non-followers, your selection or your full unfollow history
-• Unfollow history: see who you unfollowed and when
-• Speed presets: Safe, Balanced or Fast - or set your own delays and daily limit
-• Live progress with a countdown, pause, resume and stop
-• Light and dark mode
-• Emergency stop: Alt + Shift + S
+Review the accounts you follow, find the ones that don't follow you back, apply filters, protect the accounts you want to keep, control the pace, and pause or stop a cleanup session whenever you want — all while staying in full control of what actually gets unfollowed.
 
-★ HOW TO USE
-1. Sign in to x.com in Chrome.
-2. Click the extension icon and press "Scan my following".
-3. Press "Unfollow non-followers" - or open the dashboard to review and pick exactly who goes.
-That's it. The run continues in the background and pauses itself if X needs your attention.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHY PEOPLE CHOOSE IT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-★ SAFE BY DESIGN
-X limits accounts that follow or unfollow too quickly. X Mass Unfollow sends the same requests as X's own Unfollow button, one at a time, with randomised gaps, regular breaks and a rolling daily limit you control. If X says to slow down, it rests and continues on its own. If X asks you to verify your account, it stops and waits for you - it never clicks through X's checks.
+• 100% free and unlimited — every core feature, no "premium" tier
+• Finds everyone who doesn't follow you back, even on large accounts
+• Keeps working in the background — switch tabs or close the popup
+• Built-in safety: randomized delays, breaks, a daily limit, and automatic backing off when X asks you to slow down
+• Your following list stays in your browser — no IP logging, no account tracking
 
-★ PRIVATE BY DESIGN
-Everything runs inside your own signed-in browser. Your password, your following list, your whitelist and your history stay on your computer and are never sent anywhere. The only thing shared is anonymous usage statistics - a random install ID, the version and your country, so the developer can see installs and fix bugs - never your IP, your X account or your data. You can turn it off in Settings.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MASS UNFOLLOW ON X
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-★ FREQUENTLY ASKED
-• Is it really free and unlimited? Yes. There is no paid plan and no cap on how many accounts you can unfollow. The daily limit is a safety setting you can change or switch off.
-• Will it unfollow people who follow me back? Not in "Unfollow non-followers" mode. Mutuals are only included if you choose "Unfollow everyone", and your whitelist is always respected.
-• Does it work with large accounts? Yes - it reads the list page by page and keeps going for as long as it takes.
-• Can I see who I unfollowed? Yes, in History, with CSV export.
+If you follow hundreds or thousands of accounts, unfollowing them one at a time takes hours. This extension turns that into a few clicks.
 
-Love it? It's free because people chip in. Donations, a 5-star review or sharing it with a friend all help keep it that way.
+Scan your whole following list, see who follows you back and who doesn't, then start a controlled bulk-unfollow session — without opening every profile and clicking Unfollow by hand.
 
-A product of Unique Labs. Developed by Shahriar Ahmed - www.shahriarahmed.net
-Support and bug reports: https://t.me/igfrostt
+You choose the accounts. You choose the pace. You can pause or stop at any time.
 
-X and Twitter are trademarks of X Corp. This extension is independent and is not affiliated with or endorsed by X Corp.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UNFOLLOW NON-FOLLOWERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+One click shows every account you follow that doesn't follow you back. Remove non-followers in bulk, or review them first and pick exactly who goes.
+
+Non-followers build up over time — people unfollow you, you follow accounts temporarily, interests change. This makes clearing them fast instead of a manual chore. Mutuals are never touched unless you deliberately choose "unfollow everyone."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REVIEW & PICK, WITH SMART FILTERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A full dashboard lets you search, sort, and filter your following list before you unfollow anything:
+
+• No profile photo
+• Few posts
+• Few followers
+• Follow-spam accounts (following far more than follow them)
+• Verified
+• Private
+
+Select accounts individually or in bulk, and export your non-followers, your selection, or your history to CSV.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHITELIST & KEEP RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Protect the people you never want to unfollow. Add anyone to your whitelist, and set Keep rules to automatically keep verified accounts, private accounts, big accounts, or anyone whose name, handle, or bio matches your keywords. Whitelisted accounts are never unfollowed, in any mode.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORT A LIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Already know who you want gone? Import a CSV or paste a list of handles and the extension unfollows exactly those accounts — nothing else.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTROLLED PACING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Choose Safe, Balanced, or Fast — or set your own delays, break intervals, and daily limit. Actions run at a human pace with randomized gaps and regular breaks. If X asks you to slow down, the run rests and continues on its own. If X requests account verification, it stops and waits for you.
+
+We recommend reasonable activity levels and following X's current rules. No third-party extension can guarantee an account will never hit a rate limit, verification request, or restriction.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PAUSE, STOP & PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You stay in control the whole time. Watch live progress with a countdown, pause to take a break or review, and stop whenever you want. For very large lists, split the cleanup into smaller sessions. An emergency stop (Alt + Shift + S) halts everything instantly.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LIGHT & DARK MODE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A clean, fast interface that follows your system theme, or switch between light and dark with one tap.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOW TO USE IT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Install the extension from the Chrome Web Store.
+2. Open X in Chrome and sign in normally.
+3. Click the extension and press "Scan my following."
+4. Review your non-followers, apply filters, and protect anyone you want to keep.
+5. Press "Unfollow non-followers" — or open the dashboard to pick exactly who goes.
+6. Choose your pace and start.
+7. Monitor progress, and pause or stop whenever you like.
+
+The extension works with your existing X session in Chrome. You never enter your X password into any third-party website.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRIVACY & ACCOUNT SECURITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your following list, whitelist, and history stay in your browser and are never uploaded to an external dashboard. The extension works through your existing X session and never asks for your X password.
+
+To understand usage and fix bugs, the extension sends anonymous statistics only — a random install ID, the version, and approximate country — which you can turn off in Settings. It never sends your IP address, your X account or username, or your following data.
+
+Always review the extension's permissions and current privacy policy before installing. No browser extension should be treated as a guarantee against platform restrictions or account-security events.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KEEP IT UPDATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+X changes often — buttons, navigation, dialogs, and page structure can all shift and affect extensions. Updates bring compatibility fixes, reliability and performance improvements, and new features. If something stops working after an X update, check for a newer version.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESPONSIBLE USE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This extension automates repetitive browser actions, so use it responsibly:
+
+• Review your selected accounts before starting.
+• Use filters to target only the accounts you want to process.
+• Use reasonable pacing, and start with a smaller session if you're new to it.
+• Take breaks during large cleanups.
+• Pause or stop if X shows a warning, a verification request, or a security challenge.
+• Don't run multiple automation tools at the same time.
+• Keep Chrome and the extension updated.
+
+You are responsible for using the extension in line with X's current rules and policies.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUPPORT & BUG REPORTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Found a problem or have a feature idea? Use the support link on this listing. When reporting an issue, include your extension version, Chrome version, operating system, what you were doing, what happened, and any error message (a screenshot helps too).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISCLAIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+X, Twitter, X Corp., and related trademarks are the property of their respective owners. This is an independent, third-party browser extension and is not affiliated with, endorsed by, sponsored by, or officially connected to X Corp. or Twitter. X may change its interface, policies, limits, or behavior at any time, and features described here may change in future versions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FREE. UNLIMITED. BUILT FOR X.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Stop scrolling and clicking Unfollow for hours. Scan your following list, find who doesn't follow you back, bulk unfollow non-followers, and keep a cleaner X following list — for free.
+
+No subscription. No daily quota. No paywall.
+
+Install X (Twitter) Mass Unfollow Tool and clean up your following list in minutes.
 ```
 
 ---
