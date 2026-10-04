@@ -31,11 +31,27 @@ never transmitted to the developer:
 You can delete all of it at any time from **Dashboard -> Settings -> Delete
 all extension data**, or by removing the extension.
 
-## No analytics or tracking
+## Anonymous usage statistics
 
-This version contains **no analytics, telemetry or tracking** of any kind. The
-developer receives no information about you, your X account, or how you use
-the extension.
+To understand how many people use the extension and to catch bugs, the
+extension sends a small, **anonymous** signal to the developer's own server:
+
+- a **random install ID** - generated on your device, not derived from you or
+  your computer, and reset whenever you clear extension data;
+- the **extension version**;
+- an **install** event, a once-a-day **active** ping, and an **uninstall** event;
+- with the daily ping, an **aggregate count** of how many unfollows happened in
+  the last 24 hours (just a number);
+- **coarse country**, derived on the server from the network request. The IP
+  address itself is **not stored**.
+
+This signal **never** includes your IP address, your X/Twitter username or
+account, your following list, your whitelist, or your history. It cannot be
+used to identify you, and it is never sold or shared for advertising.
+
+You can turn it off at any time in **Dashboard -> Settings -> Privacy ->
+Anonymous usage stats**. When it is off, nothing is sent and the uninstall
+signal is removed.
 
 ## Advertising
 

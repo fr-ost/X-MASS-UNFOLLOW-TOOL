@@ -745,6 +745,7 @@
     for (const k of NUM_FIELDS) if ($("#" + k) && document.activeElement !== $("#" + k)) $("#" + k).value = s[k];
     $("#keepVerified").checked = !!s.keepVerified;
     $("#keepProtected").checked = !!s.keepProtected;
+    if ($("#telemetry")) $("#telemetry").checked = s.telemetry !== false;
     if (document.activeElement !== $("#keepKeywords")) $("#keepKeywords").value = s.keepKeywords || "";
     $$(".preset").forEach((p) => p.classList.toggle("is-on", p.dataset.speed === s.speed));
     speedWarnings(s);
@@ -796,6 +797,11 @@
     }
     $("#keepVerified").addEventListener("change", (e) => queueSave({ keepVerified: e.target.checked }));
     $("#keepProtected").addEventListener("change", (e) => queueSave({ keepProtected: e.target.checked }));
+    if ($("#telemetry")) $("#telemetry").addEventListener("change", async (e) => {
+      queueSave({ telemetry: e.target.checked });
+      await U.set({ [K.settings]: D.S.settings }); // flush now so the worker reads the new value
+      U.cmd("syncTelemetry");
+    });
     $("#keepKeywords").addEventListener("input", (e) => queueSave({ keepKeywords: e.target.value }));
     $("#resetSettings").addEventListener("click", async () => {
       if (!await confirmBox({ title: "Reset settings?", body: "Speed and Keep rules go back to the recommended defaults. Your whitelist and history are kept.", ok: "Reset", info: true, icon: "refresh" })) return;

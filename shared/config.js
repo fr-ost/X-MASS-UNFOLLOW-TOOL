@@ -34,7 +34,8 @@
     keepProtected: false,
     keepMinFollowers: 0,      // keep accounts with at least this many followers (0 = off)
     keepKeywords: "",         // comma separated; matched against name, handle and bio
-    scanMaxAgeHours: 12       // older scans are refreshed before a quick run
+    scanMaxAgeHours: 12,      // older scans are refreshed before a quick run
+    telemetry: true           // anonymous usage stats (install/active/uninstall + country)
   });
 
   const LIMITS = {
@@ -54,6 +55,7 @@
     if (!["safe", "balanced", "fast", "custom"].includes(out.speed)) out.speed = "custom";
     out.keepVerified = !!out.keepVerified;
     out.keepProtected = !!out.keepProtected;
+    out.telemetry = out.telemetry !== false;
     out.keepKeywords = String(out.keepKeywords || "").slice(0, 2000);
     return out;
   }

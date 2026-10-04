@@ -70,11 +70,25 @@ no X tab open at all.
 - Credits footer: "A product of Unique Labs. Developed by Shahriar Ahmed." with
   www.shahriarahmed.net.
 
+### Anonymous usage stats (optional)
+- Brings back usage insight without the privacy problems of the old tracker:
+  a random install ID (not derived from the user or device), the version,
+  install / once-a-day active / uninstall events, an aggregate unfollow count,
+  and coarse country derived server-side. **No IP, no X account, no username,
+  no following data** is ever sent.
+- Off switch in **Settings -> Privacy**. The privacy policy and store
+  disclosures are updated to match.
+- Backend is a self-hosted Cloudflare Worker with a private dashboard, in
+  `tracker/` (not shipped in the extension). Disabled until you set its URL in
+  `shared/telemetry.js`.
+
 ### Under the hood
 - No new permission warnings: adds `scripting` (start in already-open X tabs
-  without a reload) and `unlimitedStorage` (large lists).
+  without a reload) and `unlimitedStorage` (large lists). Usage stats add no
+  permission - only `https://*.workers.dev` to the connect-src policy.
 - Settings, whitelist, history and today's count are migrated from v6.
-- End-to-end tests against a strict mock of x.com in `tests/e2e/`.
+- End-to-end tests against a strict mock of x.com in `tests/e2e/`, including the
+  telemetry privacy contract.
 
 ---
 
