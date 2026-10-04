@@ -1,5 +1,10 @@
 # X Mass Unfollow - Changelog
 
+## v7.0.1
+
+- Version bump for Chrome Web Store submission. No functional changes since
+  7.0.0 (same rebuilt engine, interface and optional anonymous usage stats).
+
 ## v7.0.0 - Rebuilt engine, new interface
 
 ### Fixed: runs stopping after 20-30 accounts

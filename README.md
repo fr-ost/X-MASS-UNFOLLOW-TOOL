@@ -72,7 +72,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.0.0.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.0.1.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
   content shared ui vendor -x "*.DS_Store"

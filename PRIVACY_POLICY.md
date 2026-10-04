@@ -1,6 +1,6 @@
 # Privacy Policy - X (Twitter) Mass Unfollow Tool – Free & Unlimited
 
-_Last updated: 2 October 2026 (version 7.0.0)_
+_Last updated: 4 October 2026 (version 7.0.1)_
 
 This policy explains, in plain language, what the X Mass Unfollow browser
 extension does with information.
