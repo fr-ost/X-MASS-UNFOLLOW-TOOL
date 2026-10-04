@@ -21,7 +21,7 @@ A product of **Unique Labs**. Developed by
 - **Works in the background.** Switch tabs, close the popup, minimise the window: the run keeps going.
 - **History.** Everyone it unfollowed, with CSV export.
 - **Light & dark mode.** Follows your system, or flip it with the sun/moon button.
-- **Private.** Everything stays in your browser. No analytics. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+- **Private.** Your following list, whitelist and history stay in your browser. Only anonymous usage stats (install/active/uninstall + country, no IP, no X account) are sent, and you can turn them off in Settings. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 - **Free forever.** No paid tier. A Donate page (crypto, with QR codes) and a Report-a-bug link are built in.
 - **Emergency stop:** <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>.
 
@@ -57,6 +57,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `content/content.js` | Message router in x.com tabs |
 | `popup.*` | Toolbar popup |
 | `dashboard.*` | Full dashboard (also the Settings page) |
+| `shared/telemetry.js` | Anonymous usage signal (install/active/uninstall + country); off switch in Settings |
 | `ui/` | Shared design system (light/dark tokens), theme loader, helpers, logo |
 | `ui/donate/` | Token logos and donation QR codes |
 | `design/` | Icon source + renderer, QR builder, store-graphics builder (not shipped) |
@@ -64,13 +65,14 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `STORE_LISTING.md` | Store title, summary, SEO description, privacy-tab answers |
 | `ads.js`, `vendor/adsonbread-sdk.js` | Ads |
 | `tests/e2e/` | End-to-end tests against a mock x.com (see its README) |
+| `tracker/` | Optional Cloudflare Worker for anonymous usage stats + a private dashboard (not shipped in the extension; see its README) |
 
 ## Building the store package
 
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.0.0.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.0.1.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
   content shared ui vendor -x "*.DS_Store"

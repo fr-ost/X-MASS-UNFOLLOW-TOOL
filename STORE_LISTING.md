@@ -44,7 +44,7 @@ Cleaning up a following list one click at a time takes hours. X Mass Unfollow sc
 • Finds every non-follower in about a minute, even on large accounts
 • Keeps working in the background - switch tabs or close the popup
 • Built-in safety: random delays, short breaks, a daily limit and automatic backing off when X asks you to slow down
-• Your data never leaves your browser - no tracking, no analytics
+• Your following list never leaves your browser - no IP logging, no account tracking (optional anonymous stats you can switch off)
 
 ★ FEATURES
 • One-click scan: reads your full following list and marks who follows you back
@@ -71,7 +71,7 @@ That's it. The run continues in the background and pauses itself if X needs your
 X limits accounts that follow or unfollow too quickly. X Mass Unfollow sends the same requests as X's own Unfollow button, one at a time, with randomised gaps, regular breaks and a rolling daily limit you control. If X says to slow down, it rests and continues on its own. If X asks you to verify your account, it stops and waits for you - it never clicks through X's checks.
 
 ★ PRIVATE BY DESIGN
-Everything runs inside your own signed-in browser. Your password, your following list, your whitelist and your history stay on your computer. The extension has no servers and collects no analytics.
+Everything runs inside your own signed-in browser. Your password, your following list, your whitelist and your history stay on your computer and are never sent anywhere. The only thing shared is anonymous usage statistics - a random install ID, the version and your country, so the developer can see installs and fix bugs - never your IP, your X account or your data. You can turn it off in Settings.
 
 ★ FREQUENTLY ASKED
 • Is it really free and unlimited? Yes. There is no paid plan and no cap on how many accounts you can unfollow. The daily limit is a safety setting you can change or switch off.
@@ -123,9 +123,16 @@ Helps users unfollow accounts on X (Twitter) in bulk - for example everyone who 
 
 **Data usage**
 
-- The extension itself sends nothing to the developer: the following list, whitelist and history stay in local storage.
+- Your following list, whitelist and history stay in local storage and are never sent anywhere.
+- Anonymous usage statistics go to the developer's own server: a random install ID (not derived from the user or device), the extension version, install / daily-active / uninstall events, an aggregate unfollow count, and coarse country derived server-side from the request (the IP is not stored). No IP, X account, or personal data. Users can turn this off in Settings. In the data-collection checklist, tick **Location** (coarse country only); do **not** tick Personally identifiable information, Authentication information, Personal communications, Financial, Health, Web history, or Personal info - none are collected.
 - The AdsOnBread ad SDK receives ad impressions and clicks, a pseudonymous 24-hour token and the browser language. If you want to be strict, tick **User activity** (used only to deliver and bill ads).
 - Tick all three certifications: no selling to third parties, no use unrelated to the single purpose, no use for creditworthiness or lending.
+
+Suggested wording for the analytics disclosure field:
+
+```
+This extension sends anonymous usage statistics to the developer's own server: a random install identifier generated on the device (not derived from the user or hardware and reset when extension data is cleared), the extension version, install / once-daily active / uninstall events, and an aggregate count of unfollow actions. Approximate country is derived server-side from the network request; the IP address is not stored. No IP address, X/Twitter account, username, or following data is collected. Users can disable this in the extension's settings.
+```
 
 AdsOnBread note for the disclosure field (required by AdsOnBread):
 

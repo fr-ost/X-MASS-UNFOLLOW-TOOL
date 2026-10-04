@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Privacy policy for X (Twitter) Mass Unfollow Tool - Free &amp; Unlimited. No tracking, no analytics; your data stays in your browser.">
+  <meta name="description" content="Privacy policy for X (Twitter) Mass Unfollow Tool - Free &amp; Unlimited. Your following list stays in your browser; only anonymous usage stats (no IP, no X account) are collected, and you can turn them off.">
   <title>Privacy Policy - X Mass Unfollow</title>
   <link rel="icon" href="ui/logo.svg" type="image/svg+xml">
   <script src="ui/theme.js"></script>
@@ -26,7 +26,7 @@
   <main class="doc">
     <header><img src="ui/logo.svg" alt=""><h1>Privacy Policy</h1></header>
     <div class="card">
-      <p class="date">Last updated: 2 October 2026 &middot; version 7.0.0</p>
+      <p class="date">Last updated: 4 October 2026 &middot; version 7.0.1</p>
 
       <h2>What the extension does</h2>
       <p>X Mass Unfollow helps you find accounts on X that don't follow you back and unfollow them. It works inside your own browser, using the X session you are already signed into. It never asks for your password, never signs in for you, and never sends your X account data to the developer or any other third party.</p>
@@ -42,8 +42,9 @@
       </ul>
       <p>Delete everything any time from <b>Dashboard &rarr; Settings &rarr; Delete all extension data</b>, or by removing the extension.</p>
 
-      <h2>No analytics or tracking</h2>
-      <p>This version contains no analytics, telemetry or tracking. The developer receives no information about you, your X account, or how you use the extension.</p>
+      <h2>Anonymous usage statistics</h2>
+      <p>So the developer can see how many people use the extension and catch bugs, it sends a small <b>anonymous</b> signal: a random install ID (generated on your device, not derived from you, reset when you clear extension data), the extension version, an install / once-a-day active / uninstall event, an aggregate count of unfollows in the last 24 hours, and coarse country derived on the server from the request. The IP address itself is not stored.</p>
+      <p>This signal never includes your IP address, your X/Twitter username or account, your following list, your whitelist or your history, and is never sold or used for advertising. Turn it off any time in <b>Dashboard &rarr; Settings &rarr; Privacy &rarr; Anonymous usage stats</b>; when off, nothing is sent and the uninstall signal is removed.</p>
 
       <h2>Advertising</h2>
       <p>This extension uses AdsOnBread to display contextual ads. The SDK stores a random pseudonymous token and a 24-hour expiration time in local extension storage and transmits the unexpired token, browser language, impressions, and clicks to AdsOnBread for frequency capping, billing accuracy, and fraud prevention. An expired storage record is replaced the next time the SDK runs and can also be removed by clearing extension storage or uninstalling. AdsOnBread also derives coarse country from the network request. This information is not used for behavioral advertising or cross-site profiling.</p>

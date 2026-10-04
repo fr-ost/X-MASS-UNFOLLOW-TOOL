@@ -17,6 +17,7 @@
 //   tab or a restarted worker never loses a run.
 
 importScripts("shared/config.js");
+importScripts("shared/telemetry.js");
 
 const { K } = X7;
 const X_URLS = ["https://x.com/*", "https://twitter.com/*"];
@@ -97,6 +98,12 @@ async function pushHistory(t, source) {
 }
 
 const rand = (a, b) => a + Math.random() * (b - a);
+
+// Anonymous "active" ping, at most once a day (deduped inside telemetry).
+// Carries only the count of unfollows in the last 24h, nothing identifying.
+function pingActive() {
+  try { getLedger().then((l) => X7Telemetry.active(l.length)).catch(() => {}); } catch (_) {}
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clock = (ts) => new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
@@ -1147,7 +1154,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (typeof msg.cmd !== "string" || !fromExtensionPage) return;
   const run = async () => {
     switch (msg.cmd) {
-      case "state": return uiState();
+      case "state": pingActive(); return uiState();
       case "scan": return startScan({ then: msg.then || null });
       case "scanStop": return stopScan();
       case "run": return startJob({ source: msg.source, ids: msg.ids, handles: msg.handles });
@@ -1161,6 +1168,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return { ok: true };
       }
       case "health": return runHealth();
+      case "syncTelemetry": X7Telemetry.syncUninstallUrl(); return { ok: true };
       case "refreshAccount": {
         const got = await acquireTab(null, { create: false });
         if (!got) return { ok: false, noTab: true };
@@ -1233,6 +1241,7 @@ async function injectIntoOpenTabs() {
 chrome.runtime.onInstalled.addListener(async (details) => {
   await migrateFromV6();
   injectIntoOpenTabs();
+  X7Telemetry.onInstall();
   setBadge("");
   if (details.reason === "install") {
     chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html#welcome") }).catch(() => {});
@@ -1244,6 +1253,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 // After a browser restart, a run is paused rather than resumed silently:
 // nobody expects unfollowing to start by itself when they open Chrome.
 chrome.runtime.onStartup.addListener(async () => {
+  X7Telemetry.syncUninstallUrl();
   const job = await load(K.job, null);
   if (job && ACTIVE_JOB.has(job.status)) {
     job.status = "paused";

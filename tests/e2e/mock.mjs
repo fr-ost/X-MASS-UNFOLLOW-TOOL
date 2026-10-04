@@ -23,7 +23,7 @@ export function createMock(opts = {}) {
     owner: opts.owner || { id: "1000", handle: "tester", name: "Test Person" },
     users: [],
     following: new Set(),
-    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0 },
+    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0, trk: [], trkEvents: [], trkBye: [] },
     counters: { gql: 0, destroy: 0 }
   };
 
@@ -185,6 +185,21 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
     const host = String(req.headers.host || "").split(":")[0];
     const url = new URL(req.url, "https://" + host);
     const p = url.pathname;
+
+    // Anonymous usage tracker (stands in for the Cloudflare Worker).
+    if (host === "trk.x7.workers.dev") {
+      const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
+      if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end(); }
+      if (p === "/e") {
+        let j = {};
+        try { j = JSON.parse(await body(req)); } catch (_) {}
+        M.log.trk.push(j);
+        (j.e || []).forEach((e) => M.log.trkEvents.push(Object.assign({ i: j.i, v: j.v }, e)));
+        return send(res, 200, { ok: true }, cors);
+      }
+      if (p === "/bye") { M.log.trkBye.push(url.search); return send(res, 200, { ok: true }, cors); }
+      return send(res, 404, { error: "nf" }, cors);
+    }
 
     if (host === "edge.adsonbread.com") {
       const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
