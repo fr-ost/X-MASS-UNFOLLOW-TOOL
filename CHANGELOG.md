@@ -2,6 +2,10 @@
 
 ## v7.1.0 - Scanner
 
+- The anonymous usage stats endpoint (`https://unfollow.shahriarahmed614.workers.dev`)
+  is now built into every release (`shared/telemetry.js`). It stays optional for
+  users (Settings -> Privacy), and a test fails if the URL is ever removed.
+
 A new **Scanner** page, with two modes. Both work on the accounts you follow
 (those are the ones the unfollow system can act on) and reuse the usual
 selection, whitelist, Keep rules, confirmation and pacing.

@@ -1,9 +1,12 @@
 // Anonymous telemetry: an install event and a once-a-day active ping reach the
-// tracker with ONLY anonymous fields; the opt-out and the "no endpoint" case
-// send nothing; and the payload never contains anything that identifies a user.
-import { boot, log, assert, sleep } from "./harness.mjs";
+// tracker with ONLY anonymous fields; the opt-out sends nothing; the payload
+// never contains anything that identifies a user; and the production endpoint
+// stays baked into every build.
+import { boot, log, assert, sleep, EXT } from "./harness.mjs";
+import fs from "fs";
+import path from "path";
 
-const EP = "https://trk.x7.workers.dev";
+const EP = "https://unfollow.shahriarahmed614.workers.dev";   // the production endpoint, baked in telemetry.js
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ALLOWED_EVENT_KEYS = new Set(["t", "ts", "n"]);
 
@@ -13,9 +16,9 @@ try {
   const VER = await H.sw.evaluate(() => chrome.runtime.getManifest().version);
   const now = Date.now();
 
-  // Configure the endpoint (via the storage override), seed a 3-unfollow ledger,
-  // and make the install event eligible to fire again.
-  await H.setStore({ "x7.trackerUrl": EP, "x7.ledger": [now - 1000, now - 2000, now - 3000], "x7.tinst": false, "x7.tday": null });
+  // Seed a 3-unfollow ledger and make the install event eligible to fire again.
+  // The endpoint is baked into the build; nothing here configures it.
+  await H.setStore({ "x7.ledger": [now - 1000, now - 2000, now - 3000], "x7.tinst": false, "x7.tday": null });
 
   const activeEvents = () => H.mock.log.trkEvents.filter((e) => e.t === "active");
 
@@ -56,12 +59,13 @@ try {
   await sleep(700);
   assert(H.mock.log.trkEvents.length === n2, "opt-out stops the active ping");
 
-  // --- no endpoint configured = silent no-op -------------------------------
-  await H.setStore({ "x7.settings": { telemetry: true }, "x7.trackerUrl": "", "x7.tday": null });
-  const n3 = H.mock.log.trkEvents.length;
-  await H.sw.evaluate(() => pingActive());
-  await sleep(600);
-  assert(H.mock.log.trkEvents.length === n3, "no endpoint means nothing is sent");
+  // --- the production endpoint stays baked in --------------------------------
+  const src = fs.readFileSync(path.join(EXT, "shared/telemetry.js"), "utf8");
+  const m = src.match(/const ENDPOINT = "([^"]*)";/);
+  assert(m && m[1] === EP, "telemetry.js ships the production endpoint (" + EP + ")");
+  const csp = JSON.parse(fs.readFileSync(path.join(EXT, "manifest.json"), "utf8")).content_security_policy.extension_pages;
+  assert(csp.includes("https://*.workers.dev"), "manifest connect-src allows the endpoint's host");
+  assert(!/^[^\n]*\bx7\.trackerUrl[^\n]*=\s*"/m.test(src), "no hard-coded override replaces the constant");
 
   log("t6 telemetry: all checks passed");
 } catch (e) {

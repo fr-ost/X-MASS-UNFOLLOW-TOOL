@@ -244,7 +244,7 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
     const p = url.pathname;
 
     // Anonymous usage tracker (stands in for the Cloudflare Worker).
-    if (host === "trk.x7.workers.dev") {
+    if (host === "unfollow.shahriarahmed614.workers.dev") {
       const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
       if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end(); }
       if (p === "/e") {
