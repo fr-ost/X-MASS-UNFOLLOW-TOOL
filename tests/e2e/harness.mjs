@@ -71,6 +71,9 @@ export async function boot(mockOpts, ctxOpts) {
     await p.waitForTimeout(800);
     await p.close();
   };
+  // The one-time support prompt would sit over the dashboard in every other
+  // test; only t8_network sees it (boot({ netPrompt: true })).
+  if (!(mockOpts && mockOpts.netPrompt)) await H.setStore({ "x7.net": { state: "no", asked: 0 } });
   H.job = () => H.store("x7.job");
   H.scan = () => H.store("x7.scan");
   H.waitFor = async (fn, what, timeoutMs = 60000, every = 500) => {

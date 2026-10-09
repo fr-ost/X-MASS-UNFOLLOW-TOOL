@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "X (Twitter) Mass Unfollow Tool – Free & Unlimited",
   "short_name": "X Mass Unfollow",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "description": "Free & unlimited X (Twitter) mass unfollow tool. Bulk unfollow, clean your following list, and remove non-followers with ease.",
   "minimum_chrome_version": "116",
   "permissions": [
@@ -62,8 +62,14 @@
     "page": "options.html",
     "open_in_tab": true
   },
+  "optional_permissions": [
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev https://api.mellow.tel https://www.mellow.tel wss://ws.mellow.tel https://*.lambda-url.us-east-1.on.aws https://mellowtel-bucket.s3.us-east-1.amazonaws.com https://m-bucket-light.s3.amazonaws.com"
   },
   "homepage_url": "https://www.shahriarahmed.net"
 }

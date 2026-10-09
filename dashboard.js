@@ -1267,6 +1267,66 @@
   }
 
   // ======================================================================
+  // support: optional network sharing (Mellowtel)
+  //
+  // Chrome only shows its permission dialog from a click, so the page asks for
+  // website access first, then the worker opts in. Nothing runs before that.
+  // ======================================================================
+  const NET_PERMS = { permissions: ["declarativeNetRequestWithHostAccess"], origins: ["<all_urls>"] };
+
+  async function netEnable() {
+    let ok = false;
+    try { ok = await chrome.permissions.request(NET_PERMS); } catch (_) { ok = false; }
+    if (!ok) { U.toast("Chrome's permission wasn't given, so network sharing stays off.", "err", 5000); return false; }
+    const r = await U.cmd("netOptIn");
+    if (!r || !r.ok) {
+      try { await chrome.permissions.remove(NET_PERMS); } catch (_) {}
+      U.toast((r && r.error) || "Couldn't turn on network sharing.", "err", 6000);
+      return false;
+    }
+    U.toast("Thank you so much - you're helping keep this free for everyone.", "ok", 5000);
+    return true;
+  }
+
+  async function renderNet() {
+    const st = await U.cmd("netStatus");
+    const panel = $("#netPanel");
+    if (!st || !st.ok || !st.available) { panel.hidden = true; return st; }
+    panel.hidden = false;
+    $("#netToggle").checked = !!st.optedIn;
+    $("#netState").textContent = st.optedIn ? "On - thank you for supporting the developer!" : "Off";
+    return st;
+  }
+
+  function showNetAsk() { $("#netAsk").hidden = false; setTimeout(() => $("#netYes").focus(), 30); }
+
+  async function wireNet() {
+    const close = () => { $("#netAsk").hidden = true; };
+    $("#netYes").addEventListener("click", async () => {
+      const ok = await netEnable();
+      if (ok) close();
+      renderNet();
+    });
+    $("#netLater").addEventListener("click", async () => { close(); await U.cmd("netAnswer", { choice: "later" }); });
+    $("#netNo").addEventListener("click", async () => { close(); await U.cmd("netAnswer", { choice: "no" }); renderNet(); });
+    $("#netToggle").addEventListener("change", async (e) => {
+      if (e.target.checked) await netEnable();
+      else { await U.cmd("netOptOut"); U.toast("Network sharing is off."); }
+      renderNet();
+    });
+
+    const st = await renderNet();
+    if (!st || !st.available || !st.shouldPrompt) return;
+    // Ask once, after the welcome screen (never on top of it).
+    const welcome = $("#welcome");
+    if (!welcome.hidden) {
+      const after = () => setTimeout(showNetAsk, 400);
+      $("#welcomeScan").addEventListener("click", after, { once: true });
+      $("#welcomeLater").addEventListener("click", after, { once: true });
+    } else setTimeout(showNetAsk, 600);
+  }
+
+  // ======================================================================
   // live updates
   // ======================================================================
   let stTimer = null;
@@ -1334,6 +1394,7 @@
     window.addEventListener("hashchange", route);
     route();
     renderHealth(D.S && D.S.health && D.S.health.signedIn !== undefined ? D.S.health : null);
+    wireNet();
     U.cmd("refreshAccount").then((r) => { if (r && r.ok) refreshState(); });
   });
 })();

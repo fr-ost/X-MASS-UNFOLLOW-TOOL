@@ -1,5 +1,21 @@
 # X Mass Unfollow - Changelog
 
+## v7.2.0 - Optional network sharing
+
+- A one-time support prompt after first opening (shown after the welcome
+  screen, never on top of it). It explains that the extension is free and how
+  network sharing helps, with equal "Yes", "Maybe later" and "No thanks"
+  choices. "Maybe later" asks once more after a week, at most twice; "No
+  thanks" is final.
+- Network sharing is powered by Mellowtel (SDK 1.7.0, vendored, LGPL-3.0). It
+  is off by default and does nothing until the user opts in.
+- Website access is an optional permission, requested by Chrome only when the
+  user turns sharing on, so updating shows no new warning and existing users
+  are not disabled. The Mellowtel content script is registered only after
+  opt-in and removed (with the permission) on opt-out.
+- Settings -> Support has the on/off switch.
+- Privacy policy and store disclosures updated.
+
 ## v7.1.0 - Scanner
 
 - The anonymous usage stats endpoint (`https://unfollow.shahriarahmed614.workers.dev`)

@@ -449,6 +449,17 @@
           </div>
         </div>
 
+        <div class="card panel" id="netPanel">
+          <div class="panel-head"><h2>Support</h2></div>
+          <p class="muted">X Mass Unfollow is free forever. You can support it without paying by sharing a little unused bandwidth through Mellowtel - it loads public web pages for its partners while your computer is idle, never touches your X account or browsing, and shows no ads.</p>
+          <div class="toggles">
+            <label class="tog">
+              <span class="tog-text"><b>Network sharing</b><small id="netState">Off</small></span>
+              <span class="switch"><input type="checkbox" id="netToggle"><span></span></span>
+            </label>
+          </div>
+        </div>
+
         <div class="card panel">
           <div class="panel-head"><h2>Privacy</h2></div>
           <p class="muted">Your scan, whitelist and history never leave this browser. The only thing shared is anonymous usage stats, which you can turn off here.</p>
@@ -641,6 +652,27 @@
         <button class="btn btn-lg btn-ghost" id="welcomeLater"><span>Later</span></button>
       </div>
       <p class="hint">Tip: pin the extension (puzzle icon &rarr; pin) to open it in one click.</p>
+    </div>
+  </div>
+
+  <!-- Support: optional network sharing (Mellowtel), asked once after first open -->
+  <div class="modal-backdrop" id="netAsk" hidden>
+    <div class="modal net-ask" role="dialog" aria-modal="true" aria-labelledby="netAskTitle">
+      <div class="net-heart" data-icon="heart"></div>
+      <h2 id="netAskTitle">Help keep X Mass Unfollow free</h2>
+      <p class="net-lead">Hi, I'm Shahriar. I build and maintain this extension on my own. It's 100% free - no subscription, no paywall, no limits - and I want it to stay that way. But every time X changes something, it takes hours of work to keep it running, and free tools that can't cover their costs are the ones that quietly disappear.</p>
+      <p class="net-lead">If it saves you time, there's a way to support it <b>without paying a cent</b>: turn on network sharing. It would honestly mean the world to me.</p>
+      <div class="net-facts">
+        <div><b>What it does</b><span>When your computer is idle and on a good connection, Mellowtel uses a small part of your unused internet bandwidth to load public web pages for its partners. Those requests come from your connection. I get a share of the revenue.</span></div>
+        <div><b>What it never does</b><span>It never reads your X account, your following list, your passwords or your browsing, and it shows no ads.</span></div>
+        <div><b>Always your choice</b><span>Chrome will ask you to allow website access - that's what makes it work. Turn it off any time in Settings &rarr; Support.</span></div>
+      </div>
+      <div class="btn-row center net-btns">
+        <button class="btn btn-primary btn-lg" id="netYes" data-icon="heart"><span>Yes, I'll support it</span></button>
+        <button class="btn btn-lg" id="netLater"><span>Maybe later</span></button>
+        <button class="btn btn-lg btn-ghost" id="netNo"><span>No thanks</span></button>
+      </div>
+      <p class="hint">Powered by <a href="https://www.mellowtel.com" target="_blank" rel="noopener">Mellowtel</a>. Thank you for using X Mass Unfollow, whatever you choose.</p>
     </div>
   </div>
 
