@@ -16,7 +16,9 @@
     history: "x7.history",
     doneIds: "x7.doneIds",
     health: "x7.health",
-    meta: "x7.meta"
+    meta: "x7.meta",
+    act: "x7.act",             // Scanner: activity-check progress
+    actData: "x7.actData"      // Scanner: { accountId: { t, s, w, at } } last-post results
   };
 
   // Speed presets. Delays are seconds between unfollows (randomised inside the

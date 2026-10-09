@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "X (Twitter) Mass Unfollow Tool – Free & Unlimited",
   "short_name": "X Mass Unfollow",
-  "version": "7.0.1",
+  "version": "7.1.0",
   "description": "Free & unlimited X (Twitter) mass unfollow tool. Bulk unfollow, clean your following list, and remove non-followers with ease.",
   "minimum_chrome_version": "116",
   "permissions": [

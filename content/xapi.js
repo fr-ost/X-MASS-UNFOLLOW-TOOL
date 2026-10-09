@@ -493,6 +493,8 @@
       fy: tri(rel.followed_by, legacy.followed_by),
       fw: tri(rel.following, legacy.following),
       v: !!(result.is_blue_verified || (result.verification && result.verification.verified) || legacy.verified),
+      // Premium blue check only. null = X didn't say, which is never treated as "not blue".
+      bv: typeof result.is_blue_verified === "boolean" ? result.is_blue_verified : null,
       p: !!prot,
       fc: typeof legacy.followers_count === "number" ? legacy.followers_count : null,
       fr: typeof legacy.friends_count === "number" ? legacy.friends_count : null,
@@ -547,6 +549,104 @@
       ok: true, users, cursor: next, end,
       rate: { remaining: Number.isFinite(remaining) ? remaining : null, resetAt: reset || null }
     };
+  }
+
+  // ---------------------------------------------------------------------
+  // Last activity
+  //
+  // X shows nobody's "last seen", and the following list carries no activity
+  // at all. The only activity signal a signed-in session can read is the
+  // account's newest post, reply or repost, so that is what "last active"
+  // means here. It is read from the account's own timeline, one profile at a
+  // time. Pinned posts are skipped (they are old by design), and only posts
+  // written by the account itself count (reply threads also show the other
+  // person's post). Nothing is ever guessed: when the date can't be read the
+  // answer is "na", with the reason.
+  // ---------------------------------------------------------------------
+  // Only the posts-and-replies timeline is used. The posts-only one leaves out
+  // replies, so for someone who mostly replies it would report an older date
+  // than their real activity, which would be a guess in the wrong direction.
+  const ACTIVITY_OPS = [
+    ["UserTweetsAndReplies", (id) => ({ userId: String(id), count: 20, includePromotedContent: false, withCommunity: true, withVoice: true })]
+  ];
+  const SNOWFLAKE_EPOCH = 1288834974657;
+
+  // Post ids are time-ordered snowflakes, so the id alone gives the time.
+  function snowflakeMs(id) {
+    try { return Number(BigInt(String(id)) >> BigInt(22)) + SNOWFLAKE_EPOCH; } catch (_) { return null; }
+  }
+
+  function postTimeOf(tw) {
+    const l = tw.legacy || {};
+    const c = tw.core || {};
+    let ts = Date.parse(l.created_at || c.created_at || "");
+    if (!Number.isFinite(ts)) ts = snowflakeMs(tw.rest_id || l.id_str);
+    const ok = Number.isFinite(ts) && ts > 1.14e12 && ts < Date.now() + 864e5;
+    return ok ? ts : null;
+  }
+
+  function scanActivity(json, userId) {
+    const out = { latest: null, seen: 0, tombstone: false, unavailable: false };
+    const user = json && json.data && json.data.user && json.data.user.result;
+    if (user && user.__typename === "UserUnavailable") { out.unavailable = true; return out; }
+
+    const consider = (res) => {
+      let tw = res;
+      if (tw && tw.tweet && !tw.legacy) tw = tw.tweet;              // visibility wrapper
+      if (!tw || typeof tw !== "object") return;
+      const author = tw.core && tw.core.user_results && tw.core.user_results.result;
+      const aid = (author && (author.rest_id || (author.legacy && author.legacy.id_str))) || (tw.legacy && tw.legacy.user_id_str);
+      if (!aid || String(aid) !== String(userId)) return;           // someone else's post in the thread
+      const t = postTimeOf(tw);
+      if (t == null) return;
+      out.seen++;
+      if (out.latest === null || t > out.latest) out.latest = t;
+    };
+    const visit = (node, depth) => {
+      if (!node || typeof node !== "object" || depth > 9) return;
+      if (node.tweet_results && node.tweet_results.result) consider(node.tweet_results.result);
+      if (node.itemType === "TimelineTombstone" || node.__typename === "TimelineTombstone") out.tombstone = true;
+      for (const k of Object.keys(node)) {
+        const v = node[k];
+        if (v && typeof v === "object" && k !== "tweet_results") visit(v, depth + 1);
+      }
+    };
+
+    for (const ins of findInstructions(json && json.data, 0) || []) {
+      if (ins.type === "TimelinePinEntry") continue;               // pinned posts say nothing about activity
+      const list = [];
+      if (Array.isArray(ins.entries)) list.push(...ins.entries);
+      if (Array.isArray(ins.moduleItems)) list.push(...ins.moduleItems);
+      for (const e of list) {
+        if (/^(promoted|cursor|who-to-follow|tweetdetail)/i.test(String(e.entryId || ""))) continue;
+        visit(e, 0);
+      }
+    }
+    return out;
+  }
+
+  // posts: the account's total post count when known (0 = never posted).
+  async function lastPost(userId, posts) {
+    let lastErr = null, empty = null;
+    for (const [name, vars] of ACTIVITY_OPS) {
+      let got;
+      try { got = await gql(name, vars(userId)); }
+      catch (e) {
+        if (e.kind === "endpoint") { lastErr = e; continue; }       // this query isn't available
+        throw e;
+      }
+      const remaining = Number(got.res.headers.get("x-rate-limit-remaining"));
+      const reset = Number(got.res.headers.get("x-rate-limit-reset")) * 1000;
+      const rate = { remaining: Number.isFinite(remaining) ? remaining : null, resetAt: reset || null };
+      const a = scanActivity(got.json, userId);
+      if (a.unavailable) return { ok: true, state: "na", why: "Account unavailable", rate };
+      if (a.latest !== null) return { ok: true, state: "ok", t: a.latest, op: name, rate };
+      if (posts === 0) return { ok: true, state: "none", rate };
+      if (a.tombstone) return { ok: true, state: "na", why: "Posts are hidden", rate };
+      empty = { rate };                                              // nothing of theirs on this page
+    }
+    if (empty) return { ok: true, state: "na", why: "No recent post could be read", rate: empty.rate };
+    throw lastErr || apiError("endpoint", "X's profile posts query is unavailable.");
   }
 
   // ---------------------------------------------------------------------
@@ -676,11 +776,17 @@
       const flags = r.users.length ? (r.users[0].fy === null ? "no relationship flag" : "relationship ok") : "empty";
       out.read = "ok via " + (ops.methods.Following || "GET") + ", " + flags;
     } catch (e) { out.read = (e.kind || "error") + ": " + (e.message || e); }
+    // Can the Scanner read profile activity? Tried on your own account.
+    try {
+      const r = await lastPost(uid(), null);
+      out.activity = r.state === "ok" ? "ok, last post " + new Date(r.t).toISOString().slice(0, 10)
+        : r.state === "none" ? "ok, no posts yet" : "reachable, but no date: " + r.why;
+    } catch (e) { out.activity = (e.kind || "error") + ": " + (e.message || e); }
     return out;
   }
 
   window.__X7_API = {
-    uid, csrf, whoami, listPage, unfollow, health, discover,
-    _test: { parsePage, parseUser, findOp, extractInitialState, featureValuesFrom, classify }
+    uid, csrf, whoami, listPage, lastPost, unfollow, health, discover,
+    _test: { parsePage, parseUser, findOp, extractInitialState, featureValuesFrom, classify, scanActivity }
   };
 })();

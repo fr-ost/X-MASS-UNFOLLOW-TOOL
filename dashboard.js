@@ -22,7 +22,15 @@
     shown: 0,
     hiList: [],
     hiShown: 0,
-    page: "overview"
+    page: "overview",
+    act: {},                 // Scanner: last-post results by account id
+    scMode: "blue",          // Scanner: "blue" | "idle"
+    scAge: "30",             // Scanner (idle): "30" | "90" | "180" | "365" | "na"
+    scDir: "desc",           // Scanner (idle): "desc" = most inactive first
+    scQ: "",
+    scList: [],
+    scShown: 0,
+    scSel: new Set()
   };
 
   // ======================================================================
@@ -153,6 +161,8 @@
     $$(".page").forEach((p) => p.classList.toggle("is-on", p.dataset.page === r));
     $$(".nav a").forEach((a) => a.classList.toggle("is-on", a.dataset.route === r));
     if (r === "following") renderFollowing(true);
+    if (r === "scanner") renderScanner(true);
+    renderScBulk();
     if (r === "whitelist") renderWhitelist();
     if (r === "history") renderHistory(true);
     if (r === "settings") fillSettings();
@@ -167,6 +177,7 @@
     if (s && s.ok) D.S = s;
     renderOverview();
     renderSide();
+    if (D.page === "scanner") renderScanner(false);
   }
 
   async function loadUsers() {
@@ -174,6 +185,11 @@
     D.users = Array.isArray(arr) ? arr : [];
     D.byId = new Map(D.users.map((u) => [u.i, u]));
     for (const id of [...D.sel]) if (!D.byId.has(id)) D.sel.delete(id);
+    for (const id of [...D.scSel]) if (!D.byId.has(id)) D.scSel.delete(id);
+  }
+  async function loadAct() {
+    const d = await U.get(K.actData, {});
+    D.act = d && typeof d === "object" && !Array.isArray(d) ? d : {};
   }
   async function loadWl() { D.wl = new Set((await U.get(K.whitelist, [])).map((h) => String(h).toLowerCase())); }
   async function loadDone() { D.done = new Set(await U.get(K.doneIds, [])); }
@@ -485,6 +501,7 @@
 
   const moreObs = new IntersectionObserver((entries) => {
     if (entries.some((e) => e.isIntersecting) && D.page === "following") renderMoreRows();
+    if (entries.some((e) => e.isIntersecting) && D.page === "scanner") renderMoreScanner();
     if (entries.some((e) => e.isIntersecting) && D.page === "history") renderMoreHistory();
   }, { rootMargin: "600px" });
 
@@ -520,7 +537,7 @@
     else {
       D.wl.add(k);
       const u = D.users.find((x) => x.h.toLowerCase() === k);
-      if (u) D.sel.delete(u.i);
+      if (u) { D.sel.delete(u.i); D.scSel.delete(u.i); }
       U.toast(`@${handle} will never be unfollowed`, "ok");
     }
     await saveWl();
@@ -605,6 +622,321 @@
     $("#flScan").addEventListener("click", () => startScan());
     $("#flEmptyScan").addEventListener("click", () => startScan());
     moreObs.observe($("#flMore"));
+  }
+
+  // ======================================================================
+  // scanner: Non-blue verified + Inactive
+  //
+  // Works on the accounts in your last scan (the ones you follow), because
+  // those are the ones the unfollow system can act on. Selection, Keep rules,
+  // the whitelist and "Unfollow selected" are the same ones the Following page
+  // uses (startRun with source "ids").
+  // ======================================================================
+  const DAY = 86400000;
+  const AGE_MIN = { "30": 30, "90": 90, "180": 180, "365": 365 };
+
+  // What is known about an account's last activity. Never guessed.
+  function activityOf(u) {
+    const r = D.act[u.i];
+    if (!r) return { s: "unchecked" };
+    if (r.s === "ok" && typeof r.t === "number") return { s: "ok", t: r.t, days: Math.max(0, Math.floor((Date.now() - r.t) / DAY)) };
+    if (r.s === "none") return { s: "none", why: "Never posted" };
+    return { s: "na", why: r.w || "Couldn't be read" };
+  }
+
+  const daysLabel = (d) => (d === 0 ? "today" : d === 1 ? "1 day ago" : `${U.fmt(d)} days ago`);
+  const dayDate = (ts) => new Date(ts).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+  const scLocked = () => D.scMode === "idle" && D.scAge === "na";   // unavailable accounts are listed, never selectable
+
+  function computeScanner() {
+    const q = D.scQ.trim().toLowerCase().replace(/^@/, "");
+    const c = { blue: 0, unknown: 0, a30: 0, a90: 0, a180: 0, a365: 0, na: 0, retry: 0, unchecked: 0, checked: 0 };
+    const out = [];
+    for (let idx = 0; idx < D.users.length; idx++) {
+      const u = D.users[idx];
+      if (D.done.has(u.i)) continue;
+      const act = activityOf(u);
+      if (u.bv === false) c.blue++; else if (typeof u.bv !== "boolean") c.unknown++;
+      if (act.s === "ok") {
+        c.checked++;
+        for (const k of [30, 90, 180, 365]) if (act.days >= k) c["a" + k]++;
+      } else if (act.s === "na" || act.s === "none") {
+        c.na++;
+        if (act.s === "na" && !D.wl.has(u.h.toLowerCase())) c.retry++;      // "never posted" is definitive, so only "na" can be retried
+      } else c.unchecked++;
+
+      let inList;
+      if (D.scMode === "blue") inList = u.bv === false;
+      else if (D.scAge === "na") inList = act.s === "na" || act.s === "none";
+      else inList = act.s === "ok" && act.days >= AGE_MIN[D.scAge];
+      if (!inList) continue;
+      if (q && !(u.h.toLowerCase().includes(q) || (u.n || "").toLowerCase().includes(q) || (u.b || "").toLowerCase().includes(q))) continue;
+      out.push({ u, idx, kept: keepOf(u), act });
+    }
+    if (D.scMode === "idle" && D.scAge !== "na") {
+      const dir = D.scDir === "asc" ? 1 : -1;                         // desc = most inactive (most days) first
+      out.sort((a, b) => dir * (a.act.days - b.act.days) || a.idx - b.idx);
+    }
+    D.scCounts = c;
+    $("#cBlue").textContent = U.compact(c.blue);
+    $("#cIdle").textContent = U.compact(c.a30);
+    $("#cA30").textContent = U.compact(c.a30);
+    $("#cA90").textContent = U.compact(c.a90);
+    $("#cA180").textContent = U.compact(c.a180);
+    $("#cA365").textContent = U.compact(c.a365);
+    $("#cANa").textContent = U.compact(c.na);
+    return out;
+  }
+
+  function scRowHtml(it) {
+    const u = it.u, a = it.act;
+    const sel = D.scSel.has(u.i);
+    const selectable = !it.kept && !scLocked();
+    const tags = [];
+    if (u.fy === true) tags.push('<span class="tag ok">Follows you</span>');
+    if (u.v && u.bv === false) tags.push('<span class="tag info" title="Verified, but not with a Premium blue check">Verified (not blue)</span>');
+    if (u.p) tags.push('<span class="tag">Private</span>');
+    if (it.kept && it.kept !== "whitelist") tags.push(`<span class="tag warn">Kept: ${U.esc(it.kept)}</span>`);
+    const wl = D.wl.has(u.h.toLowerCase());
+    const keepCls = wl ? "is-on" : (it.kept ? "is-rule" : "");
+    const keepTitle = wl ? "On your whitelist - click to remove" : (it.kept ? "Kept by a Keep rule (" + it.kept + ")" : "Add to whitelist");
+
+    let third;
+    if (D.scMode === "blue") {
+      third = `<span class="num-cell last-cell"><span class="joined-cell-plain">${U.esc(monthYear(u.ca))}</span></span>`;
+    } else if (a.s === "ok") {
+      third = `<span class="num-cell last-cell" title="Last active: ${U.esc(daysLabel(a.days))} (${U.esc(dayDate(a.t))})"><b>${U.esc(daysLabel(a.days))}</b><small>${U.esc(dayDate(a.t))}</small></span>`;
+    } else {
+      third = `<span class="num-cell last-cell is-na" title="${U.esc(a.why || "Not checked")}"><b>Unavailable</b><small>${U.esc(a.why || "Not checked")}</small></span>`;
+    }
+    return `<div class="row${sel ? " is-sel" : ""}" data-id="${U.esc(u.i)}">
+      <label class="cb"><input type="checkbox" class="rowcb" ${sel ? "checked" : ""} ${selectable ? "" : "disabled"}><span></span></label>
+      <div class="who-cell">${avatarHtml(u.a, u.n || u.h, 40)}
+        <div class="who-text">
+          <div class="who-line"><b>${U.esc(u.n || u.h)}</b><a href="https://x.com/${encodeURIComponent(u.h)}" target="_blank" rel="noopener">@${U.esc(u.h)}</a><span class="tags">${tags.join("")}</span></div>
+          <div class="bio">${U.esc(u.b || "")}</div>
+        </div>
+      </div>
+      <span class="num-cell fc-cell">${U.compact(u.fc)}</span>
+      <span class="num-cell posts-cell">${U.compact(u.sc)}</span>
+      ${third}
+      <span class="keep-cell"><button class="keep-btn ${keepCls}" title="${U.esc(keepTitle)}" data-keep="${U.esc(u.h)}">${U.icon("shield")}</button></span>
+    </div>`;
+  }
+
+  function scSelectable() { return scLocked() ? [] : D.scList.filter((it) => !it.kept); }
+
+  function syncScSelectAll() {
+    const all = $("#scAll");
+    const sel = scSelectable();
+    const n = sel.filter((it) => D.scSel.has(it.u.i)).length;
+    all.checked = sel.length > 0 && n === sel.length;
+    all.indeterminate = n > 0 && n < sel.length;
+    all.disabled = sel.length === 0;
+  }
+
+  function renderScBulk() {
+    const n = D.scSel.size;
+    $("#scBulk").hidden = n === 0 || D.page !== "scanner";
+    $("#scBulkCount").textContent = `${U.fmt(n)} selected`;
+  }
+
+  function updateScRowSel(id) {
+    const row = $(`#scRows .row[data-id="${CSS.escape(id)}"]`);
+    if (!row) return;
+    const on = D.scSel.has(id);
+    row.classList.toggle("is-sel", on);
+    const cb = row.querySelector(".rowcb");
+    if (cb) cb.checked = on;
+  }
+
+  function renderMoreScanner() {
+    if (D.scShown >= D.scList.length) return;
+    const next = D.scList.slice(D.scShown, D.scShown + CHUNK);
+    $("#scRows").insertAdjacentHTML("beforeend", next.map(scRowHtml).join(""));
+    D.scShown += next.length;
+  }
+
+  function renderActPanel() {
+    const act = D.S && D.S.act;
+    const c = D.scCounts || { checked: 0, na: 0, unchecked: 0 };
+    const running = !!(act && act.status === "running");
+    const j = D.S && D.S.job, sc = D.S && D.S.scan;
+    const blocked = !!((j && ["running", "resting", "paused", "halted"].includes(j.status)) || (sc && sc.status === "running"));
+    const bar = $("#scActBar");
+    bar.hidden = !running;
+    if (running) bar.firstElementChild.style.width = Math.max(2, act.total ? (act.index / act.total) * 100 : 0) + "%";
+    $("#scActTitle").textContent = running ? "Checking activity..." : "Last-active check";
+    let text;
+    if (running) {
+      text = (blocked ? "Waiting for the current scan or run to finish. " : "") + (act.message || "");
+    } else if (!c.checked && !c.na) {
+      text = "Not checked yet. It reads one profile at a time, so a big list takes a while. You can close this tab - it keeps going in the background.";
+    } else {
+      text = `${U.fmt(c.checked)} read · ${U.fmt(c.na)} unavailable · ${U.fmt(c.unchecked)} not checked yet.`;
+      if (act && act.status === "error") text += " " + act.message;
+      else if (act && act.status === "stopped" && act.message) text += " " + act.message;
+    }
+    $("#scActText").textContent = text;
+    $("#scScope").disabled = running;
+    const go = $("#scActGo");
+    go.hidden = running;
+    go.querySelector("span").textContent = c.checked || c.na ? "Check remaining" : "Check activity";
+    $("#scActStop").hidden = !running;
+    const retry = $("#scActRetry");
+    retry.hidden = running || !c.retry;
+    retry.querySelector("span").textContent = `Retry unavailable (${U.compact(c.retry)})`;
+  }
+
+  function renderScanner(reset) {
+    const hasScan = D.users.length > 0;
+    $("#scEmpty").hidden = hasScan;
+    $("#scBody").hidden = !hasScan;
+    const sc = D.S && D.S.scan;
+    $("#scSub").textContent = hasScan && sc && sc.finishedAt
+      ? `${U.fmt(D.users.length)} accounts you follow · scanned ${U.ago(sc.finishedAt)}${sc.partial ? " (partial)" : ""}`
+      : "Find accounts you follow that aren't Premium-verified, or that have gone quiet.";
+    if (!hasScan) { $("#scBulk").hidden = true; return; }
+
+    const idle = D.scMode === "idle";
+    $$("#scMode button").forEach((b) => b.classList.toggle("is-on", b.dataset.m === D.scMode));
+    $$("#scAge button").forEach((b) => b.classList.toggle("is-on", b.dataset.a === D.scAge));
+    $("#scSort").value = D.scDir;
+    $("#scAct").hidden = !idle;
+    $("#scRow").hidden = !idle;
+    $("#scSort").disabled = D.scAge === "na";
+    $("#scColLast").textContent = idle ? "Last active" : "Joined";
+
+    const list = computeScanner();
+    const c = D.scCounts;
+    $("#scModeText").textContent = idle
+      ? "Accounts whose most recent post, reply or repost is at least 30 days old. Choose how far back, and sort by how long they've been quiet. Unfollowing uses your usual pace and Keep rules."
+      : "Accounts you follow that don't have X Premium's blue check. Legacy and organization checks aren't blue, so those accounts show up here too (tagged), and your Keep rules still protect them.";
+    const unk = $("#scUnknown");
+    unk.hidden = !(!idle && c.unknown > 0);
+    unk.textContent = c.unknown > 0
+      ? `${U.fmt(c.unknown)} account${c.unknown === 1 ? " has" : "s have"} no Premium-check information (scanned before the Scanner existed, or X didn't report it). They're left out rather than guessed - rescan to include them.`
+      : "";
+    renderActPanel();
+
+    if (reset) {
+      D.scList = list;
+      D.scShown = 0;
+      $("#scRows").innerHTML = "";
+      renderMoreScanner();
+      const none = $("#scNone");
+      none.hidden = list.length > 0;
+      if (!list.length) {
+        none.textContent = D.scQ.trim() ? "No accounts match your search."
+          : !idle ? (c.unknown && !c.blue ? "Premium-check information is missing - rescan to detect it." : "Every account you follow has a Premium blue check.")
+          : D.scAge === "na" ? "Nothing unavailable. Every account that was checked has a readable last post."
+          : (c.checked || c.na ? "No checked accounts are that inactive." : "Run the check above to find inactive accounts.");
+      }
+      syncScSelectAll();
+      renderScBulk();
+    }
+  }
+
+  function exportScanner(items, name) {
+    const rows = items.map(({ u, act }) => {
+      const a = act || activityOf(u);
+      return [
+        u.h, u.n, "https://x.com/" + u.h, u.fy === true ? "yes" : u.fy === false ? "no" : "unknown",
+        u.fc ?? "", u.fr ?? "", u.sc ?? "",
+        u.bv === true ? "yes" : u.bv === false ? "no" : "unknown",
+        a.s === "ok" ? new Date(a.t).toISOString().slice(0, 10) : "",
+        a.s === "ok" ? a.days : "",
+        a.s === "ok" ? "" : (a.s === "unchecked" ? "not checked" : a.why || ""),
+        u.ca ? new Date(u.ca).toISOString().slice(0, 10) : "", u.b || ""
+      ];
+    });
+    const csv = U.csv(["handle", "name", "profile_url", "follows_you", "followers", "following", "posts", "premium_blue_check",
+      "last_post_date", "days_inactive", "activity_unavailable_reason", "joined", "bio"], rows);
+    U.download(`x-${name}-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  }
+
+  function wireScanner() {
+    let qTimer = null;
+    $("#scSearch").addEventListener("input", (e) => {
+      clearTimeout(qTimer);
+      qTimer = setTimeout(() => { D.scQ = e.target.value; renderScanner(true); }, 140);
+    });
+    $("#scMode").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-m]");
+      if (!b || b.dataset.m === D.scMode) return;
+      D.scMode = b.dataset.m;
+      D.scSel.clear();
+      renderScanner(true);
+    });
+    $("#scAge").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-a]");
+      if (!b || b.dataset.a === D.scAge) return;
+      D.scAge = b.dataset.a;
+      D.scSel.clear();
+      renderScanner(true);
+    });
+    $("#scSort").addEventListener("change", (e) => { D.scDir = e.target.value === "asc" ? "asc" : "desc"; renderScanner(true); });
+
+    $("#scRows").addEventListener("change", (e) => {
+      if (!e.target.classList.contains("rowcb")) return;
+      const id = e.target.closest(".row").dataset.id;
+      if (e.target.checked) D.scSel.add(id); else D.scSel.delete(id);
+      updateScRowSel(id);
+      syncScSelectAll();
+      renderScBulk();
+    });
+    $("#scRows").addEventListener("click", (e) => {
+      const k = e.target.closest("[data-keep]");
+      if (!k || k.classList.contains("is-rule")) return;
+      toggleWhitelist(k.dataset.keep);
+    });
+    $("#scAll").addEventListener("change", (e) => {
+      for (const it of scSelectable()) { if (e.target.checked) D.scSel.add(it.u.i); else D.scSel.delete(it.u.i); }
+      $$("#scRows .row").forEach((r) => updateScRowSel(r.dataset.id));
+      syncScSelectAll();
+      renderScBulk();
+    });
+
+    $("#scBulkClear").addEventListener("click", () => {
+      D.scSel.clear();
+      $$("#scRows .row").forEach((r) => updateScRowSel(r.dataset.id));
+      syncScSelectAll(); renderScBulk();
+    });
+    $("#scBulkKeep").addEventListener("click", async () => {
+      for (const id of D.scSel) { const u = D.byId.get(id); if (u) D.wl.add(u.h.toLowerCase()); }
+      const n = D.scSel.size;
+      D.scSel.clear();
+      await saveWl();
+      U.toast(`${U.fmt(n)} added to your whitelist`, "ok");
+    });
+    $("#scBulkExport").addEventListener("click", () => {
+      exportScanner([...D.scSel].map((id) => ({ u: D.byId.get(id) })).filter((x) => x.u), "selected");
+    });
+    $("#scBulkRun").addEventListener("click", async () => {
+      const ids = [...D.scSel];
+      if (await startRun({ source: "ids", ids }, ids.length, "Only the accounts you selected. Whitelisted accounts are always skipped.")) {
+        D.scSel.clear();
+        renderScBulk();
+      }
+    });
+    $("#scExport").addEventListener("click", () => {
+      const name = D.scMode === "blue" ? "non-blue-verified" : D.scAge === "na" ? "activity-unavailable" : `inactive-${D.scAge}d-plus`;
+      exportScanner(D.scList, name);
+    });
+    $("#scScan").addEventListener("click", () => startScan());
+    $("#scEmptyScan").addEventListener("click", () => startScan());
+
+    const startCheck = async (retry) => {
+      const r = await U.cmd("actStart", { scope: $("#scScope").value, retry });
+      if (!r.ok) U.toast(r.error || "Couldn't start the check.", "err", 6000);
+      else if (r.none) U.toast(retry ? "Nothing to retry." : "Everything in this scope is already up to date.");
+      else if (!r.already) U.toast(`Checking ${U.fmt(r.total)} account${r.total === 1 ? "" : "s"}...`, "ok");
+      await refreshState();
+    };
+    $("#scActGo").addEventListener("click", () => startCheck(false));
+    $("#scActRetry").addEventListener("click", () => startCheck(true));
+    $("#scActStop").addEventListener("click", async () => { await U.cmd("actStop"); await refreshState(); });
+    moreObs.observe($("#scMore"));
   }
 
   // ======================================================================
@@ -814,6 +1146,7 @@
       if (!await confirmBox({ title: "Delete all extension data?", body: "Your scan, whitelist, history and settings will be erased from this browser. This can't be undone.", ok: "Delete everything", danger: true, icon: "trash" })) return;
       await U.cmd("scanStop");
       await U.cmd("stop");
+      await U.cmd("actStop");
       await chrome.storage.local.clear();
       U.toast("All data deleted.");
       setTimeout(() => location.reload(), 600);
@@ -835,6 +1168,7 @@
       items.push(row("Request signing", h.txid === "ok", h.txid === "ok" ? "Working" : String(h.txid || "Not checked")));
       items.push(row("X app queries", !!h.ops && !/could not|error/i.test(h.ops), String(h.ops || "Not checked")));
       items.push(row("Reading your list", /^ok/.test(h.read || ""), String(h.read || "Not checked")));
+      if (h.activity !== undefined) items.push(row("Reading profile activity", /^ok/.test(h.activity || ""), String(h.activity || "Not checked")));
     }
     if (h.at) items.push(`<li>${U.icon("clock")}<b>Checked</b><span>${U.esc(U.ago(h.at))}</span></li>`);
     list.innerHTML = items.join("");
@@ -936,21 +1270,38 @@
   // live updates
   // ======================================================================
   let stTimer = null;
-  U.watch([K.job, K.scan, K.account, K.ledger], () => {
+  U.watch([K.job, K.scan, K.account, K.ledger, K.act], () => {
     clearTimeout(stTimer);
     stTimer = setTimeout(refreshState, 150);
   });
-  U.watch([K.scanUsers], async () => { await loadUsers(); if (D.page === "following") renderFollowing(true); renderFeed(); });
+  U.watch([K.scanUsers], async () => { await loadUsers(); if (D.page === "following") renderFollowing(true); if (D.page === "scanner") renderScanner(true); renderFeed(); });
+  // The check streams results in; while it runs, only counts are refreshed (the list is rebuilt at most every few seconds).
+  let actTimer = null, actListAt = 0;
+  U.watch([K.actData], () => {
+    clearTimeout(actTimer);
+    actTimer = setTimeout(async () => {
+      await loadAct();
+      if (D.page !== "scanner") return;
+      const running = !!(D.S && D.S.act && D.S.act.status === "running");
+      if (running && Date.now() - actListAt < 4000) { renderScanner(false); return; }
+      actListAt = Date.now();
+      const y = window.scrollY;
+      renderScanner(true);
+      window.scrollTo(0, y);
+    }, 500);
+  });
   U.watch([K.whitelist], async () => {
     await loadWl();
     renderSide();
     if (D.page === "whitelist") renderWhitelist();
     if (D.page === "following") { const y = window.scrollY; renderFollowing(true); window.scrollTo(0, y); }
+    if (D.page === "scanner") { const y = window.scrollY; renderScanner(true); window.scrollTo(0, y); }
     refreshState();
   });
   U.watch([K.doneIds], async () => {
     await loadDone();
     if (D.page === "following") { const y = window.scrollY; renderFollowing(true); window.scrollTo(0, y); }
+    if (D.page === "scanner") { const y = window.scrollY; renderScanner(true); window.scrollTo(0, y); }
   });
   U.watch([K.history], async () => { await loadHistory(); renderFeed(); if (D.page === "history") renderHistory(true); });
   U.watch([K.settings], async () => {
@@ -958,6 +1309,7 @@
     if (D.S && s) D.S.settings = X7.normalizeSettings(s);
     if (D.page === "settings") fillSettings();
     if (D.page === "following") renderFollowing(true);
+    if (D.page === "scanner") renderScanner(true);
   });
 
   // ======================================================================
@@ -967,10 +1319,11 @@
     U.icons();
     U.themeButtons();
     $("#year").textContent = String(new Date().getFullYear());
-    await Promise.all([loadUsers(), loadWl(), loadDone(), loadHistory()]);
+    await Promise.all([loadUsers(), loadWl(), loadDone(), loadHistory(), loadAct()]);
     await refreshState();
     wireOverview();
     wireFollowing();
+    wireScanner();
     wireWhitelist();
     wireHistory();
     wireImport();

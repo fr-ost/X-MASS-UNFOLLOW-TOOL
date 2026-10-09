@@ -245,6 +245,26 @@ body {
 .keep-btn.is-on { color: var(--success); background: var(--success-soft); }
 .keep-btn.is-rule { color: var(--success); opacity: .6; cursor: default; }
 
+
+/* ---------- scanner ---------- */
+.sc-intro { gap: 10px; margin-bottom: 14px; }
+.sc-act { gap: 10px; margin-bottom: 14px; }
+.sc-act h2 { margin: 0 0 2px; font-size: 16px; letter-spacing: -.015em; }
+.sc-act-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.sc-act-ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sc-act-ctl { min-width: 0; max-width: 100%; }
+.sc-act-ctl .select { width: auto; flex: 1 1 200px; min-width: 0; max-width: 300px; height: 40px; }
+.sc-act-top > div { min-width: 0; }
+.sc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.sc-row .select { width: auto; min-width: 190px; height: 40px; }
+.sc-act .hint { margin: 0; }
+.sc-act .notice-inline { margin: 0; }
+.table.is-scan .thead, .table.is-scan .row { grid-template-columns: 44px minmax(0, 1fr) 90px 72px 132px 64px; }
+.row .last-cell { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; text-align: right; min-width: 0; }
+.row .last-cell b { font-size: 13px; font-weight: 650; color: var(--text); white-space: nowrap; }
+.row .last-cell small { color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.row .last-cell.is-na b { color: var(--muted); font-weight: 600; }
+.row .joined-cell-plain { font-size: 13px; color: var(--text-2); }
 .sentinel { height: 1px; }
 
 .bulk {
@@ -543,6 +563,10 @@ kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius
   .bulk { left: 50%; min-width: 0; width: calc(100% - 24px); }
   .thead, .row { grid-template-columns: 40px minmax(0, 1fr) 80px 56px; }
   .col-joined, .col-posts, .row .joined-cell, .row .posts-cell { display: none; }
+  .table.is-scan .thead, .table.is-scan .row { grid-template-columns: 40px minmax(0, 1fr) 104px 56px; }
+  .table.is-scan .col-fc, .table.is-scan .row .fc-cell { display: none; }
+  .sc-row { grid-template-columns: minmax(0, 1fr); }
+  .sc-row .select { width: 100%; }
   .fields, .steps, .help-grid { grid-template-columns: 1fr; }
   .fields .span-2 { grid-column: auto; }
   .why-grid { grid-template-columns: 1fr; }
