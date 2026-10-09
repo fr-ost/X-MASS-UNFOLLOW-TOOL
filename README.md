@@ -16,6 +16,7 @@ A product of **Unique Labs**. Developed by
 - **Whitelist.** Accounts on it are never unfollowed, in any mode. One tap on the shield in the review table.
 - **Keep rules.** Keep verified accounts, private accounts, big accounts, or anyone whose name/bio matches a keyword.
 - **Import a list.** Unfollow exactly the accounts in a CSV or a pasted list.
+- **Scanner.** Two extra ways to pick who goes, from the accounts you follow: **Non-blue verified** (no Premium blue check) and **Inactive** (30d+, 90d+, 180d+, 1y+; sort most or least inactive first; shows "Last active: N days ago"). Accounts whose activity can't be read are never guessed - they're listed separately. Selection and unfollowing use the same system as everywhere else.
 - **Safe pacing.** Safe / Balanced / Fast presets or custom numbers: random gaps, regular breaks, and a rolling 24-hour limit that continues automatically.
 - **Backs off by itself.** If X says to slow down, the run rests and continues. If X asks you to verify your account, it stops and waits for you.
 - **Works in the background.** Switch tabs, close the popup, minimise the window: the run keeps going.
@@ -52,7 +53,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `background.js` | The engine: scan, unfollow queue, pacing, tabs, badge, migration from v6 |
 | `shared/config.js` | Storage keys, speed presets, settings normalisation, Keep rules |
 | `content/txid.js` | `x-client-transaction-id` generator (port of the MIT-licensed x-client-transaction-id project) |
-| `content/xapi.js` | X API client: query discovery, self-healing GraphQL reads, unfollow |
+| `content/xapi.js` | X API client: query discovery, self-healing GraphQL reads, last-post lookup, unfollow |
 | `content/dom.js` | Fallbacks: profile-page unfollow, Following-page scroll scan |
 | `content/content.js` | Message router in x.com tabs |
 | `popup.*` | Toolbar popup |
@@ -72,7 +73,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.0.1.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.1.0.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
   content shared ui vendor -x "*.DS_Store"

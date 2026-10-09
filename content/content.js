@@ -47,6 +47,9 @@
       case "page":
         return reply(() => API.listPage(msg.op || "Following", msg.userId || API.uid(), msg.cursor || null, msg.count), sendResponse);
 
+      case "lastPost":
+        return reply(() => API.lastPost(msg.userId, msg.posts), sendResponse);
+
       case "unfollow":
         return reply(() => API.unfollow({ id: msg.id, h: msg.h }), sendResponse);
 

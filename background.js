@@ -147,6 +147,12 @@ async function tick(reason) {
       await jobStep(job);
       return;
     }
+    const act = await load(K.act, null);
+    if (act && act.status === "running") {
+      keepAlive(true);
+      await actStep(act);
+      return;
+    }
     keepAlive(false);
     chrome.alarms.clear("x7.tick");
   } catch (e) {
@@ -718,6 +724,187 @@ async function stopScan() {
 }
 
 // ===========================================================================
+// ACTIVITY CHECK (Scanner -> Inactive)
+//
+// Reads, one profile at a time, when each account last posted. It is
+// read-only: it never follows, unfollows or changes anything. Results are kept
+// per account in K.actData, so a closed tab, a restarted worker or a later
+// session never repeats work. tick() serves scans and unfollow runs first, so
+// this only ever works while nothing else is.
+//
+// Nothing is guessed: an account whose last post can't be read is recorded as
+// "na" with the reason, and is listed separately in the dashboard.
+// ===========================================================================
+const ACT_FRESH_MS = 7 * 24 * 3600000;   // a result younger than this is not read again
+const actMem = { data: null, byId: null, src: null };
+
+async function getActData() {
+  if (!actMem.data) {
+    const d = await load(K.actData, {});
+    actMem.data = d && typeof d === "object" && !Array.isArray(d) ? d : {};
+  }
+  return actMem.data;
+}
+
+async function startAct(opts) {
+  opts = opts || {};
+  const scan = await load(K.scan, null);
+  if (scan && scan.status === "running") return { ok: false, error: "Wait for the scan to finish." };
+  if (!scan || scan.status !== "done") return { ok: false, error: "Scan your following list first." };
+  const job = await load(K.job, null);
+  if (job && ACTIVE_JOB.has(job.status)) return { ok: false, error: "A run is in progress. Pause or stop it first." };
+  const cur = await load(K.act, null);
+  if (cur && cur.status === "running") return { ok: true, already: true };
+
+  const got = await acquireTab(null, { create: true });
+  if (!got) return { ok: false, error: "Couldn't open X. Check that x.com loads in this browser." };
+  const p = await ping(got.tabId);
+  const uid = p && p.uid;
+  if (!uid) { if (got.created) await closeOwnTab(got.tabId); return { ok: false, error: "You're not signed in to X. Sign in at x.com first.", needLogin: true }; }
+  if (scan.ownerId && scan.ownerId !== uid) {
+    if (got.created) await closeOwnTab(got.tabId);
+    return { ok: false, error: "Your scan is for a different X account. Scan again first." };
+  }
+
+  actMem.data = null;
+  const [users, wl, done, data] = await Promise.all([getScanUsers(), getWhitelist(), getDoneIds(), getActData()]);
+  const scope = opts.scope === "all" ? "all" : "non";
+  const retry = !!opts.retry;
+  const now = Date.now();
+  const queue = [];
+  for (const u of users) {
+    if (done.has(u.i) || wl.has(String(u.h).toLowerCase())) continue;
+    const r = data[u.i];
+    if (retry) { if (r && r.s === "na") queue.push(u.i); continue; }       // retry: only the unavailable ones
+    if (scope === "non" && u.fy !== false) continue;
+    if (r && r.s !== "na" && now - r.at < ACT_FRESH_MS) continue;            // fresh enough
+    if (r && r.s === "na") continue;                                         // unavailable: only on an explicit retry
+    queue.push(u.i);
+  }
+  if (!queue.length) {
+    if (got.created) await closeOwnTab(got.tabId);
+    return { ok: true, none: true, total: 0 };
+  }
+
+  const act = {
+    status: "running", scope, retry, ownerId: uid, queue, total: queue.length, index: 0,
+    ok: 0, none: 0, na: 0, errors: 0, consecutiveFails: 0, startedAt: now,
+    tabId: got.tabId, ownTab: got.created, message: "Checking when accounts last posted..."
+  };
+  await save({ [K.act]: act });
+  keepAlive(true);
+  scheduleTick(0);
+  return { ok: true, total: queue.length };
+}
+
+async function finishAct(act, status, message) {
+  act.status = status;
+  act.finishedAt = Date.now();
+  act.queue = [];
+  act.message = message || (status === "done"
+    ? `Done. ${act.ok.toLocaleString()} read, ${(act.na + act.none).toLocaleString()} without a date.`
+    : "Stopped.");
+  await save({ [K.act]: act });
+  keepAlive(false);
+  await closeOwnTab(act.ownTab ? act.tabId : null);
+  actMem.data = null;
+}
+
+async function stopAct() {
+  const act = await load(K.act, null);
+  if (!act || act.status !== "running") return { ok: true };
+  await finishAct(act, "stopped", `Stopped after ${act.index.toLocaleString()} account${act.index === 1 ? "" : "s"}. What was read is kept.`);
+  return { ok: true };
+}
+
+async function actStep(act) {
+  if (act.index >= act.queue.length) return finishAct(act, "done");
+  const users = await getScanUsers();
+  if (actMem.src !== users) { actMem.src = users; actMem.byId = new Map(users.map((u) => [u.i, u])); }
+  const id = act.queue[act.index];
+  const u = actMem.byId.get(id);
+  const [wl, done] = await Promise.all([getWhitelist(), getDoneIds()]);
+  if (!u || done.has(id) || wl.has(String(u.h).toLowerCase())) {        // gone, unfollowed or protected since the queue was built
+    act.index++;
+    await save({ [K.act]: act });
+    scheduleTick(0);
+    return;
+  }
+
+  const got = await acquireTab(act.tabId, { create: true });
+  if (!got) {
+    act.errors++;
+    if (act.errors > 8) return finishAct(act, "error", "Couldn't reach an X tab. What was read is kept.");
+    act.message = "Waiting for an X tab...";
+    await save({ [K.act]: act });
+    scheduleTick(8000);
+    return;
+  }
+  if (got.tabId !== act.tabId) { act.tabId = got.tabId; act.ownTab = got.created; }
+
+  const r = await sendTab(act.tabId, { x7: "lastPost", userId: u.i, posts: typeof u.sc === "number" ? u.sc : null }, 60000);
+  if (r.uid && r.uid !== act.ownerId) return finishAct(act, "error", "You switched X accounts. Check again.");
+
+  const data = await getActData();
+  const advance = async (rec, gap) => {
+    data[id] = Object.assign(rec, { at: Date.now() });
+    act.index++;
+    act.errors = 0;
+    act.message = `Checked ${act.index.toLocaleString()} of ${act.total.toLocaleString()}`;
+    await save({ [K.actData]: data, [K.act]: act });
+    if (act.index >= act.queue.length) return finishAct(act, "done");
+    scheduleTick(gap);
+  };
+
+  if (r.ok) {
+    act.consecutiveFails = 0;
+    let rec;
+    if (r.state === "ok") { rec = { t: r.t, s: "ok" }; act.ok++; }
+    else if (r.state === "none") { rec = { t: null, s: "none" }; act.none++; }
+    else { rec = { t: null, s: "na", w: String(r.why || "Unavailable").slice(0, 80) }; act.na++; }
+    let gap = rand(1100, 2400);
+    if (r.rate && r.rate.remaining !== null && r.rate.remaining <= 1 && r.rate.resetAt) {
+      gap = Math.max(gap, r.rate.resetAt - Date.now() + 3000);
+      act.waitUntil = Date.now() + gap;
+    }
+    return advance(rec, gap);
+  }
+
+  switch (r.kind) {
+    case "rate": {
+      const ms = Math.min(Math.max(r.waitMs || 15 * 60000, 60000), 3 * 3600000);
+      act.waitUntil = Date.now() + ms;
+      act.message = `X asked for a short break. Continuing at ${clock(act.waitUntil)}.`;
+      await save({ [K.act]: act });
+      scheduleTick(ms);
+      return;
+    }
+    case "auth":
+      return finishAct(act, "error", "You're signed out of X. Sign in, then check again. What was read is kept.");
+    case "locked":
+    case "suspended":
+      return finishAct(act, "error", "X has restricted this account. Open x.com and follow X's instructions first.");
+    case "gone":
+      act.na++;
+      return advance({ t: null, s: "na", w: "Account not found" }, rand(900, 1600));
+    case "endpoint":
+      act.consecutiveFails++;
+      if (act.consecutiveFails >= 5) {
+        return finishAct(act, "error", "X isn't returning profile posts right now. Try again later. What was read is kept.");
+      }
+      act.na++;
+      return advance({ t: null, s: "na", w: "X didn't return this profile's posts" }, rand(1500, 3000));
+    default:
+      act.errors++;
+      if (r.noAnswer) act.tabId = null;
+      if (act.errors > 6) return finishAct(act, "error", "X kept failing to answer. Try again in a few minutes. What was read is kept.");
+      act.message = "X was slow to answer. Retrying...";
+      await save({ [K.act]: act });
+      scheduleTick(Math.min(60000, 3000 * act.errors));
+  }
+}
+
+// ===========================================================================
 // RUN (the unfollow queue)
 // ===========================================================================
 async function buildTargets(source, payload) {
@@ -1076,9 +1263,10 @@ async function controlJob(action) {
 // State for the UI
 // ===========================================================================
 async function uiState() {
-  const [account, scan, job, settings, ledger, health] = await Promise.all([
-    load(K.account, null), load(K.scan, null), load(K.job, null), getSettings(), getLedger(), load(K.health, null)
+  const [account, scan, job, settings, ledger, health, actFull] = await Promise.all([
+    load(K.account, null), load(K.scan, null), load(K.job, null), getSettings(), getLedger(), load(K.health, null), load(K.act, null)
   ]);
+  const act = actFull ? Object.assign({}, actFull, { queue: undefined }) : null;
   let actionable = null, actionableAll = null;
   if (scan && scan.status === "done") {
     const users = await getScanUsers();
@@ -1092,7 +1280,7 @@ async function uiState() {
     }
   }
   return {
-    ok: true, account, scan, job, settings, health,
+    ok: true, account, scan, job, settings, health, act,
     today: ledger.length, actionable, actionableAll,
     version: chrome.runtime.getManifest().version
   };
@@ -1120,6 +1308,7 @@ async function openX(path) {
 async function emergencyStop() {
   await stopScan();
   await controlJob("stop");
+  await stopAct();
 }
 
 // ===========================================================================
@@ -1167,6 +1356,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await chrome.storage.local.remove([K.job, K.queue]);
         return { ok: true };
       }
+      case "actStart": return startAct({ scope: msg.scope, retry: !!msg.retry });
+      case "actStop": return stopAct();
       case "health": return runHealth();
       case "syncTelemetry": X7Telemetry.syncUninstallUrl(); return { ok: true };
       case "refreshAccount": {
@@ -1266,6 +1457,12 @@ chrome.runtime.onStartup.addListener(async () => {
     scan.tabId = null; scan.domTab = null; scan.ownTab = false;
     await save({ [K.scan]: scan });
   }
+  const act = await load(K.act, null);
+  if (act && act.status === "running") {
+    act.status = "stopped"; act.queue = []; act.tabId = null; act.ownTab = false;
+    act.message = "Stopped because the browser restarted. What was read is kept.";
+    await save({ [K.act]: act });
+  }
   refreshBadge();
 });
 
@@ -1276,7 +1473,8 @@ async function resumeOnWake() {
     job.inFlight = null;
     await save({ [K.job]: job });
   }
-  if ((scan && scan.status === "running") || (job && ACTIVE_JOB.has(job.status))) {
+  const act = await load(K.act, null);
+  if ((scan && scan.status === "running") || (job && ACTIVE_JOB.has(job.status)) || (act && act.status === "running")) {
     keepAlive(true);
     scheduleTick(1500);
   }

@@ -18,13 +18,14 @@ export function createMock(opts = {}) {
     cfg: {
       requirePost: true, requireTxid: true, followingDown: false, followersDown: false,
       destroyMode: "ok", destroy429At: 0, destroyRequireTxid: true,
-      pageSize: 40, noRelFlags: false, hiddenFeature: true, rateOnCall: 0, adFill: true
+      pageSize: 40, noRelFlags: false, hiddenFeature: true, rateOnCall: 0, adFill: true,
+      actDown: false, actRateAt: 0
     },
     owner: opts.owner || { id: "1000", handle: "tester", name: "Test Person" },
     users: [],
     following: new Set(),
-    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0, trk: [], trkEvents: [], trkBye: [] },
-    counters: { gql: 0, destroy: 0 }
+    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0, trk: [], trkEvents: [], trkBye: [], act: [] },
+    counters: { gql: 0, destroy: 0, act: 0 }
   };
 
   const N = opts.users ? 0 : (opts.n || 230);
@@ -78,10 +79,10 @@ export function createMock(opts = {}) {
 
   function userResult(u) {
     const r = {
-      __typename: "User", rest_id: u.id, is_blue_verified: u.v,
+      __typename: "User", rest_id: u.id, is_blue_verified: u.bv !== undefined ? u.bv : u.v,
       core: { created_at: u.ca, name: u.n, screen_name: u.h },
       avatar: { image_url: u.d ? "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png" : `https://pbs.twimg.com/profile_images/${u.id}/a_normal.jpg` },
-      legacy: { default_profile_image: u.d, description: u.b, followers_count: u.fc, friends_count: u.fr, statuses_count: u.sc },
+      legacy: Object.assign({ default_profile_image: u.d, description: u.b, followers_count: u.fc, friends_count: u.fr, statuses_count: u.sc }, u.bv === false && u.v ? { verified: true } : {}),
       privacy: { protected: u.p }
     };
     if (M.cfg.omitFalse) r.relationship_perspectives = Object.assign({ following: true }, u.fy ? { followed_by: true } : {});
@@ -100,6 +101,61 @@ export function createMock(opts = {}) {
     entries.push({ entryId: "cursor-bottom-" + offset, content: { entryType: "TimelineTimelineCursor", __typename: "TimelineTimelineCursor", value: end ? "0|end" + offset : "c:" + (offset + page.length), cursorType: "Bottom" } });
     entries.push({ entryId: "cursor-top-" + offset, content: { entryType: "TimelineTimelineCursor", __typename: "TimelineTimelineCursor", value: "-1|top", cursorType: "Top" } });
     return { data: { user: { result: { __typename: "User", timeline: { timeline: { instructions: [{ type: "TimelineClearCache" }, { type: "TimelineAddEntries", entries }] } } } } } };
+  }
+
+  // ---- posts-and-replies timeline (the Scanner's last-active check) ----
+  const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const p2 = (n) => String(n).padStart(2, "0");
+  // X's own format: "Wed Oct 10 20:19:24 +0000 2018"
+  function xDate(ts) {
+    const d = new Date(ts);
+    return `${DOW[d.getUTCDay()]} ${MON[d.getUTCMonth()]} ${p2(d.getUTCDate())} ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}:${p2(d.getUTCSeconds())} +0000 ${d.getUTCFullYear()}`;
+  }
+  let tweetSeq = 0;
+  const snowflake = (ts) => String(((BigInt(Math.floor(ts)) - BigInt(1288834974657)) << BigInt(22)) | BigInt(++tweetSeq & 0xfff));
+  function tweetResult(authorId, ts, noDate) {
+    const id = snowflake(ts);
+    const legacy = { user_id_str: String(authorId), full_text: "post " + id };
+    if (!noDate) legacy.created_at = xDate(ts);
+    return { __typename: "Tweet", rest_id: id, core: { user_results: { result: { __typename: "User", rest_id: String(authorId) } } }, legacy };
+  }
+  const tweetItem = (authorId, ts, noDate) => ({ itemContent: { itemType: "TimelineTweet", __typename: "TimelineTweet", tweet_results: { result: tweetResult(authorId, ts, noDate) } } });
+  const tweetEntry = (authorId, ts, noDate) => ({
+    entryId: "tweet-" + (++tweetSeq), content: Object.assign({ entryType: "TimelineTimelineItem", __typename: "TimelineTimelineItem" }, tweetItem(authorId, ts, noDate))
+  });
+
+  function postsTimeline(u, userId) {
+    const day = 864e5;
+    if (!u) {
+      // The owner (health check) has a recent post; anyone else the mock doesn't know is unavailable.
+      if (String(userId) === M.owner.id) u = { id: M.owner.id, last: Date.now() - day };
+      else return { data: { user: { result: { __typename: "UserUnavailable", reason: "NotFound" } } } };
+    }
+    if (u.act === "suspended") return { data: { user: { result: { __typename: "UserUnavailable", reason: "Suspended" } } } };
+    const ins = [{ type: "TimelineClearCache" }];
+    // A pinned post is old by design; if it were counted it would hide real inactivity.
+    if (u.pin) ins.push({ type: "TimelinePinEntry", entry: tweetEntry(u.id, Date.now() - day, u.noCreatedAt) });
+    const entries = [];
+    if (u.act === "protected") {
+      entries.push({ entryId: "tweet-tombstone", content: { entryType: "TimelineTimelineItem", itemContent: { itemType: "TimelineTombstone", __typename: "TimelineTombstone", text: { text: "These posts are protected" } } } });
+    } else if (u.act !== "empty" && u.last) {
+      if (!u.repliesOnly) {
+        entries.push(tweetEntry(u.id, u.last, u.noCreatedAt), tweetEntry(u.id, u.last - 3 * day, u.noCreatedAt), tweetEntry(u.id, u.last - 40 * day, u.noCreatedAt));
+      }
+      // A reply thread: someone else's recent post, then this account's reply.
+      const replyAt = u.repliesOnly ? u.last : u.last - 5 * day;
+      entries.push({
+        entryId: "profile-conversation-" + (++tweetSeq),
+        content: { entryType: "TimelineTimelineModule", __typename: "TimelineTimelineModule", items: [
+          { entryId: "c-a", item: tweetItem("999999", Date.now() - 3600e3, false) },
+          { entryId: "c-b", item: tweetItem(u.id, replyAt, u.noCreatedAt) }
+        ] }
+      });
+    }
+    entries.push({ entryId: "cursor-bottom-1", content: { entryType: "TimelineTimelineCursor", __typename: "TimelineTimelineCursor", value: "0|end", cursorType: "Bottom" } });
+    ins.push({ type: "TimelineAddEntries", entries });
+    return { data: { user: { result: { __typename: "User", rest_id: String(userId), timeline: { timeline: { instructions: ins } } } } } };
   }
 
   function send(res, status, body, headers) {
@@ -135,6 +191,7 @@ export function createMock(opts = {}) {
 e.exports={queryId:"QfollowingAAA111",operationName:"Following",operationType:"query",metadata:{featureSwitches:[${fs1}],fieldToggles:["withAuxiliaryUserLabels"]}};
 e.exports={queryId:"QfollowersBBB222",operationName:"Followers",operationType:"query",metadata:{featureSwitches:[${fs1}],fieldToggles:[]}};
 e.exports={queryId:"QotherCCC333",operationName:"FollowingTimelineX",operationType:"query",metadata:{featureSwitches:[],fieldToggles:[]}};
+e.exports={queryId:"QutrCCC444",operationName:"UserTweetsAndReplies",operationType:"query",metadata:{featureSwitches:[${fs1}],fieldToggles:["withArticlePlainText"]}};
 })();`;
   }
 
@@ -247,11 +304,13 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
     if (p === "/home" || p === "/i/jf/" || p === "/") { M.log.shell++; return send(res, 200, shellHtml()); }
     if (p === "/favicon.ico") return send(res, 404, "");
 
-    const gm = p.match(/^\/i\/api\/graphql\/([^/]+)\/(Following|Followers)$/);
+    const gm = p.match(/^\/i\/api\/graphql\/([^/]+)\/(Following|Followers|UserTweetsAndReplies)$/);
     if (gm) {
-      M.counters.gql++;
       const [, qid, op] = gm;
+      const isAct = op === "UserTweetsAndReplies";
+      if (!isAct) M.counters.gql++;
       const rec = { method: req.method, op, t: Date.now() };
+      if (isAct && M.cfg.actDown) { M.log.gqlBad.push({ ...rec, why: "actDown" }); res.writeHead(404); return res.end(); }
       if ((op === "Following" && M.cfg.followingDown) || (op === "Followers" && M.cfg.followersDown)) { M.log.gqlBad.push({ ...rec, why: "down" }); res.writeHead(404); return res.end(); }
       if (M.cfg.requirePost && req.method !== "POST") { M.log.gqlBad.push({ ...rec, why: "method" }); res.writeHead(404); return res.end(); }
       const txErr = verifyTx(req.method, p, req.headers["x-client-transaction-id"]);
@@ -259,7 +318,7 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
       else M.log.txOk++;
       if (M.cfg.requireTxid && txErr) { M.log.gqlBad.push({ ...rec, why: "tx:" + txErr }); res.writeHead(404); return res.end(); }
       if (!authed(req)) return send(res, 401, { errors: [{ code: 32, message: "Could not authenticate you." }] });
-      const expectQ = op === "Following" ? "QfollowingAAA111" : "QfollowersBBB222";
+      const expectQ = { Following: "QfollowingAAA111", Followers: "QfollowersBBB222", UserTweetsAndReplies: "QutrCCC444" }[op];
       if (qid !== expectQ) { M.log.gqlBad.push({ ...rec, why: "qid" }); return send(res, 400, { errors: [{ message: "Query: Unspecified" }] }); }
       let variables, features;
       if (req.method === "POST") { const j = JSON.parse(await body(req)); variables = j.variables; features = j.features; }
@@ -267,6 +326,16 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
       const need = [...FOLLOWING_FEATURES, ...(M.cfg.hiddenFeature ? ["mock_hidden_flag"] : [])];
       const missing = need.filter((f) => !(f in (features || {})));
       if (missing.length) { M.log.gqlBad.push({ ...rec, why: "features" }); return send(res, 400, { errors: [{ message: "The following features cannot be null: " + missing.join(", ") }] }); }
+      if (isAct) {
+        M.counters.act++;
+        if (M.cfg.actRateAt && M.counters.act === M.cfg.actRateAt) {
+          return send(res, 429, { errors: [{ code: 88, message: "Rate limit exceeded" }] }, { "x-rate-limit-reset": String(Math.floor(Date.now() / 1000) + 2) });
+        }
+        M.log.act.push({ ...rec, userId: String(variables.userId) });
+        const target = M.byId.get(String(variables.userId));
+        return send(res, 200, postsTimeline(target, variables.userId),
+          { "x-rate-limit-remaining": "400", "x-rate-limit-reset": String(Math.floor(Date.now() / 1000) + 900) });
+      }
       if (M.cfg.rateOnCall && M.counters.gql === M.cfg.rateOnCall) {
         return send(res, 429, { errors: [{ code: 88, message: "Rate limit exceeded" }] }, { "x-rate-limit-reset": String(Math.floor(Date.now() / 1000) + 2) });
       }

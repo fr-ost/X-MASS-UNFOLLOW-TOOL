@@ -1,5 +1,38 @@
 # X Mass Unfollow - Changelog
 
+## v7.1.0 - Scanner
+
+A new **Scanner** page, with two modes. Both work on the accounts you follow
+(those are the ones the unfollow system can act on) and reuse the usual
+selection, whitelist, Keep rules, confirmation and pacing.
+
+- **Non-blue verified** - accounts without X Premium's blue check. Legacy and
+  organization checks are not blue, so those accounts appear here too and are
+  tagged "Verified (not blue)". Accounts for which X didn't report the flag
+  (including every account from a scan made before this version) are left out
+  and flagged, never guessed - rescan to include them.
+- **Inactive** - accounts whose most recent post, reply or repost is at least
+  30 days old.
+  - Filters: **30d+, 90d+, 180d+, 1y+**.
+  - Sort: **Most inactive first / Least inactive first**.
+  - Each account shows **"Last active: N days ago"** with the date.
+  - X doesn't expose when someone last logged in or liked something, so "last
+    active" is the date of the newest post, reply or repost. It is read from
+    each profile, one account at a time, in the background (read-only; you can
+    close the tab). Pinned posts and other people's posts in a reply thread
+    are ignored. Results are kept, so nothing is read twice within a week.
+  - If the date can't be read reliably (private or restricted posts, an
+    unavailable account, X not answering) the account is marked
+    **Unavailable** with the reason and listed separately. It is not counted
+    as inactive, and can't be selected. "Retry unavailable" tries them again.
+    Accounts with no posts at all are listed there as "Never posted".
+  - Rate limits pause the check and continue by themselves; an outage stops it
+    with a clear message and keeps what was read.
+- Help -> Run check also tests whether profile activity can be read.
+- Everything else (engine, Following page, Whitelist, History, Import,
+  Settings, popup, donation page, anonymous stats) is unchanged. No new
+  permissions.
+
 ## v7.0.1
 
 - Version bump for Chrome Web Store submission. No functional changes since
