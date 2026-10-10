@@ -18,12 +18,13 @@
   "use strict";
 
   // === CONFIGURE ME ========================================================
-  // Your deployed Cloudflare Worker, e.g.
-  //   https://x-mass-unfollow-tracker.yourname.workers.dev
-  // Leave "" to disable telemetry entirely (no requests are ever made).
-  // The host must also be allowed in manifest.json connect-src (the shipped
-  // manifest already allows https://*.workers.dev).
-  const ENDPOINT = "";
+  // The developer's Cloudflare Worker (see tracker/). This is the production
+  // endpoint and ships in every release: do not blank it when editing this
+  // file. t6_telemetry fails if it is empty or not an allowed https host.
+  // (Leaving it "" would disable telemetry entirely - no requests are made.)
+  // The host must be allowed in manifest.json connect-src, which already
+  // allows https://*.workers.dev.
+  const ENDPOINT = "https://unfollow.shahriarahmed614.workers.dev";
   // =========================================================================
   // You can also set the URL without editing this file by writing an
   // "x7.trackerUrl" string into chrome.storage.local. The constant above wins

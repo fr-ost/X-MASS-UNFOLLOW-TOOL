@@ -532,6 +532,16 @@ kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius
 .facts div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; border-radius: 10px; background: var(--surface-2); font-size: 13px; }
 .facts span { color: var(--text-2); }
 
+.net-ask { width: min(580px, 100%); padding: 28px 28px 20px; text-align: center; max-height: calc(100vh - 32px); overflow-y: auto; }
+.net-heart { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 18px; display: grid; place-items: center; background: var(--danger-soft); color: var(--danger); }
+.net-heart .ic { width: 28px; height: 28px; fill: currentColor; fill-opacity: .18; }
+.net-ask h2 { font-size: 22px; }
+.net-ask .net-lead { text-align: left; }
+.net-facts { display: grid; gap: 8px; text-align: left; margin: 4px 0 18px; }
+.net-facts > div { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.net-facts b { font-size: 13px; }
+.net-facts span { color: var(--text-2); }
+.net-btns { flex-wrap: wrap; }
 .welcome { text-align: center; width: min(520px, 100%); padding: 32px 28px 24px; }
 .welcome-logo { width: 76px; height: 76px; margin-bottom: 14px; filter: drop-shadow(0 12px 24px rgba(79, 70, 229, .35)); animation: floaty 4s var(--ease) infinite; }
 .welcome h2 { font-size: 24px; }

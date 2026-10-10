@@ -18,6 +18,11 @@
 
 importScripts("shared/config.js");
 importScripts("shared/telemetry.js");
+// Optional network sharing (Mellowtel). Off until a user opts in; if the SDK
+// can't load, the extension carries on without it.
+importScripts("shared/mellowtel-key.js");
+try { importScripts("vendor/mellowtel.js"); } catch (e) { console.warn("[x7] network sharing unavailable:", e); }
+importScripts("shared/network.js");
 
 const { K } = X7;
 const X_URLS = ["https://x.com/*", "https://twitter.com/*"];
@@ -1358,6 +1363,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
       case "actStart": return startAct({ scope: msg.scope, retry: !!msg.retry });
       case "actStop": return stopAct();
+      case "netStatus": return X7Net.status();
+      case "netOptIn": return X7Net.optIn();
+      case "netOptOut": return X7Net.optOut();
+      case "netAnswer": return X7Net.answer(msg.choice);
       case "health": return runHealth();
       case "syncTelemetry": X7Telemetry.syncUninstallUrl(); return { ok: true };
       case "refreshAccount": {
@@ -1482,3 +1491,4 @@ async function resumeOnWake() {
 }
 
 resumeOnWake();
+X7Net.boot();

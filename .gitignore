@@ -2,3 +2,8 @@ tests/e2e/out/
 tests/e2e/*.pem
 *.zip
 design/.captures/
+
+# Dev tooling installed by `npx skills add` (not part of the extension)
+.agents/
+.claude/skills/
+skills-lock.json

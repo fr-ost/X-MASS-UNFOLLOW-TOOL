@@ -18,7 +18,7 @@ export function assert(cond, msg) { if (!cond) throw new Error("ASSERT: " + msg)
 function ensureCert() {
   const dir = path.dirname(new URL(import.meta.url).pathname);
   if (fs.existsSync(path.join(dir, "cert.pem"))) return;
-  execSync(`openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 30 -subj "/CN=x.com" -addext "subjectAltName=DNS:x.com,DNS:twitter.com,DNS:abs.twimg.com,DNS:edge.adsonbread.com,DNS:pbs.twimg.com,DNS:trk.x7.workers.dev"`, { cwd: dir, stdio: "ignore" });
+  execSync(`openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 30 -subj "/CN=x.com" -addext "subjectAltName=DNS:x.com,DNS:twitter.com,DNS:abs.twimg.com,DNS:edge.adsonbread.com,DNS:pbs.twimg.com,DNS:unfollow.shahriarahmed614.workers.dev"`, { cwd: dir, stdio: "ignore" });
 }
 
 export async function boot(mockOpts, ctxOpts) {
@@ -35,7 +35,7 @@ export async function boot(mockOpts, ctxOpts) {
     args: [
       `--disable-extensions-except=${EXT}`,
       `--load-extension=${EXT}`,
-      "--host-resolver-rules=MAP x.com 127.0.0.1, MAP twitter.com 127.0.0.1, MAP abs.twimg.com 127.0.0.1, MAP pbs.twimg.com 127.0.0.1, MAP edge.adsonbread.com 127.0.0.1, MAP trk.x7.workers.dev 127.0.0.1",
+      "--host-resolver-rules=MAP x.com 127.0.0.1, MAP twitter.com 127.0.0.1, MAP abs.twimg.com 127.0.0.1, MAP pbs.twimg.com 127.0.0.1, MAP edge.adsonbread.com 127.0.0.1, MAP unfollow.shahriarahmed614.workers.dev 127.0.0.1",
       "--ignore-certificate-errors",
       "--no-proxy-server"
     ]
@@ -71,6 +71,9 @@ export async function boot(mockOpts, ctxOpts) {
     await p.waitForTimeout(800);
     await p.close();
   };
+  // The one-time support prompt would sit over the dashboard in every other
+  // test; only t8_network sees it (boot({ netPrompt: true })).
+  if (!(mockOpts && mockOpts.netPrompt)) await H.setStore({ "x7.net": { state: "no", asked: 0 } });
   H.job = () => H.store("x7.job");
   H.scan = () => H.store("x7.scan");
   H.waitFor = async (fn, what, timeoutMs = 60000, every = 500) => {

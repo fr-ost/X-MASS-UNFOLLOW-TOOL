@@ -43,7 +43,9 @@ to `wrangler.toml` as `DB`, `npx wrangler secret put ADMIN_PASSWORD`, then
 
 ## Point the extension at it
 
-Open `shared/telemetry.js` in the extension and set the one constant:
+**Already done for this project:** `shared/telemetry.js` ships with the production
+Worker URL, so every build reports to it and nothing needs configuring. `t6_telemetry`
+fails if that URL is removed. To point a fork at its own Worker, set the one constant:
 
 ```js
 const ENDPOINT = "https://x-mass-unfollow-tracker.<your-subdomain>.workers.dev";

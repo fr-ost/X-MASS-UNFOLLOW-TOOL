@@ -58,6 +58,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `content/content.js` | Message router in x.com tabs |
 | `popup.*` | Toolbar popup |
 | `dashboard.*` | Full dashboard (also the Settings page) |
+| `shared/network.js`, `vendor/mellowtel.js` | Optional network sharing (Mellowtel): off until the user opts in from the support prompt or Settings -> Support |
 | `shared/telemetry.js` | Anonymous usage signal (install/active/uninstall + country); off switch in Settings |
 | `ui/` | Shared design system (light/dark tokens), theme loader, helpers, logo |
 | `ui/donate/` | Token logos and donation QR codes |
@@ -73,7 +74,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.1.0.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.2.0.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
   content shared ui vendor -x "*.DS_Store"
