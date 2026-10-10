@@ -63,7 +63,7 @@
     "open_in_tab": true
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev"
   },
   "homepage_url": "https://www.shahriarahmed.net"
 }

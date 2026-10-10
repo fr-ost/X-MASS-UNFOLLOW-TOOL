@@ -349,5 +349,3 @@ a.dev-link { color: var(--accent-text); font-weight: 650; }
 }
 
 /* ---------- ad zone ---------- */
-.ad-zone { animation: fadeIn .4s var(--ease); }
-.ad-zone [data-adsonbread] { max-width: 100%; }

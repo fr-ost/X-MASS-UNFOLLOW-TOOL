@@ -1,6 +1,6 @@
-// Mock of the parts of x.com / abs.twimg.com / edge.adsonbread.com the
-// extension talks to. Strict where X is strict: GraphQL Following requires
-// POST (Aug 2026 change) and a valid x-client-transaction-id (verified with an
+// Mock of the parts of x.com / abs.twimg.com the extension talks to.
+// Strict where X is strict: GraphQL Following requires POST (Aug 2026 change)
+// and a valid x-client-transaction-id (verified with an
 // animation key computed by the independent Python reference implementation).
 import https from "https";
 import crypto from "crypto";
@@ -18,13 +18,13 @@ export function createMock(opts = {}) {
     cfg: {
       requirePost: true, requireTxid: true, followingDown: false, followersDown: false,
       destroyMode: "ok", destroy429At: 0, destroyRequireTxid: true,
-      pageSize: 40, noRelFlags: false, hiddenFeature: true, rateOnCall: 0, adFill: true,
+      pageSize: 40, noRelFlags: false, hiddenFeature: true, rateOnCall: 0,
       actDown: false, actRateAt: 0
     },
     owner: opts.owner || { id: "1000", handle: "tester", name: "Test Person" },
     users: [],
     following: new Set(),
-    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], ads: 0, views: 0, shell: 0, bundles: 0, trk: [], trkEvents: [], trkBye: [], act: [] },
+    log: { gql: [], gqlBad: [], destroy: [], ui: [], txOk: 0, txBad: [], shell: 0, bundles: 0, trk: [], trkEvents: [], trkBye: [], act: [] },
     counters: { gql: 0, destroy: 0, act: 0 }
   };
 
@@ -255,29 +255,6 @@ window.addEventListener("scroll",()=>{if(loading||shown>=cells.length)return;if(
         return send(res, 200, { ok: true }, cors);
       }
       if (p === "/bye") { M.log.trkBye.push(url.search); return send(res, 200, { ok: true }, cors); }
-      return send(res, 404, { error: "nf" }, cors);
-    }
-
-    if (host === "edge.adsonbread.com") {
-      const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
-      if (req.method === "OPTIONS") { res.writeHead(204, cors); return res.end(); }
-      const b = await body(req);
-      if (p === "/ad") {
-        M.log.ads++;
-        let j = {};
-        try { j = JSON.parse(b); } catch (_) {}
-        M.log.lastAdReq = j;
-        if (!M.cfg.adFill) return send(res, 200, { ad: null }, cors);
-        const card = j.placement === "card";
-        return send(res, 200, { ad: {
-          format: card ? "card" : "banner", impressionId: "imp-" + M.log.ads, extensionName: "X Mass Unfollow",
-          // Placeholder copy: never a real advertiser's name.
-          text: card ? "Your product here.\nReach people who use X every day." : "Your product here - reach people who use X every day.",
-          linkRanges: card ? [{ start: 0, end: 12 }] : [{ start: 0, end: 12 }],
-          clickUrl: "/click/1", iconUrl: "https://pbs.twimg.com/profile_images/ad/logo_normal.png"
-        } }, cors);
-      }
-      if (p === "/view") { M.log.views++; return send(res, 200, { ok: true }, cors); }
       return send(res, 404, { error: "nf" }, cors);
     }
 

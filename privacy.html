@@ -47,10 +47,6 @@
       <p>So the developer can see how many people use the extension and catch bugs, it sends a small <b>anonymous</b> signal: a random install ID (generated on your device, not derived from you, reset when you clear extension data), the extension version, an install / once-a-day active / uninstall event, an aggregate count of unfollows in the last 24 hours, and coarse country derived on the server from the request. The IP address itself is not stored.</p>
       <p>This signal never includes your IP address, your X/Twitter username or account, your following list, your whitelist or your history, and is never sold or used for advertising. Turn it off any time in <b>Dashboard &rarr; Settings &rarr; Privacy &rarr; Anonymous usage stats</b>; when off, nothing is sent and the uninstall signal is removed.</p>
 
-      <h2>Advertising</h2>
-      <p>This extension uses AdsOnBread to display contextual ads. The SDK stores a random pseudonymous token and a 24-hour expiration time in local extension storage and transmits the unexpired token, browser language, impressions, and clicks to AdsOnBread for frequency capping, billing accuracy, and fraud prevention. An expired storage record is replaced the next time the SDK runs and can also be removed by clearing extension storage or uninstalling. AdsOnBread also derives coarse country from the network request. This information is not used for behavioral advertising or cross-site profiling.</p>
-      <p>Ads appear only inside the extension's own popup and dashboard &mdash; never injected into x.com or any other website. AdsOnBread never receives your X account, following list, whitelist or history. See the <a href="https://adsonbread.com/privacy" target="_blank" rel="noopener">AdsOnBread privacy policy</a> for its retention schedule.</p>
-
       <h2>Permissions</h2>
       <ul>
         <li><b>x.com, twitter.com</b> &mdash; read your following list and unfollow in your own signed-in session.</li>

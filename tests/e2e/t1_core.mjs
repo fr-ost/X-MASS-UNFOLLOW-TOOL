@@ -109,10 +109,7 @@ try {
   log("badge:", badge);
   assert(badge === "✓", "badge shows a check when finished");
 
-  // Ad rendered in popup
-  const adShown = await pop.evaluate(() => !document.querySelector("#adZone").hidden && !!document.querySelector("#adSlot [data-adsonbread]"));
-  assert(adShown, "banner ad rendered in popup");
-  assert(mock.log.lastAdReq && mock.log.lastAdReq.api_key === "3f7833e9-73d8-4412-870a-e6c49bc91f90", "ad request uses the publisher key");
+  assert(!(await pop.$("#adZone, [data-adsonbread]")), "no ads in the popup");
 } catch (e) {
   failed = true;
   console.error(e);

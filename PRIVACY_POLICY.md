@@ -54,23 +54,6 @@ You can turn it off at any time in **Dashboard -> Settings -> Privacy ->
 Anonymous usage stats**. When it is off, nothing is sent and the uninstall
 signal is removed.
 
-## Advertising
-
-This extension uses AdsOnBread to display contextual ads. The SDK stores a
-random pseudonymous token and a 24-hour expiration time in local extension
-storage and transmits the unexpired token, browser language, impressions, and
-clicks to AdsOnBread for frequency capping, billing accuracy, and fraud
-prevention. An expired storage record is replaced the next time the SDK runs
-and can also be removed by clearing extension storage or uninstalling.
-AdsOnBread also derives coarse country from the network request. This
-information is not used for behavioral advertising or cross-site profiling.
-
-Ads appear only inside the extension's own popup and dashboard. Nothing is
-ever injected into x.com or any other website. AdsOnBread never receives your
-X account, your following list, your whitelist or your history. See the
-[AdsOnBread privacy policy](https://adsonbread.com/privacy) for its
-server-side retention schedule.
-
 ## Permissions and why they are needed
 
 - **x.com, twitter.com** - to read your following list and unfollow accounts in your own signed-in session.

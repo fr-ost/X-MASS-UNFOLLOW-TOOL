@@ -66,7 +66,6 @@ body {
 .side-run-top b { font-size: 13px; }
 .side-run small { color: var(--text-2); font-size: 12px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.side-ad { display: flex; justify-content: center; padding-top: 2px; }
 
 /* GrowX */
 .growx-side {
@@ -614,7 +613,7 @@ kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius
   .nav a { flex: none; padding: 7px 11px; }
   .nav a.is-on::before { display: none; }
   .nav a.nav-heart { margin-top: 0; }
-  .side-ad, .side-run, .side-foot, .growx-side { display: none; }
+  .side-run, .side-foot, .growx-side { display: none; }
   .growx-hero { flex-wrap: wrap; padding: 18px; }
   .gxh-btn { width: 100%; justify-content: center; }
   .bulk { left: 50%; min-width: 0; width: calc(100% - 24px); }

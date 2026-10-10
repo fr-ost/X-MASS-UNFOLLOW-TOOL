@@ -24,6 +24,8 @@
 - Removed optional network sharing (Mellowtel): the SDK, its content script,
   the support prompt, the Settings -> Support switch and the optional
   website-access permission. Anyone who had it on is cleaned up on update.
+- Removed ads (AdsOnBread): the popup banner, the dashboard sidebar card, the
+  ad SDK and its connection; its stored token is cleared on update.
 - Polish: hover lift on stats, a gradient edge on selected rows, clearer keyboard
   focus rings, reduced-motion support.
 

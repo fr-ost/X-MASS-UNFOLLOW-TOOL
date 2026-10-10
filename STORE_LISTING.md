@@ -242,19 +242,12 @@ Helps users unfollow accounts on X (Twitter) in bulk - for example everyone who 
 
 - Your following list, whitelist and history stay in local storage and are never sent anywhere.
 - Anonymous usage statistics go to the developer's own server: a random install ID (not derived from the user or device), the extension version, install / daily-active / uninstall events, an aggregate unfollow count, and coarse country derived server-side from the request (the IP is not stored). No IP, X account, or personal data. Users can turn this off in Settings. In the data-collection checklist, tick **Location** (coarse country only); do **not** tick Personally identifiable information, Authentication information, Personal communications, Financial, Health, Web history, or Personal info - none are collected.
-- The AdsOnBread ad SDK receives ad impressions and clicks, a pseudonymous 24-hour token and the browser language. If you want to be strict, tick **User activity** (used only to deliver and bill ads).
 - Tick all three certifications: no selling to third parties, no use unrelated to the single purpose, no use for creditworthiness or lending.
 
 Suggested wording for the analytics disclosure field:
 
 ```
 This extension sends anonymous usage statistics to the developer's own server: a random install identifier generated on the device (not derived from the user or hardware and reset when extension data is cleared), the extension version, install / once-daily active / uninstall events, and an aggregate count of unfollow actions. Approximate country is derived server-side from the network request; the IP address is not stored. No IP address, X/Twitter account, username, or following data is collected. Users can disable this in the extension's settings.
-```
-
-AdsOnBread note for the disclosure field (required by AdsOnBread):
-
-```
-This extension uses AdsOnBread to display contextual ads. The SDK stores a random pseudonymous token and a 24-hour expiration time in local extension storage and transmits the unexpired token, browser language, impressions, and clicks to AdsOnBread for frequency capping, billing accuracy, and fraud prevention. An expired storage record is replaced the next time the SDK runs and can also be removed by clearing extension storage or uninstalling. AdsOnBread also derives coarse country from the network request. This information is not used for behavioral advertising or cross-site profiling.
 ```
 
 **Privacy policy URL:** host `PRIVACY_POLICY.md` publicly (for example on www.shahriarahmed.net) and paste that URL.

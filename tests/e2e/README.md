@@ -9,7 +9,7 @@ independent Python reference implementation (`assets.json`, made by
 `gen_assets.py`), so the extension's generator is checked against it.
 
 The mock binds port 443 on 127.0.0.1 (run as root, or in a container), and
-Chromium resolves x.com, abs.twimg.com, pbs.twimg.com and edge.adsonbread.com
+Chromium resolves x.com, abs.twimg.com, pbs.twimg.com
 to it.
 
 ```sh

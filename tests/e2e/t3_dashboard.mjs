@@ -98,10 +98,7 @@ try {
   assert(gx.every(([p, h, t]) => h.startsWith("https://chromewebstore.google.com/detail/ofiancichfcakbdgekhcahflpoglfgbh?") && h.includes("utm_campaign=" + p) && t === "_blank"), "every GrowX link opens its store page in a new tab, tagged with its placement");
   assert(!(await d.$('a[data-route="scanner"]')), "the separate Scanner page is gone from the sidebar");
 
-  // Card ad in the sidebar
-  const card = await d.evaluate(() => !document.querySelector("#adZone").hidden && !!document.querySelector("#adSlot [data-adsonbread]"));
-  assert(card, "card ad rendered in the sidebar");
-  assert(H.mock.log.lastAdReq.placement === "card" || true, "card placement requested");
+  assert(!(await d.$("#adZone, [data-adsonbread]")), "no ads in the dashboard");
 
   // History
   await d.click('a[data-route="history"]');

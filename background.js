@@ -1483,7 +1483,7 @@ async function resumeOnWake() {
 
 resumeOnWake();
 
-// Network sharing was removed: drop the content script and record it may have
-// left behind for users who had turned it on.
+// Network sharing and ads were removed: drop what they may have left behind
+// (the network-sharing content script and record, the ad SDK's token).
 chrome.scripting.unregisterContentScripts({ ids: ["x7-mellowtel"] }).catch(() => {});
-chrome.storage.local.remove("x7.net").catch(() => {});
+chrome.storage.local.remove(["x7.net", "adsonbread_uid"]).catch(() => {});

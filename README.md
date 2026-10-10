@@ -44,7 +44,6 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 - **The engine lives in the service worker**, not in the page. A page script dies when its tab is hidden, frozen, reloaded or navigated, which is what made earlier versions stop after 20-30 accounts. The worker drives the run step by step and keeps all state in storage, so a killed worker or a reloaded tab picks up exactly where it left off.
 - **Reading the list** uses X's own GraphQL `Following` timeline, page by page, with X's per-account "follows you" flag. The query id, feature flags, GET-vs-POST and the `x-client-transaction-id` header are all worked out at runtime from X's own app (`content/txid.js`, `content/xapi.js`). If X rejects that, the engine falls back to scrolling the Following page.
 - **Unfollowing** sends the same `friendships/destroy` request X's Unfollow button sends. If X rejects direct requests, the engine switches to **profile mode**: it opens each profile in a background tab and presses Unfollow there.
-- **Ads** (AdsOnBread SDK 1.2.0, vendored): a banner in the popup and a card in the dashboard sidebar. One ad per page, never injected into x.com.
 
 ## Project layout
 
@@ -65,7 +64,6 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `design/` | Icon source + renderer, QR builder, store-graphics builder (not shipped) |
 | `store/` | Chrome Web Store screenshots and promo tiles (not shipped) |
 | `STORE_LISTING.md` | Store title, summary, SEO description, privacy-tab answers |
-| `ads.js`, `vendor/adsonbread-sdk.js` | Ads |
 | `tests/e2e/` | End-to-end tests against a mock x.com (see its README) |
 | `tracker/` | Optional Cloudflare Worker for anonymous usage stats + a private dashboard (not shipped in the extension; see its README) |
 
@@ -74,10 +72,10 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.3.0.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.3.0.zip manifest.json background.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
-  content shared ui vendor -x "*.DS_Store"
+  content shared ui -x "*.DS_Store"
 ```
 
 ## Rebuilding the graphics
