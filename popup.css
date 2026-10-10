@@ -59,7 +59,7 @@ body { background: var(--surface); overflow: hidden; }
 /* ---------- stage ---------- */
 .stage { position: relative; flex: 1; padding: 11px 16px 9px; overflow-y: auto; overflow-x: hidden; }
 .view { display: none; flex-direction: column; gap: 9px; }
-.view.is-on { display: flex; animation: fadeUp .35s var(--ease) both; }
+.view.is-on { display: flex; animation: fadeUp .35s var(--ease) backwards; }
 
 .center-note { display: grid; place-items: center; height: 220px; color: var(--muted); }
 
@@ -183,14 +183,14 @@ body { background: var(--surface); overflow: hidden; }
 .foot-link:active { transform: scale(.96); }
 .foot-heart { color: var(--danger); }
 .foot-growx { text-decoration: none; }
-.foot-growx .ic { color: var(--violet); }
+.foot-growx .gx-logo { width: 18px; height: 18px; border-radius: 5px; display: block; }
 .foot-growx span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .foot-growx:hover { background: var(--violet-soft); text-decoration: none; }
 .done-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; margin-top: 8px; }
 .done-row .btn { width: 100%; justify-content: center; padding-inline: 10px; font-size: 13px; }
 .growx-done { background: var(--grad-soft); border-color: var(--accent-soft-hover); color: var(--accent-text); text-decoration: none; }
 .growx-done:hover { text-decoration: none; background: var(--accent-soft-hover); }
-.growx-done .ic { color: var(--violet); }
+.growx-done .gx-logo { width: 20px; height: 20px; border-radius: 6px; flex: none; }
 .foot-heart:hover { color: var(--danger); background: var(--danger-soft); }
 .foot-heart .ic { fill: currentColor; fill-opacity: .14; }
 

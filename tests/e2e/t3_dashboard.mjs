@@ -42,6 +42,25 @@ try {
   const ver = await d.$$eval("#flRows .row", (r) => r.length);
   assert(ver === 23, "verified chip filters to 23");
   await d.click('#flChips button[data-x="verified"]');
+
+  // Bulk bar stays on screen with a long selection (it used to be pinned to the
+  // bottom of the whole list, so you had to scroll to the end to reach it)
+  await d.check("#flAll");
+  await d.waitForSelector("#bulk:not([hidden])");
+  await sleep(500);
+  const inView = () => d.evaluate(() => {
+    const r = document.querySelector("#bulk").getBoundingClientRect();
+    return r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth;
+  });
+  await d.evaluate(() => scrollTo(0, 0));
+  await sleep(200);
+  assert(await inView(), "bulk bar visible at the top of a long list");
+  await d.evaluate(() => scrollTo(0, document.body.scrollHeight / 2));
+  await sleep(200);
+  assert(await inView(), "bulk bar visible mid-list");
+  await d.screenshot({ path: OUT + "/d3b-select-all.png" });
+  await d.evaluate(() => scrollTo(0, 0));
+  await d.click("#bulkClear");
   await d.click('#flSeg button[data-f="non"]');
   await sleep(300);
 

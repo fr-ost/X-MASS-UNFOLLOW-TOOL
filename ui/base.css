@@ -306,7 +306,7 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; }
 }
 
 /* ---------- toast ---------- */
-.toast-host { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000; display: grid; gap: 8px; pointer-events: none; }
+.toast-host { position: fixed; left: 50%; bottom: 18px; translate: -50% 0; z-index: 1000; display: grid; gap: 8px; pointer-events: none; }
 .toast {
   pointer-events: auto;
   display: flex; align-items: center; gap: 10px;
@@ -336,7 +336,7 @@ a.dev-link { color: var(--accent-text); font-weight: 650; }
 @keyframes toastOut { to { opacity: 0; transform: translateY(8px) scale(.98); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.fade-up { animation: fadeUp .4s var(--ease) both; }
+.fade-up { animation: fadeUp .4s var(--ease) backwards; }
 
 .spinner {
   width: 16px; height: 16px; border-radius: 50%;

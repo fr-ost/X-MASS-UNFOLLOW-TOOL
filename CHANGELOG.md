@@ -16,6 +16,11 @@
   Settings at very small widths) scrolled sideways; names in the list could be
   squeezed to one letter; the active tab could be scrolled out of view. The
   narrow layout now uses a single scrolling nav row.
+- Fixed: the "N selected / Keep / Export / Unfollow selected" bar was stuck at
+  the very bottom of the list, so with a long selection you had to scroll to
+  the last account to reach it. It now floats on screen wherever you are in
+  the list, doesn't cover the last rows, and fits on phone-width windows.
+- New GrowX logo.
 - Polish: hover lift on stats, a gradient edge on selected rows, clearer keyboard
   focus rings, reduced-motion support.
 

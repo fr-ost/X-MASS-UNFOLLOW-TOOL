@@ -82,8 +82,8 @@ body {
 }
 @keyframes gxShine { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 .growx-side:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.gx-icon { width: 34px; height: 34px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--grad); color: #fff; box-shadow: var(--shadow-accent); }
-.gx-icon .ic { width: 18px; height: 18px; }
+.gx-icon { width: 34px; height: 34px; flex: none; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 14px rgba(225, 29, 72, .28); }
+.gx-logo { width: 100%; height: 100%; display: block; object-fit: cover; }
 .gx-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .gx-text b { font-size: 13.5px; }
 .gx-text small { color: var(--text-2); font-size: 11.5px; }
@@ -97,8 +97,7 @@ body {
   transition: transform .2s var(--ease), box-shadow .2s var(--ease);
 }
 .growx-hero:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--shadow); }
-.gxh-icon { width: 52px; height: 52px; flex: none; border-radius: 16px; display: grid; place-items: center; background: var(--grad); color: #fff; box-shadow: var(--shadow-accent); }
-.gxh-icon .ic { width: 26px; height: 26px; }
+.gxh-icon { width: 56px; height: 56px; flex: none; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 22px rgba(225, 29, 72, .3); }
 .gxh-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
 .gxh-copy em { font-style: normal; font-size: 11.5px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .gxh-copy b { font-size: 17px; letter-spacing: -.02em; }
@@ -115,7 +114,9 @@ body {
 /* ---------- main ---------- */
 .main { padding: 28px clamp(18px, 3.2vw, 44px) 40px; max-width: 1200px; width: 100%; display: flex; flex-direction: column; min-height: 100vh; }
 .page { display: none; flex-direction: column; gap: 16px; }
-.page.is-on { display: flex; animation: fadeUp .4s var(--ease) both; }
+/* fill "backwards" (not "both"): a transform held after the animation would
+   turn .page into the containing block of fixed children (the bulk bar) */
+.page.is-on { display: flex; animation: fadeUp .4s var(--ease) backwards; }
 
 .page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
 .page-head h1 { margin: 0; font-size: 27px; letter-spacing: -.035em; }
@@ -308,7 +309,7 @@ body {
 .sentinel { height: 1px; }
 
 .bulk {
-  position: fixed; left: calc(252px + (100vw - 252px) / 2); bottom: 22px; transform: translateX(-50%);
+  position: fixed; left: calc(252px + (100vw - 252px) / 2); bottom: 22px; translate: -50% 0;
   display: flex; align-items: center; gap: 8px;
   padding: 10px 12px 10px 18px; border-radius: 16px;
   background: var(--ink); color: var(--on-ink);
@@ -317,12 +318,24 @@ body {
   z-index: 20; animation: toastIn .35s var(--ease-spring);
   min-width: 520px;
 }
-.bulk b { font-size: 14px; }
+.bulk b { font-size: 14px; white-space: nowrap; }
+.bulk .btn { white-space: nowrap; }
+/* room under the list so the floating bar never covers the last rows */
+.page[data-page="following"] { padding-bottom: 72px; }
 .bulk .bulk-sp { flex: 1; }
 .bulk .btn-ghost { color: var(--on-ink-2); }
 .bulk .btn-ghost:hover { background: rgba(255, 255, 255, .08); color: var(--on-ink); }
 .bulk .btn:not(.btn-primary):not(.btn-ghost) { background: rgba(255, 255, 255, .1); border-color: transparent; color: var(--on-ink); }
 .bulk .btn:not(.btn-primary):not(.btn-ghost):hover { background: rgba(255, 255, 255, .18); }
+@media (max-width: 560px) {
+  /* phones: count + Clear on top, actions on a full-width second row */
+  .bulk { flex-wrap: wrap; row-gap: 8px; padding: 10px 12px; }
+  .bulk .bulk-sp { flex-basis: 100%; height: 0; }
+  .bulk .btn:not(.btn-ghost) { flex: 1 1 auto; justify-content: center; }
+  .bulk #bulkKeep span, .bulk #bulkExport span { display: none; }
+  .bulk .btn-primary { flex-grow: 3; }
+  .page[data-page="following"] { padding-bottom: 116px; }
+}
 
 /* ---------- whitelist / history ---------- */
 .field-label { font-weight: 650; font-size: 13px; }
