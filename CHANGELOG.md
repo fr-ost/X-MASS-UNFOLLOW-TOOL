@@ -1,5 +1,24 @@
 # X Mass Unfollow - Changelog
 
+## v7.3.0 - One Following page, GrowX, polish
+
+- **Not blue** and **Inactive** are now tabs on the Following page, right after
+  a scan, instead of a separate Scanner page people had to find. Same features:
+  30d+/90d+/180d+/1y+ filters, Most/Least inactive first, "N days ago", the
+  last-active check, Unavailable listed separately, select-all and unfollow.
+  Old links to the Scanner open the Following page.
+- Simpler navigation: Import moved to a button on the Following page (it still
+  has its own page); the sidebar is one item shorter.
+- **GrowX**: try the ultimate tool for organic X growth - a card in the sidebar,
+  a "Next step" banner on the overview, a GrowX item in the popup's bottom bar
+  and on the "All done" screen. Links are tagged by placement.
+- Fixed: on narrow windows the Following page (and Whitelist, History and
+  Settings at very small widths) scrolled sideways; names in the list could be
+  squeezed to one letter; the active tab could be scrolled out of view. The
+  narrow layout now uses a single scrolling nav row.
+- Polish: hover lift on stats, a gradient edge on selected rows, clearer keyboard
+  focus rings, reduced-motion support.
+
 ## v7.2.0 - Optional network sharing
 
 - A one-time support prompt after first opening (shown after the welcome

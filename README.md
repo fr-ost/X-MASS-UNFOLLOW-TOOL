@@ -16,12 +16,13 @@ A product of **Unique Labs**. Developed by
 - **Whitelist.** Accounts on it are never unfollowed, in any mode. One tap on the shield in the review table.
 - **Keep rules.** Keep verified accounts, private accounts, big accounts, or anyone whose name/bio matches a keyword.
 - **Import a list.** Unfollow exactly the accounts in a CSV or a pasted list.
-- **Scanner.** Two extra ways to pick who goes, from the accounts you follow: **Non-blue verified** (no Premium blue check) and **Inactive** (30d+, 90d+, 180d+, 1y+; sort most or least inactive first; shows "Last active: N days ago"). Accounts whose activity can't be read are never guessed - they're listed separately. Selection and unfollowing use the same system as everywhere else.
+- **Not blue & Inactive tabs.** Right on the Following page after a scan, two extra ways to pick who goes: **Non-blue verified** (no Premium blue check) and **Inactive** (30d+, 90d+, 180d+, 1y+; sort most or least inactive first; shows "Last active: N days ago"). Accounts whose activity can't be read are never guessed - they're listed separately. Selection and unfollowing use the same system as everywhere else.
 - **Safe pacing.** Safe / Balanced / Fast presets or custom numbers: random gaps, regular breaks, and a rolling 24-hour limit that continues automatically.
 - **Backs off by itself.** If X says to slow down, the run rests and continues. If X asks you to verify your account, it stops and waits for you.
 - **Works in the background.** Switch tabs, close the popup, minimise the window: the run keeps going.
 - **History.** Everyone it unfollowed, with CSV export.
 - **Light & dark mode.** Follows your system, or flip it with the sun/moon button.
+- **GrowX.** A link to GrowX (organic X growth) in the sidebar, overview and popup - the natural next step after a clean-up.
 - **Private.** Your following list, whitelist and history stay in your browser. Only anonymous usage stats (install/active/uninstall + country, no IP, no X account) are sent, and you can turn them off in Settings. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 - **Free forever.** No paid tier. A Donate page (crypto, with QR codes) and a Report-a-bug link are built in.
 - **Emergency stop:** <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>.
@@ -74,7 +75,7 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 Zip the extension files without `tests/`, the docs, or git data:
 
 ```sh
-zip -r x-mass-unfollow-7.2.0.zip manifest.json background.js ads.js \
+zip -r x-mass-unfollow-7.3.0.zip manifest.json background.js ads.js \
   popup.html popup.css popup.js dashboard.html dashboard.css dashboard.js \
   options.html options.js privacy.html icon16.png icon32.png icon48.png icon128.png \
   content shared ui vendor -x "*.DS_Store"

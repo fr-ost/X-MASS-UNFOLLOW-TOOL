@@ -277,6 +277,7 @@
   function wire() {
     U.icons();
     U.themeButtons();
+    U.growxLinks();
     $("#scanBtn").addEventListener("click", startScan);
     $("#rescanBtn").addEventListener("click", startScan);
     $("#scanStopBtn").addEventListener("click", () => U.cmd("scanStop").then(refresh));

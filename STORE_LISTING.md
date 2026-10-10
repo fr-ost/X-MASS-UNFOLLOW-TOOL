@@ -93,15 +93,21 @@ WHITELIST & KEEP RULES
 Protect the people you never want to unfollow. Add anyone to your whitelist, and set Keep rules to automatically keep verified accounts, private accounts, big accounts, or anyone whose name, handle, or bio matches your keywords. Whitelisted accounts are never unfollowed, in any mode.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCANNER: NON-BLUE & INACTIVE ACCOUNTS
+NOT BLUE & INACTIVE ACCOUNTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Two extra ways to decide who goes, from the accounts you follow:
+Two extra tabs on the Following page, right after your scan:
 
 • Non-blue verified: accounts without X Premium's blue check
 • Inactive: accounts that haven't posted in 30+, 90+, 180+ days or a year or more. Sort most or least inactive first and see "Last active: 247 days ago" for each account.
 
 "Last active" is the date of an account's most recent post, reply or repost, because X doesn't show when someone last logged in. If a date can't be read reliably, the account is marked Unavailable and listed separately - never guessed. Select individually or all, then unfollow with the same pacing and safety controls as everywhere else.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CLEANED UP? NOW GROW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Once your following list is clean, try GrowX - the ultimate tool for organic X growth - straight from the extension.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 IMPORT A LIST

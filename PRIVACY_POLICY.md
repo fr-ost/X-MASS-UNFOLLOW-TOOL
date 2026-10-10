@@ -25,7 +25,7 @@ never transmitted to the developer:
 - **Your settings** - speed, daily limit, Keep rules.
 - **Your whitelist** - handles you never want unfollowed.
 - **Your last scan** - the accounts you follow and whether they follow you back.
-- **Scanner results** - when each account you follow last posted (read from X in your own session), so it isn't read twice.
+- **Last-active results** - when each account you follow last posted (read from X in your own session), so it isn't read twice.
 - **Your unfollow history** - accounts the extension unfollowed, and when.
 - **A daily counter** - timestamps of recent unfollows, to enforce your daily limit.
 

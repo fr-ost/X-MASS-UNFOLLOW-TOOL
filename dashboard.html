@@ -24,10 +24,8 @@
       <nav class="nav" id="nav">
         <a href="#overview" data-route="overview" data-icon="home"><span>Overview</span></a>
         <a href="#following" data-route="following" data-icon="users"><span>Following</span><em id="navNon" hidden></em></a>
-        <a href="#scanner" data-route="scanner" data-icon="scan"><span>Scanner</span></a>
         <a href="#whitelist" data-route="whitelist" data-icon="shield"><span>Whitelist</span><em id="navWl" hidden></em></a>
         <a href="#history" data-route="history" data-icon="history"><span>History</span></a>
-        <a href="#import" data-route="import" data-icon="upload"><span>Import list</span></a>
         <a href="#settings" data-route="settings" data-icon="sliders"><span>Settings</span></a>
         <a href="#help" data-route="help" data-icon="help"><span>Help</span></a>
         <a href="#donate" data-route="donate" data-icon="heart" class="nav-heart"><span>Donate</span><em class="nav-free">Free</em></a>
@@ -38,6 +36,12 @@
         <div class="bar is-live" id="sideRunBar"><i></i></div>
         <small id="sideRunMsg"></small>
       </div>
+
+      <a class="growx-side" data-growx="dashboard-sidebar">
+        <span class="gx-icon" data-icon="rocket"></span>
+        <span class="gx-text"><b>Try GrowX</b><small>The ultimate tool for organic X growth</small></span>
+        <span class="gx-go" data-icon="external"></span>
+      </a>
 
       <div class="side-ad" id="adZone" data-ad-zone hidden>
         <div id="adSlot" data-ad-placement="card"></div>
@@ -125,6 +129,16 @@
             <div class="empty-mini" id="feedEmpty">Nothing yet. Your unfollows will show up here.</div>
           </div>
         </div>
+
+        <a class="growx-hero card" data-growx="dashboard-overview">
+          <span class="gxh-icon" data-icon="rocket"></span>
+          <span class="gxh-copy">
+            <em>Next step</em>
+            <b>Cleaned up your following? Now grow it.</b>
+            <small>GrowX is the ultimate tool for organic X growth - reach the right people and grow your audience naturally.</small>
+          </span>
+          <span class="btn btn-primary gxh-btn" data-icon="external"><span>Try GrowX</span></span>
+        </a>
       </section>
 
       <!-- FOLLOWING -->
@@ -136,14 +150,15 @@
           </div>
           <div class="head-actions">
             <button class="btn" id="flScan" data-icon="refresh"><span>Rescan</span></button>
-            <button class="btn" id="flExport" data-icon="download"><span>Export CSV</span></button>
+            <a class="btn" href="#import" id="flImport" data-icon="upload"><span>Import</span></a>
+            <button class="btn" id="flExport" data-icon="download"><span>Export</span></button>
           </div>
         </header>
 
         <div class="empty-state card" id="flEmpty" hidden>
           <div class="es-icon" data-icon="scan"></div>
           <h2>No scan yet</h2>
-          <p>Scan your following list to see who follows you back. It takes about a minute and changes nothing.</p>
+          <p>Scan your following list to see who follows you back, who isn't Premium-verified and who has gone quiet. It takes about a minute and changes nothing.</p>
           <button class="btn btn-primary btn-lg" id="flEmptyScan" data-icon="scan"><span>Scan my following</span></button>
         </div>
 
@@ -153,14 +168,46 @@
               <span data-icon="search"></span>
               <input class="input" id="flSearch" type="search" placeholder="Search name, @handle or bio" autocomplete="off">
             </div>
-            <div class="seg" id="flSeg">
+            <div class="seg seg-scroll" id="flSeg" role="tablist">
               <button data-f="non" class="is-on">Don't follow back <em id="cNon">0</em></button>
               <button data-f="mutual">Mutuals <em id="cMutual">0</em></button>
+              <button data-f="blue" class="seg-new">Not blue <em id="cBlue">0</em></button>
+              <button data-f="idle" class="seg-new">Inactive <em id="cIdle">0</em></button>
               <button data-f="all">All <em id="cAll">0</em></button>
               <button data-f="kept">Kept <em id="cKept">0</em></button>
               <button data-f="done">Unfollowed <em id="cDone">0</em></button>
             </div>
+            <p class="seg-note" id="flNote" hidden></p>
+            <div class="notice-inline" id="flUnknown" hidden></div>
+
+            <div class="act-box" id="flAct" hidden>
+              <div class="act-top">
+                <div class="act-copy">
+                  <b id="actTitle">Last-active check</b>
+                  <span id="actText"></span>
+                </div>
+                <div class="act-ctl">
+                  <select class="select" id="actScope" aria-label="Which accounts to check">
+                    <option value="non">Accounts that don't follow me back</option>
+                    <option value="all">Everyone I follow</option>
+                  </select>
+                  <button class="btn btn-primary" id="actGo" data-icon="scan"><span>Check activity</span></button>
+                  <button class="btn" id="actRetry" data-icon="refresh" hidden><span>Retry unavailable</span></button>
+                  <button class="btn btn-danger-soft" id="actStop" data-icon="stop" hidden><span>Stop</span></button>
+                </div>
+              </div>
+              <div class="bar is-scan is-live" id="actBar" hidden><i></i></div>
+              <small class="act-note">"Last active" is the date of an account's newest post, reply or repost - X doesn't show logins or likes. Accounts whose date can't be read are never guessed; they're listed under Unavailable.</small>
+            </div>
+
             <div class="toolbar-row">
+              <div class="seg seg-scroll" id="flAge" hidden>
+                <button data-a="30" class="is-on">30d+ <em id="cA30">0</em></button>
+                <button data-a="90">90d+ <em id="cA90">0</em></button>
+                <button data-a="180">180d+ <em id="cA180">0</em></button>
+                <button data-a="365">1y+ <em id="cA365">0</em></button>
+                <button data-a="na" title="Accounts whose last post couldn't be read, and accounts that never posted">Unavailable <em id="cANa">0</em></button>
+              </div>
               <div class="chips" id="flChips">
                 <button data-x="noavatar">No photo</button>
                 <button data-x="fewposts">Under 10 posts</button>
@@ -178,16 +225,20 @@
                 <option value="posts">Fewest posts</option>
                 <option value="joined">Newest accounts</option>
               </select>
+              <select class="select" id="flIdleSort" aria-label="Sort by inactivity" hidden>
+                <option value="desc">Most inactive first</option>
+                <option value="asc">Least inactive first</option>
+              </select>
             </div>
           </div>
 
-          <div class="table card">
+          <div class="table card" id="flTable">
             <div class="thead">
-              <label class="cb"><input type="checkbox" id="flAll"><span></span></label>
+              <label class="cb"><input type="checkbox" id="flAll" aria-label="Select all"><span></span></label>
               <span>Account</span>
-              <span class="col-num">Followers</span>
+              <span class="col-num col-fc">Followers</span>
               <span class="col-num col-posts">Posts</span>
-              <span class="col-num col-joined">Joined</span>
+              <span class="col-num col-joined" id="flColLast">Joined</span>
               <span class="col-keep">Keep</span>
             </div>
             <div class="tbody" id="flRows"></div>
@@ -206,101 +257,6 @@
         </div>
       </section>
 
-      <section class="page" data-page="scanner">
-        <header class="page-head">
-          <div>
-            <h1>Scanner</h1>
-            <p id="scSub">Find accounts you follow that aren't Premium-verified, or that have gone quiet.</p>
-          </div>
-          <div class="head-actions">
-            <button class="btn" id="scScan" data-icon="refresh"><span>Rescan</span></button>
-            <button class="btn" id="scExport" data-icon="download"><span>Export CSV</span></button>
-          </div>
-        </header>
-
-        <div class="empty-state card" id="scEmpty" hidden>
-          <div class="es-icon" data-icon="scan"></div>
-          <h2>No scan yet</h2>
-          <p>Scan your following list first. The Scanner then shows who isn't Premium-verified and who has gone quiet. It takes about a minute and changes nothing.</p>
-          <button class="btn btn-primary btn-lg" id="scEmptyScan" data-icon="scan"><span>Scan my following</span></button>
-        </div>
-
-        <div id="scBody">
-          <div class="card panel sc-intro">
-            <div class="seg" id="scMode">
-              <button data-m="blue" class="is-on">Non-blue verified <em id="cBlue">0</em></button>
-              <button data-m="idle">Inactive <em id="cIdle">0</em></button>
-            </div>
-            <p class="muted" id="scModeText"></p>
-            <div class="notice-inline" id="scUnknown" hidden></div>
-          </div>
-
-          <div class="card panel sc-act" id="scAct" hidden>
-            <div class="sc-act-top">
-              <div>
-                <h2 id="scActTitle">Last-active check</h2>
-                <p class="muted" id="scActText"></p>
-              </div>
-              <div class="sc-act-ctl">
-                <select class="select" id="scScope" aria-label="Which accounts to check">
-                  <option value="non">Only accounts that don't follow me back</option>
-                  <option value="all">Everyone I follow</option>
-                </select>
-                <button class="btn btn-primary" id="scActGo" data-icon="scan"><span>Check activity</span></button>
-                <button class="btn" id="scActRetry" data-icon="refresh" hidden><span>Retry unavailable</span></button>
-                <button class="btn btn-danger-soft" id="scActStop" data-icon="stop" hidden><span>Stop</span></button>
-              </div>
-            </div>
-            <div class="bar is-scan is-live" id="scActBar" hidden><i></i></div>
-            <p class="hint" id="scActNote">"Last active" is the date of an account's most recent post, reply or repost. X doesn't show when someone last logged in or liked something. Accounts whose last post can't be read are never guessed - they're listed separately under Unavailable.</p>
-          </div>
-
-          <div class="toolbar card">
-            <div class="search">
-              <span data-icon="search"></span>
-              <input class="input" id="scSearch" type="search" placeholder="Search name, @handle or bio" autocomplete="off">
-            </div>
-            <div class="toolbar-row sc-row" id="scRow" hidden>
-              <div class="seg" id="scAge">
-                <button data-a="30" class="is-on">30d+ <em id="cA30">0</em></button>
-                <button data-a="90">90d+ <em id="cA90">0</em></button>
-                <button data-a="180">180d+ <em id="cA180">0</em></button>
-                <button data-a="365">1y+ <em id="cA365">0</em></button>
-                <button data-a="na" title="Accounts whose last post couldn't be read, and accounts that never posted">Unavailable <em id="cANa">0</em></button>
-              </div>
-              <select class="select" id="scSort" aria-label="Sort by inactivity">
-                <option value="desc">Most inactive first</option>
-                <option value="asc">Least inactive first</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="table card is-scan">
-            <div class="thead">
-              <label class="cb"><input type="checkbox" id="scAll"><span></span></label>
-              <span>Account</span>
-              <span class="col-num col-fc">Followers</span>
-              <span class="col-num col-posts">Posts</span>
-              <span class="col-num col-last" id="scColLast">Joined</span>
-              <span class="col-keep">Keep</span>
-            </div>
-            <div class="tbody" id="scRows"></div>
-            <div class="sentinel" id="scMore"></div>
-            <div class="empty-mini" id="scNone" hidden>No accounts match.</div>
-          </div>
-        </div>
-
-        <div class="bulk" id="scBulk" hidden>
-          <b id="scBulkCount">0 selected</b>
-          <button class="btn btn-ghost btn-sm" id="scBulkClear"><span>Clear</span></button>
-          <span class="bulk-sp"></span>
-          <button class="btn btn-sm" id="scBulkKeep" data-icon="shield"><span>Keep</span></button>
-          <button class="btn btn-sm" id="scBulkExport" data-icon="download"><span>Export</span></button>
-          <button class="btn btn-primary btn-sm" id="scBulkRun" data-icon="userX"><span>Unfollow selected</span></button>
-        </div>
-      </section>
-
-      <!-- WHITELIST -->
       <section class="page" data-page="whitelist">
         <header class="page-head">
           <div>

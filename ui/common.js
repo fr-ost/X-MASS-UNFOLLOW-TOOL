@@ -96,8 +96,18 @@
     bug: "https://t.me/igfrostt",
     support: "https://t.me/igfrostt",
     site: "https://www.shahriarahmed.net",
-    store: "https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl"
+    store: "https://chromewebstore.google.com/detail/x-twitter-mass-unfollow-t/igpjmagghnibmjkkdcgpjgpkfkpiglnl",
+    growx: "https://chromewebstore.google.com/detail/ofiancichfcakbdgekhcahflpoglfgbh"
   };
+
+  // GrowX (organic X growth) - every [data-growx="placement"] link opens its
+  // store page, tagged so installs can be traced back to this extension.
+  U.growxUrl = (placement) => U.links.growx + "?utm_source=x-mass-unfollow&utm_medium=extension&utm_campaign=" + encodeURIComponent(placement || "general");
+  U.growxLinks = (root) => U.$$("[data-growx]", root).forEach((a) => {
+    a.href = U.growxUrl(a.dataset.growx);
+    a.target = "_blank";
+    a.rel = "noopener";
+  });
 
   // Theme toggle buttons: any [data-theme-toggle] flips light/dark.
   U.themeButtons = (root) => U.$$("[data-theme-toggle]", root).forEach((b) => {

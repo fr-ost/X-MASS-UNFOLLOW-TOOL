@@ -73,6 +73,12 @@ try {
   await sleep(800);
   await d.screenshot({ path: OUT + "/d7-overview-done.png" });
 
+  // GrowX links point at its store page, tagged by placement
+  const gx = await d.$$eval("[data-growx]", (as) => as.map((a) => [a.dataset.growx, a.href, a.target]));
+  assert(gx.length >= 2, "GrowX appears in the sidebar and on the overview");
+  assert(gx.every(([p, h, t]) => h.startsWith("https://chromewebstore.google.com/detail/ofiancichfcakbdgekhcahflpoglfgbh?") && h.includes("utm_campaign=" + p) && t === "_blank"), "every GrowX link opens its store page in a new tab, tagged with its placement");
+  assert(!(await d.$('a[data-route="scanner"]')), "the separate Scanner page is gone from the sidebar");
+
   // Card ad in the sidebar
   const card = await d.evaluate(() => !document.querySelector("#adZone").hidden && !!document.querySelector("#adSlot [data-adsonbread]"));
   assert(card, "card ad rendered in the sidebar");
@@ -106,8 +112,11 @@ try {
   assert(!(await d.$eval("#speedWarn", (e) => e.hidden)), "warning shown for no daily limit");
   await d.screenshot({ path: OUT + "/d10-settings.png", fullPage: true });
 
-  // Import
-  await d.click('a[data-route="import"]');
+  // Import (now under Following)
+  await d.click('a[data-route="following"]');
+  await d.click("#flImport");
+  await d.waitForSelector('.page[data-page="import"].is-on');
+  assert(await d.$eval('a[data-route="following"]', (a) => a.classList.contains("is-on")), "Import highlights Following in the sidebar");
   await d.fill("#impText", "handle\n@acct_27\nhttps://x.com/acct_36\nfriend1\nnot a handle!!\n");
   await sleep(500);
   const info = await d.textContent("#impInfo");
