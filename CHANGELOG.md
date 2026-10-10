@@ -21,6 +21,9 @@
   the last account to reach it. It now floats on screen wherever you are in
   the list, doesn't cover the last rows, and fits on phone-width windows.
 - New GrowX logo.
+- Removed optional network sharing (Mellowtel): the SDK, its content script,
+  the support prompt, the Settings -> Support switch and the optional
+  website-access permission. Anyone who had it on is cleaned up on update.
 - Polish: hover lift on stats, a gradient edge on selected rows, clearer keyboard
   focus rings, reduced-motion support.
 

@@ -59,7 +59,6 @@ popup / dashboard  ──commands──▶  background.js (the engine)
 | `content/content.js` | Message router in x.com tabs |
 | `popup.*` | Toolbar popup |
 | `dashboard.*` | Full dashboard (also the Settings page) |
-| `shared/network.js`, `vendor/mellowtel.js` | Optional network sharing (Mellowtel): off until the user opts in from the support prompt or Settings -> Support |
 | `shared/telemetry.js` | Anonymous usage signal (install/active/uninstall + country); off switch in Settings |
 | `ui/` | Shared design system (light/dark tokens), theme loader, helpers, logo |
 | `ui/donate/` | Token logos and donation QR codes |

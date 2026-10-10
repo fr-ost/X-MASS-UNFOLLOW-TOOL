@@ -54,23 +54,6 @@ You can turn it off at any time in **Dashboard -> Settings -> Privacy ->
 Anonymous usage stats**. When it is off, nothing is sent and the uninstall
 signal is removed.
 
-## Optional network sharing (Mellowtel)
-
-The extension offers an optional way to support it for free: network sharing,
-powered by [Mellowtel](https://www.mellowtel.com). It is **off unless you turn
-it on**, from the one-time support prompt or **Settings -> Support**.
-
-If you turn it on, Chrome asks you to allow the extension to access websites.
-Mellowtel then uses a small part of your unused internet bandwidth, while your
-computer is idle and on a good connection, to load publicly available web pages
-for its partners. Those requests come from your internet connection. The
-developer receives a share of the revenue. Network sharing does not read your
-X account, following list, passwords or browsing history, and does not show
-ads. See [Mellowtel's privacy policy](https://www.mellowtel.com/privacy-policy).
-
-You can turn it off at any time in **Settings -> Support**; the extension then
-stops sharing and gives the website-access permission back.
-
 ## Advertising
 
 This extension uses AdsOnBread to display contextual ads. The SDK stores a

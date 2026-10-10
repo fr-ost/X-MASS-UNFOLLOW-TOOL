@@ -62,14 +62,8 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "optional_permissions": [
-    "declarativeNetRequestWithHostAccess"
-  ],
-  "optional_host_permissions": [
-    "<all_urls>"
-  ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev https://api.mellow.tel https://www.mellow.tel wss://ws.mellow.tel https://*.lambda-url.us-east-1.on.aws https://mellowtel-bucket.s3.us-east-1.amazonaws.com https://m-bucket-light.s3.amazonaws.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://edge.adsonbread.com https://abs.twimg.com https://x.com https://twitter.com https://*.workers.dev"
   },
   "homepage_url": "https://www.shahriarahmed.net"
 }

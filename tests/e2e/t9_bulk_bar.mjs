@@ -31,7 +31,14 @@ try {
   }
   // last row reachable above the bar
   await d.setViewportSize({ width: 1440, height: 900 });
-  for (let i = 0; i < 12; i++) { await d.evaluate(() => scrollTo(0, document.body.scrollHeight)); await sleep(250); }
+  // scroll to the end until infinite loading stops adding rows
+  let prev = -1;
+  for (let i = 0; i < 40; i++) {
+    const n = await d.evaluate(() => { scrollTo({ top: document.body.scrollHeight, behavior: "instant" }); return document.querySelectorAll("#flRows .row").length; });
+    await sleep(400);
+    if (n === prev && (await d.evaluate(() => innerHeight + scrollY >= document.body.scrollHeight - 2))) break;
+    prev = n;
+  }
   const cover = await d.evaluate(() => {
     const rows = document.querySelectorAll("#flRows .row"), last = rows[rows.length - 1].getBoundingClientRect();
     return last.bottom <= document.querySelector("#bulk").getBoundingClientRect().top + 1;

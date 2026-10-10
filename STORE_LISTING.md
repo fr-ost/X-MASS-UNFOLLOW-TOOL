@@ -238,19 +238,6 @@ Helps users unfollow accounts on X (Twitter) in bulk - for example everyone who 
 
 **Remote code:** No. All code is in the package.
 
-**Optional permissions (only requested when a user turns on network sharing)**
-
-| Permission | Justification |
-| --- | --- |
-| Optional host: `<all_urls>` | Requested only when the user opts in to network sharing (Mellowtel), an optional way to support this free extension. It lets Mellowtel load publicly available web pages using a small part of the user's unused bandwidth. Never requested otherwise; removed when the user opts out. |
-| Optional: declarativeNetRequestWithHostAccess | Used by the same opt-in feature to set request headers on the pages it loads. Requested and removed together with the permission above. |
-
-Disclosure text for network sharing (paste into the description or privacy fields as needed):
-
-```
-Optional network sharing: users can support this free extension by opting in to Mellowtel, which uses a small part of their unused internet bandwidth to load publicly available web pages for its partners while the computer is idle. It is off by default, requires the user's explicit opt-in and Chrome's permission prompt, never accesses the user's X account, following list, passwords or browsing history, and can be turned off at any time in Settings.
-```
-
 **Data usage**
 
 - Your following list, whitelist and history stay in local storage and are never sent anywhere.
